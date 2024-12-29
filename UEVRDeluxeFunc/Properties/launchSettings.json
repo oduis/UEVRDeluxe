@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "UEVRDeluxeFunc": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7299",
+      "launchBrowser": false
+    }
+  }
+}

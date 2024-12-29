@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "ClientAndCloud",
+    "Projects": [
+      {
+        "Path": "UEVRDeluxe\\UEVRDeluxe.csproj",
+        "Action": "Start",
+        "DebugTarget": "UEVRDeluxe (Package)"
+      },
+      {
+        "Path": "UEVRDeluxeFunc\\UEVRDeluxeFunc.csproj",
+        "Action": "Start",
+        "DebugTarget": "UEVRDeluxeFunc"
+      }
+    ]
+  }
+]

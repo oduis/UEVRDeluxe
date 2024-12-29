@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="UEVRDeluxe.Pages.DownloadProfilePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UEVRDeluxe.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+	xmlns:viewmodels="using:UEVRDeluxe.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:DownloadProfilePageVM}">
+
+	<Grid Margin="16,8,16,16">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<StackPanel Grid.ColumnSpan="2" Orientation="Horizontal">
+			<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
+				<FontIcon Style="{StaticResource styBackLink}" />
+			</HyperlinkButton>
+			<TextBlock Style="{StaticResource styPageHeader}">Download profile</TextBlock>
+		</StackPanel>
+		
+		<ListView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12" ItemsSource="{x:Bind VM.ProfileMetas, Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedProfileMeta, Mode=TwoWay}"
+                             ItemTemplate="{StaticResource styProfileMetaDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single" />
+
+		<StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16">
+			<Button Click="Download_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Style="{StaticResource styButton}" MinWidth="120">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Install</TextBlock>
+				</Grid>
+			</Button>
+			<Button Click="ShowDescription_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Style="{StaticResource styButton}" MinWidth="120">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE8a5;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Show Description</TextBlock>
+				</Grid>
+			</Button>
+			<Button Click="Back_Click" Style="{StaticResource styButton}" MinWidth="120">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Cancel</TextBlock>
+				</Grid>
+			</Button>
+		</StackPanel>
+
+		<TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource styHelpText}" Margin="16,0,0,2">( Your current local profile will be overwritten with the new installation )</TextBlock>
+
+		<ContentControl Grid.RowSpan="3" Grid.ColumnSpan="2" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+	</Grid>
+</Page>

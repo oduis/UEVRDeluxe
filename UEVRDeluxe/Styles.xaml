@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UEVRDeluxe" xmlns:common="using:UEVRDeluxe.Common">
+
+	<Style x:Key="styProgress" TargetType="ContentControl">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ContentControl">
+					<Border>
+						<Border.Background>
+							<SolidColorBrush Color="White" Opacity="0.5" />
+						</Border.Background>
+						
+						<ProgressRing IsActive="True" Height="96" Width="96" HorizontalAlignment="Center" VerticalAlignment="Center" />
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="styPageHeader" TargetType="TextBlock">
+		<Setter Property="FontSize" Value="36" />
+		<Setter Property="Margin" Value="0,2,0,8" />
+		<Setter Property="TextWrapping" Value="WrapWholeWords" />
+	</Style>
+
+	<Style x:Key="stySubHeader" TargetType="TextBlock">
+		<Setter Property="FontSize" Value="22" />
+		<Setter Property="Margin" Value="0,4" />
+		<Setter Property="TextWrapping" Value="WrapWholeWords" />
+	</Style>
+
+	<Style x:Key="styButton" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+		<Setter Property="Foreground" Value="White"/>
+		<Setter Property="Background">
+			<Setter.Value>
+				<SolidColorBrush Color="#0F6DBC" />
+			</Setter.Value>
+		</Setter>
+		<Setter Property="CornerRadius" Value="6" />
+		<Setter Property="MinHeight" Value="34" />
+	</Style>
+	
+	<Style x:Key="styButtonIcon" TargetType="FontIcon">
+		<Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+		<Setter Property="FontSize" Value="16" />
+		<Setter Property="Margin" Value="0,1,0,0" />
+		<Setter Property="VerticalAlignment" Value="Center" />
+		<Setter Property="HorizontalAlignment" Value="Left" />
+	</Style>
+	<Style x:Key="styButtonIconText" TargetType="TextBlock">
+		<Setter Property="HorizontalTextAlignment" Value="Center" />
+		<Setter Property="Margin" Value="24,0,0,1" />
+	</Style>
+
+	<Style x:Key="styBackLink" TargetType="FontIcon">
+		<Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+		<Setter Property="FontSize" Value="32" />
+		<Setter Property="Margin" Value="0,0,20,0" />
+		<Setter Property="Glyph" Value="&#xE72B;" />
+		<Setter Property="ToolTipService.ToolTip" Value="Go back" />
+	</Style>
+
+	<Style x:Key="styWarning" TargetType="Border">
+		<Setter Property="Padding" Value="24,14,16,24" />
+		<Setter Property="Background" Value="#FFF9F4" />
+		<Setter Property="BorderBrush" Value="#FFC107" />
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="CornerRadius" Value="4" />
+	</Style>
+	
+	<Style x:Key="styHelpText" TargetType="TextBlock">
+		<Setter Property="Foreground" Value="#606060" />
+		<Setter Property="FontSize" Value="12" />
+		<Setter Property="VerticalAlignment" Value="Center" />
+		<Setter Property="TextWrapping" Value="WrapWholeWords" />
+	</Style>
+	
+	<DataTemplate x:Key="styProfileMetaDataTemplate">
+		<Border CornerRadius="4" Background="White" BorderBrush="LightGray" BorderThickness="1" Margin="0,4">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition />
+					<RowDefinition />
+				</Grid.RowDefinitions>
+				<Border Grid.ColumnSpan="2" Background="LightGray">
+					<TextBlock Text="{Binding GameName}" FontSize="18" Margin="8,4,8,8" />
+				</Border>
+
+				<Grid Grid.Row="1" Margin="8,6,8,6">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="32"/>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+					<TextBlock Text="Created:" Margin="0,0,12,0" />
+					<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+						<TextBlock Text="{Binding ModifiedDateDisplay}" />
+						<TextBlock Text="by" />
+						<TextBlock Grid.Column="1" Text="{Binding AuthorName}" />
+					</StackPanel>
+
+					<TextBlock Grid.Column="3" Text="Versions:" Margin="0,0,8,0" />
+					<StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4">
+						<TextBlock Text="minimal UEVR" />
+						<TextBlock Text="{Binding MinUEVRVersionDateDisplay}" />
+						<TextBlock Text="/ Game" />
+						<TextBlock Text="{Binding GameVersion}" />
+					</StackPanel>
+
+					<TextBlock Grid.Row="1" Text="Remarks:"/>
+					<TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding Remarks}" TextWrapping="WrapWholeWords" />
+				</Grid>
+			</Grid>
+		</Border>
+	</DataTemplate>
+</ResourceDictionary>

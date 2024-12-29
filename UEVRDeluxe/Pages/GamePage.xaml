@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="UEVRDeluxe.Pages.GamePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UEVRDeluxe.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    xmlns:viewmodels="using:UEVRDeluxe.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:GamePageVM}">
+
+	<Grid Margin="20,8,20,20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<Image Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="72" Margin="4" Source="{x:Bind VM.GameInstallation.IconURL, Mode=OneWay}" />
+
+		<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+			<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
+				<FontIcon Style="{StaticResource styBackLink}" />
+			</HyperlinkButton>
+			<TextBlock Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="{x:Bind VM.GameInstallation.Name, Mode=OneWay}" />
+		</StackPanel>
+
+		<Border Grid.Row="1" Grid.RowSpan="2" Margin="48" Visibility="{x:Bind VM.WarningVisible, Mode=OneWay}" 
+				VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource styWarning}">
+			<TextBlock FontSize="18" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" />
+		</Border>
+
+		<Grid Grid.Row="1" Visibility="{x:Bind VM.ProfileMetaVisible, Mode=OneWay}">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="32"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+
+			<TextBlock Style="{StaticResource stySubHeader}" Grid.ColumnSpan="5">Local Profile</TextBlock>
+
+			<TextBlock Grid.Row="1" Text="Created:" Margin="0,0,12,0" />
+			<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="6">
+				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.ModifiedDateDisplay, Mode=OneWay}" />
+				<TextBlock Text="by" />
+				<TextBlock Grid.Column="1" Text="{x:Bind VM.LocalProfile.Meta.AuthorName, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+			</StackPanel>
+
+			<TextBlock Grid.Row="1" Grid.Column="3" Text="Versions:" Margin="0,0,8,0" />
+			<StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal" Spacing="4">
+				<TextBlock Text="minimal UEVR" />
+				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.MinUEVRVersionDateDisplay, Mode=OneWay}" />
+				<TextBlock Text="/ Game" />
+				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.GameVersion, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+			</StackPanel>
+
+			<TextBlock Grid.Row="2" Text="Remarks:"/>
+			<TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Text="{x:Bind VM.LocalProfile.Meta.Remarks, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+		</Grid>
+
+		<controls:WebView2 Grid.Row="2" x:Name="webViewDescription" Visibility="{x:Bind VM.ProfileDescriptionVisible, Mode=OneWay}" Margin="0,12" />
+
+		<TextBlock Grid.Row="3" Style="{StaticResource stySubHeader}"
+				   Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">How is your VR headset connected to the PC?</TextBlock>
+
+		<Grid Grid.Row="4" Margin="0,0,0,12" Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<RadioButton Content="Virtual Desktop / Meta Quest Link (OpenXR)" Tag="XR" IsChecked="{x:Bind VM.LinkProtocol_XR, Mode=TwoWay}" Margin="0,0,24,0" />
+			<RadioButton Grid.Column="1" Content="SteamVR (OpenVR)" Tag="VR" IsChecked="{x:Bind VM.LinkProtocol_VR, Mode=TwoWay}" />
+			<TextBlock Grid.Column="2" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
+				( Connected VR headset to PC before starting the game )
+			</TextBlock>
+		</Grid>
+
+		<Grid Grid.Row="5"
+				   Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+
+			<Button Click="Search_Click"  IsEnabled="{x:Bind VM.SearchEnabled, Mode=OneWay}" Style="{StaticResource styButton}" MinWidth="160">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE721;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Search profile</TextBlock>
+				</Grid>
+			</Button>
+
+			<Button Grid.Column="1" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Edit_Click" Style="{StaticResource styButton}" Margin="12,0" MinWidth="160">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE70f;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Edit profile</TextBlock>
+				</Grid>
+			</Button>
+
+			<Button Grid.Column="1" Visibility="{x:Bind VM.VisibleIfNoProfile, Mode=OneWay}" Click="Edit_Click" Style="{StaticResource styButton}" Margin="12,0" MinWidth="160">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE710;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Create profile</TextBlock>
+				</Grid>
+			</Button>
+
+			<Button Grid.Column="2" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Launch_Click" Style="{StaticResource styButton}" HorizontalAlignment="Stretch">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE768;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Start game</TextBlock>
+				</Grid>
+			</Button>
+		</Grid>
+
+		<Border Grid.Row="3" Grid.RowSpan="3" Visibility="{x:Bind VM.VisibleIfRunning, Mode=OneWay}"
+				Background="#ffF0a0" Padding="16" Margin="0,16,0,0">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
+
+				<TextBlock Text="{x:Bind VM.StatusMessage, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center"
+						   FontSize="18" Margin="0,0,24,2" TextWrapping="Wrap" />
+				<Button Grid.Column="1" Click="Stop_Click" Style="{StaticResource styButton}" MinWidth="160" VerticalAlignment="Center">
+					<Grid>
+						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE71a;" />
+						<TextBlock Style="{StaticResource styButtonIconText}">Stop game</TextBlock>
+					</Grid>
+				</Button>
+			</Grid>
+		</Border>
+
+		<ContentControl Grid.RowSpan="6" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+	</Grid>
+</Page>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="UEVRDeluxe.Pages.EditProfilePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UEVRDeluxe.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:viewmodels="using:UEVRDeluxe.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:EditProfilePageVM}">
+
+	<Grid Margin="20,8,20,20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<Image Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="72" Margin="4" Source="{x:Bind VM.GameInstallation.IconURL, Mode=OneWay}" />
+
+		<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+			<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
+				<FontIcon Style="{StaticResource styBackLink}" />
+			</HyperlinkButton>
+			<TextBlock Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit UEVR profile" />
+		</StackPanel>
+
+		<Grid Grid.Row="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+
+			<StackPanel x:Name="spRenderingMethod">
+				<TextBlock Style="{StaticResource stySubHeader}">Rendering method</TextBlock>
+
+				<RadioButton Tag="0">
+					<StackPanel>
+						<TextBlock>Native Stereo</TextBlock>
+						<TextBlock Style="{StaticResource styHelpText}">Best performance, anti aliasing works (Recommended if no issues)</TextBlock>
+					</StackPanel>
+				</RadioButton>
+				<RadioButton Tag="1" Margin="0,4">
+					<StackPanel>
+						<TextBlock>Synced Sequential</TextBlock>
+						<TextBlock Style="{StaticResource styHelpText}">More CPU intensive, some anti aliasing will cause ghosting effects. But better compatiblity if game has issues with Native Stereo.</TextBlock>
+						<StackPanel x:Name="spSyncedSequentialMethod" Margin="0,4,0,0" Spacing="2">
+							<RadioButton Tag="0">
+								<StackPanel>
+									<TextBlock>Skip Tick</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Best performance, particle effects work (Recommended if no issues)</TextBlock>
+								</StackPanel>
+							</RadioButton>
+							<RadioButton Tag="1">
+								<StackPanel>
+									<TextBlock>Skip Draw</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Better compatibility, but partical effects may not play correctly</TextBlock>
+								</StackPanel>
+							</RadioButton>
+						</StackPanel>
+					</StackPanel>
+				</RadioButton>
+				<RadioButton Tag="2">
+					<StackPanel>
+						<TextBlock>Alternating/AFR</TextBlock>
+						<TextBlock Style="{StaticResource styHelpText}">Worse quality, may cause nausea, but highest compatibility</TextBlock>
+					</StackPanel>
+				</RadioButton>
+			</StackPanel>
+
+			<StackPanel Grid.Row="1" Margin="0,20">
+				<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
+
+				<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using using Meta Quest Link. May causes crashes.</CheckBox>
+			</StackPanel>
+
+			<StackPanel Grid.Row="2">
+				<TextBlock Style="{StaticResource stySubHeader}">Resolution scale</TextBlock>
+
+				<StackPanel Orientation="Horizontal">
+					<Slider x:Name="slResolutionScale" Minimum="70" Maximum="130" TickFrequency="5" 
+							TickPlacement="Outside" SnapsTo="Ticks" Width="640" Margin="0,0,16,0" />
+
+					<TextBlock Text="{x:Bind slResolutionScale.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+					<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+				</StackPanel>
+
+				<TextBlock Style="{StaticResource styHelpText}">Higher scale gives more sharpness, lower scale more performance. OpenXR only.</TextBlock>
+			</StackPanel>
+		</Grid>
+
+		<StackPanel Grid.Row="2" Spacing="12" Orientation="Horizontal">
+			<Button Click="Save_Click" Style="{StaticResource styButton}" MinWidth="120">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Save</TextBlock>
+				</Grid>
+			</Button>
+
+			<Button Click="Publish_Click" Style="{StaticResource styButton}" MinWidth="120"
+					ToolTipService.ToolTip="Prepare profile for publishing. Generates a cleaned profile ZIP">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE78c;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Publish</TextBlock>
+				</Grid>
+			</Button>
+
+			<Button Click="Back_Click" Style="{StaticResource styButton}" MinWidth="120">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Cancel</TextBlock>
+				</Grid>
+			</Button>
+		</StackPanel>
+
+		<ContentControl Grid.RowSpan="3" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+	</Grid>
+</Page>
