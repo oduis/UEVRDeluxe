@@ -10,18 +10,16 @@ using UEVRDeluxe.Pages;
 
 namespace UEVRDeluxe;
 
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
+/// <summary>Main application Window</summary>
 public sealed partial class MainWindow : Window {
-	public static CoreWebView2Environment webViewEnv;
+	public static CoreWebView2Environment WebViewEnv;
 
 	public MainWindow() {
-		this.InitializeComponent();
-		InitializeBrowser();
+		InitializeComponent();
+		_ = InitializeBrowser();
 
 		var version = Assembly.GetExecutingAssembly().GetName().Version;
-		tbCaption.Text = $"Unreal VR Deluxe {version}";
+		tbCaption.Text = $"Unreal VR Deluxe {version} BETA";
 
 		var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
 		var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
@@ -38,7 +36,7 @@ public sealed partial class MainWindow : Window {
 
 	/// <summary>Trick to make it work if installed in Program Files folder, where user has no access rights</summary>
 	async Task InitializeBrowser() {
-		var userDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\UEVRDeluxe\\BrowserCache";
-		webViewEnv = await CoreWebView2Environment.CreateWithOptionsAsync(null, userDataFolder, new CoreWebView2EnvironmentOptions());
+		string userDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\UEVRDeluxe\\BrowserCache";
+		WebViewEnv = await CoreWebView2Environment.CreateWithOptionsAsync(null, userDataFolder, new CoreWebView2EnvironmentOptions());
 	}
 }

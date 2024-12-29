@@ -6,7 +6,7 @@ namespace UEVRDeluxe.Pages;
 
 static class PageHelpers {
 	public static async Task RefreshDescriptionAsync(WebView2 webViewDescription, string descriptionMD) {
-		if (webViewDescription.CoreWebView2 == null) await webViewDescription.EnsureCoreWebView2Async(MainWindow.webViewEnv);
+		if (webViewDescription.CoreWebView2 == null) await webViewDescription.EnsureCoreWebView2Async(MainWindow.WebViewEnv);
 
 		string html;
 		if (!string.IsNullOrWhiteSpace(descriptionMD))

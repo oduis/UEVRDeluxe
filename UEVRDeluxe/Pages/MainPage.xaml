@@ -29,31 +29,39 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
-		<Image Grid.RowSpan="3" Source="/Assets/UELogo.svg" Width="300" Height="300" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="72" Opacity="0.2" />
+		<Image Grid.RowSpan="3" Source="/Assets/UELogo.svg" Width="300" Height="300" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="72" Opacity="0.1" />
 
-		<TextBlock Style="{StaticResource styPageHeader}" Margin="4,0,0,0">Select your Game</TextBlock>
+		<TextBlock Style="{StaticResource styPageHeader}" Margin="4,0,0,0">Select your Game from Steam</TextBlock>
 
 		<GridView Grid.Row="1" Margin="0,16" ItemsSource="{x:Bind VM.Games, Mode=OneWay}" ItemTemplate="{StaticResource GameDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single"
-				  Background="{StaticResource SolidBackgroundFillColorTransparent}" ItemClick="ListView_ItemClick">
-
+				  Background="{StaticResource SolidBackgroundFillColorTransparent}" ItemClick="GamesView_ItemClick">
 			<GridView.ItemContainerStyle>
 				<Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
 					<Setter Property="Margin" Value="4,8"/>
 				</Style>
 			</GridView.ItemContainerStyle>
-
 		</GridView>
 
-		<StackPanel Grid.Row="2" Orientation="Horizontal">
-			<HyperlinkButton NavigateUri="https://www.patreon.com/praydog" Margin="0,0,32,0">
+		<TextBlock Grid.Row="2" Style="{StaticResource stySubHeader}" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}">Select Application to link your Headset to this PC</TextBlock>
+		<StackPanel Grid.Row="3" Orientation="Horizontal" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}" Margin="0,4,0,20">
+			<TextBlock VerticalAlignment="Center">OpenXR Runtime:</TextBlock>
+			<ComboBox DisplayMemberPath="Name" ItemsSource="{x:Bind VM.OpenXRRuntimes, Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedRuntime, Mode=TwoWay}" Margin="8,0,32,0"
+					 SelectionChanged="OpenXRRuntimes_SelectionChanged" />
+			<TextBlock Style="{StaticResource styHelpText}">( Applies globally to all apps using OpenXR. Please establish the connection before you start the game. )</TextBlock>
+		</StackPanel>
+
+		<StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="36">
+			<HyperlinkButton NavigateUri="https://www.patreon.com/praydog">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/PatreonLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
-					<TextBlock VerticalAlignment="Center" FontSize="11">Support Author Praydog</TextBlock>
+					<TextBlock VerticalAlignment="Center" FontSize="11">Support UEVR Author PrayDog</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
-			<HyperlinkButton NavigateUri="https://www.discord.com/" Margin="0,0,32,0">
+			<HyperlinkButton NavigateUri="https://www.discord.com/">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/DiscordLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
 					<TextBlock VerticalAlignment="Center" FontSize="11">Get Support</TextBlock>
@@ -64,6 +72,6 @@
 			</HyperlinkButton>
 		</StackPanel>
 
-		<ContentControl Grid.RowSpan="3" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+		<ContentControl Grid.RowSpan="5" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 	</Grid>
 </Page>
