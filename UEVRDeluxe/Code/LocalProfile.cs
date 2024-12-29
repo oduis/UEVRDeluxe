@@ -159,8 +159,12 @@ public class LocalProfile {
 		if (!File.Exists(Path.Combine(folderPath, "config.txt")))
 			throw new Exception("This is not a UEVR profile folder");
 
+		// Delete temporary files
 		string logFile = Path.Combine(folderPath, "log.txt");
 		if (File.Exists(logFile)) File.Delete(logFile);
+
+		string crashdumpFile = Path.Combine(folderPath, "crash.dmp");
+		if (File.Exists(crashdumpFile)) File.Delete(crashdumpFile);
 
 		if (string.IsNullOrWhiteSpace(Meta.EXEName)) {
 			Meta.EXEName = installation?.EXEName ?? folderPath.Substring(folderPath.TrimEnd('\\').LastIndexOf(Path.DirectorySeparatorChar) + 1);
