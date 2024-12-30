@@ -174,6 +174,7 @@ public class LocalProfile {
 			Meta.GameName = installation?.Name ?? string.Empty;
 			Meta.AuthorName = Environment.UserName ?? string.Empty;
 			Meta.Remarks = string.Empty; Meta.GameVersion = string.Empty;
+			Meta.MinEVRVersionDate = new DateTime(2024, 10, 31);   // Source code version release 1.05 october
 			Meta.NullifyPlugins = true;
 
 			File.WriteAllText(Path.Combine(FolderPath, ProfileMeta.FILENAME),
