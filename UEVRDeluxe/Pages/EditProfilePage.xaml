@@ -108,7 +108,7 @@
 
 			<Button Click="OpenFolder_Click" Style="{StaticResource styButton}" MinWidth="120">
 				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE525;" />
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE838;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Open folder</TextBlock>
 				</Grid>
 			</Button>
