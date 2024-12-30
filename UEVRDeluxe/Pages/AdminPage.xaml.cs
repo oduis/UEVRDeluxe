@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
@@ -50,11 +51,7 @@ public sealed partial class AdminPage : Page {
 				Title = "Upload", Content = "Profile uploaded successfully", CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 		} catch (Exception ex) {
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "Upload error", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+			await HandleExceptionAsync(ex, "Upload error");
 		}
 	}
 
@@ -69,11 +66,7 @@ public sealed partial class AdminPage : Page {
 
 			VM.IsLoading = false;
 		} catch (Exception ex) {
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "Search error", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+			await HandleExceptionAsync(ex, "Search error");
 		}
 	}
 
@@ -101,11 +94,7 @@ public sealed partial class AdminPage : Page {
 			}
 
 		} catch (Exception ex) {
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "Download error", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+			await HandleExceptionAsync(ex, "Download error");
 		}
 	}
 
@@ -133,13 +122,18 @@ public sealed partial class AdminPage : Page {
 				Title = "Delete", Content = "Profile deleted successfully", CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 		} catch (Exception ex) {
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "Delete error", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+			await HandleExceptionAsync(ex, "Delete error");
 		}
 	}
 
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
+
+	async Task HandleExceptionAsync(Exception ex, string title) {
+		VM.IsLoading = false;
+
+		await new ContentDialog {
+			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
+		}.ShowAsync();
+	}
 }

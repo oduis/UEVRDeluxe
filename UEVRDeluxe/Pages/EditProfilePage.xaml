@@ -99,10 +99,17 @@
 			</Button>
 
 			<Button Click="Publish_Click" Style="{StaticResource styButton}" MinWidth="120"
-					ToolTipService.ToolTip="Prepare profile for publishing. Generates a cleaned profile ZIP">
+					ToolTipService.ToolTip="Prepare profile for publishing. Deletes temporary files and generates a cleaned profile ZIP.">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE78c;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Publish</TextBlock>
+				</Grid>
+			</Button>
+
+			<Button Click="OpenFolder_Click" Style="{StaticResource styButton}" MinWidth="120">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE525;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Open folder</TextBlock>
 				</Grid>
 			</Button>
 

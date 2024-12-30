@@ -34,7 +34,7 @@ public sealed partial class MainPage : Page {
 		var keyOpenXRRoot = hklm.OpenSubKey(REGKEY_GRAPHICS, false);
 		string hwSchMode = keyOpenXRRoot.GetValue(REGKEY_NAME_SCHEDULER)?.ToString();
 		if (hwSchMode== "2") {
-			VM.Warning = "Consider disabling `Hardware Accelerated GPU Scheduling` in your Windows `Graphics settings` if you have issues in games";
+			VM.Warning = "Consider disabling 'Hardware Accelerated GPU Scheduling' in your Windows 'Graphics settings' if you have issues in games";
 		}
 
 		VM.IsLoading = false;

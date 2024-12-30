@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -28,13 +29,17 @@ public sealed partial class EditProfilePage : Page {
 		VM.GameInstallation = e.Parameter as GameInstallation;
 	}
 
-	void EditProfilePage_Loaded(object sender, RoutedEventArgs e) {
-		VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName, true);
+	async void EditProfilePage_Loaded(object sender, RoutedEventArgs e) {
+		try {
+			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName, true);
 
-		SetRadioButtonValue(spRenderingMethod, VM.LocalProfile.Config.Global["VR_RenderingMethod"]);
-		SetRadioButtonValue(spSyncedSequentialMethod, VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"]);
-		cbEnableDepth.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_EnableDepth"] ?? "false");
-		slResolutionScale.Value = Math.Round(double.Parse(VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] ?? "1.0", CultureInfo.InvariantCulture) * 100);
+			SetRadioButtonValue(spRenderingMethod, VM.LocalProfile.Config.Global["VR_RenderingMethod"]);
+			SetRadioButtonValue(spSyncedSequentialMethod, VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"]);
+			cbEnableDepth.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_EnableDepth"] ?? "false");
+			slResolutionScale.Value = Math.Round(double.Parse(VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] ?? "1.0", CultureInfo.InvariantCulture) * 100);
+		} catch (Exception ex) {
+			await HandleExceptionAsync(ex, "Load profile error");
+		}
 	}
 
 	async void Save_Click(object sender, RoutedEventArgs e) {
@@ -46,11 +51,7 @@ public sealed partial class EditProfilePage : Page {
 
 			Frame.GoBack();
 		} catch (Exception ex) {
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "Save error", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+			await HandleExceptionAsync(ex, "Save error");
 		}
 	}
 
@@ -90,16 +91,41 @@ public sealed partial class EditProfilePage : Page {
 				using (var stream = await saveFile.OpenStreamForWriteAsync()) {
 					await stream.WriteAsync(profileZip, 0, profileZip.Length);
 				}
+
+				await new ContentDialog {
+					Title = "Publish success", Content = "Profile is now packed and ready to submit on Discord #ue-general, if it was tested by some users", CloseButtonText = "OK", XamlRoot = this.XamlRoot
+				}.ShowAsync();
 			}
-
 		} catch (Exception ex) {
-			VM.IsLoading = false;
+			await HandleExceptionAsync(ex, "Publish error");
+		}
+	}
 
-			await new ContentDialog {
-				Title = "Publish error", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+	async void OpenFolder_Click(object sender, RoutedEventArgs e) {
+		try {
+			if (!Directory.Exists(VM.LocalProfile.FolderPath)) return;
+
+			var folderUri = new Uri(VM.LocalProfile.FolderPath);
+
+			var startInfo = new ProcessStartInfo {
+				FileName = folderUri.AbsoluteUri,
+				UseShellExecute = true,
+				Verb = "open"
+			};
+			Process.Start(startInfo);
+		} catch (Exception ex) {
+			await HandleExceptionAsync(ex, "Open folder error");
 		}
 	}
 
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
+
+	async Task HandleExceptionAsync(Exception ex, string title) {
+		VM.IsLoading = false;
+
+		await new ContentDialog {
+			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
+		}.ShowAsync();
+	}
 }

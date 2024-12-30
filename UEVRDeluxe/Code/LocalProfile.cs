@@ -55,7 +55,7 @@ public class LocalProfile {
         ( Any more links, tips, etc. You can add more headers for more structure, e.g. changelogs )
         """;
 
-	string folderPath;
+	public string FolderPath { get; private set; }
 
 	/// <summary>Content of the ProfileData.json</summary>
 	public ProfileMeta Meta { get; private set; }
@@ -98,13 +98,13 @@ public class LocalProfile {
 	}
 
 	public LocalProfile(string folderPath) {
-		this.folderPath = folderPath;
+		this.FolderPath = folderPath;
 		Load();
 	}
 
-	string ConfigFilePath => Path.Combine(folderPath, CONFIG_FILENAME);
-	string ProfileMetaPath => Path.Combine(folderPath, ProfileMeta.FILENAME);
-	string ProfileDescriptionPath => Path.Combine(folderPath, ProfileMeta.DESCRIPTION_FILENAME);
+	string ConfigFilePath => Path.Combine(FolderPath, CONFIG_FILENAME);
+	string ProfileMetaPath => Path.Combine(FolderPath, ProfileMeta.FILENAME);
+	string ProfileDescriptionPath => Path.Combine(FolderPath, ProfileMeta.DESCRIPTION_FILENAME);
 
 	public void Load() {
 		var parser = new FileIniDataParser();
@@ -138,7 +138,7 @@ public class LocalProfile {
 	}
 
 	public async Task SaveAsync() {
-		if (Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+		if (Directory.Exists(FolderPath)) Directory.CreateDirectory(FolderPath);
 
 		await WriteTextFileIfChangedAsync(ConfigFilePath, CleanedIni(Config));
 		await WriteTextFileIfChangedAsync(ProfileMetaPath, JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
@@ -156,18 +156,18 @@ public class LocalProfile {
 	async public Task<byte[]> PrepareForSubmitAsync(GameInstallation installation = null) {
 		bool metasMissing = false;
 
-		if (!File.Exists(Path.Combine(folderPath, "config.txt")))
+		if (!File.Exists(Path.Combine(FolderPath, "config.txt")))
 			throw new Exception("This is not a UEVR profile folder");
 
 		// Delete temporary files
-		string logFile = Path.Combine(folderPath, "log.txt");
+		string logFile = Path.Combine(FolderPath, "log.txt");
 		if (File.Exists(logFile)) File.Delete(logFile);
 
-		string crashdumpFile = Path.Combine(folderPath, "crash.dmp");
+		string crashdumpFile = Path.Combine(FolderPath, "crash.dmp");
 		if (File.Exists(crashdumpFile)) File.Delete(crashdumpFile);
 
 		if (string.IsNullOrWhiteSpace(Meta.EXEName)) {
-			Meta.EXEName = installation?.EXEName ?? folderPath.Substring(folderPath.TrimEnd('\\').LastIndexOf(Path.DirectorySeparatorChar) + 1);
+			Meta.EXEName = installation?.EXEName ?? FolderPath.Substring(FolderPath.TrimEnd('\\').LastIndexOf(Path.DirectorySeparatorChar) + 1);
 			Meta.ModifiedDate = DateTime.Today;
 
 			// Some empty string so its easier to edit without NULLs
@@ -176,7 +176,7 @@ public class LocalProfile {
 			Meta.Remarks = string.Empty; Meta.GameVersion = string.Empty;
 			Meta.NullifyPlugins = true;
 
-			File.WriteAllText(Path.Combine(folderPath, ProfileMeta.FILENAME),
+			File.WriteAllText(Path.Combine(FolderPath, ProfileMeta.FILENAME),
 				JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
 
 			metasMissing = true;
@@ -198,13 +198,13 @@ public class LocalProfile {
 		using var stream = new MemoryStream();
 		using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true)) {
 			// Create all directories, including empty ones
-			foreach (var directoryPath in Directory.GetDirectories(folderPath, "*", SearchOption.AllDirectories)) {
-				var entry = archive.CreateEntry(Path.GetRelativePath(folderPath, directoryPath) + "/", CompressionLevel.NoCompression);
+			foreach (var directoryPath in Directory.GetDirectories(FolderPath, "*", SearchOption.AllDirectories)) {
+				var entry = archive.CreateEntry(Path.GetRelativePath(FolderPath, directoryPath) + "/", CompressionLevel.NoCompression);
 			}
 
 			var parser = new FileIniDataParser();
-			foreach (var filePath in Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories)) {
-				var entry = archive.CreateEntry(Path.GetRelativePath(folderPath, filePath), CompressionLevel.SmallestSize);
+			foreach (var filePath in Directory.GetFiles(FolderPath, "*", SearchOption.AllDirectories)) {
+				var entry = archive.CreateEntry(Path.GetRelativePath(FolderPath, filePath), CompressionLevel.SmallestSize);
 				using var entryStream = entry.Open();
 
 				var memIni = new MemoryStream();

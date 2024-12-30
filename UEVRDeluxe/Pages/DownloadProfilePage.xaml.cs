@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
@@ -34,11 +35,7 @@ public sealed partial class DownloadProfilePage : Page {
 			VM.IsLoading = false;
 			Frame.GoBack();
 		} catch (Exception ex) {
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "Download error", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+			await HandleExceptionAsync(ex, "Download error");
 		}
 	}
 
@@ -64,13 +61,18 @@ public sealed partial class DownloadProfilePage : Page {
 
 			VM.IsLoading = false;
 		} catch (Exception ex) {
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "Download description error", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+			await HandleExceptionAsync(ex, "Download description error");
 		}
 	}
 
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
+
+	async Task HandleExceptionAsync(Exception ex, string title) {
+		VM.IsLoading = false;
+
+		await new ContentDialog {
+			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
+		}.ShowAsync();
+	}
 }

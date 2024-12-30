@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -28,7 +27,6 @@ public sealed partial class GamePage : Page {
 		this.Loaded += GamePage_Loaded;
 	}
 
-
 	protected override void OnNavigatedTo(NavigationEventArgs e) {
 		base.OnNavigatedTo(e);
 
@@ -36,19 +34,13 @@ public sealed partial class GamePage : Page {
 	}
 
 	async void GamePage_Loaded(object sender, RoutedEventArgs e) {
-		VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName);
+		try {
+			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName);
 
-		await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD);
-
-		/* Seems to be some special use case, so just leave it XR for now
-		 * Later maybe check if
-		 * HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1\ActiveRuntime  and if it is set at anything other than C:\Program Files (x86)\Steam\steamapps\common\SteamVR\steamxr_win64.json
-		// Auto configure Link
-		if (Process.GetProcessesByName(STEAMVR_EXE).Any() && !Process.GetProcessesByName(VIRTUALDESKTOP_EXE).Any()) {
-			VM.LinkProtocol = "VR";
-		} else {
-			VM.LinkProtocol = "XR";
-		}*/
+			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD);
+		} catch (Exception ex) {
+			await HandleExceptionAsync(ex, "Load profile error");
+		}
 	}
 	#endregion
 
@@ -67,11 +59,7 @@ public sealed partial class GamePage : Page {
 
 			VM.IsLoading = false;
 		} catch (Exception ex) {
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "Search profile online", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+			await HandleExceptionAsync(ex, "Search online error");
 		}
 	}
 	#endregion
@@ -178,5 +166,14 @@ public sealed partial class GamePage : Page {
 	void Edit_Click(object sender, RoutedEventArgs e) => Frame.Navigate(typeof(EditProfilePage), VM.GameInstallation, new DrillInNavigationTransitionInfo());
 
 	void Back_Click(object sender, RoutedEventArgs e) { if (!VM.IsRunning) Frame.GoBack(); }
+
+	async Task HandleExceptionAsync(Exception ex, string title) {
+		VM.IsLoading = false;
+
+		await new ContentDialog {
+			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
+		}.ShowAsync();
+	}
 }
 

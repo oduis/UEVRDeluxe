@@ -24,7 +24,7 @@
 		</DataTemplate>
 	</Page.Resources>
 
-	<Grid Margin="20,8">
+	<Grid Margin="20,8,20,16">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
@@ -59,14 +59,20 @@
 			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" />
 		</Border>
 
-		<StackPanel Grid.Row="5" Orientation="Horizontal" Spacing="36">
-			<HyperlinkButton NavigateUri="https://www.patreon.com/praydog">
+		<StackPanel Grid.Row="5" Orientation="Horizontal" Spacing="48">
+			<HyperlinkButton NavigateUri="https://github.com/oduis/UEVRDeluxe" Padding="0">
+				<StackPanel Orientation="Horizontal">
+					<Image Source="/Assets/GitHubLogo.svg" Width="24" Height="24" Margin="0,0,6,0" />
+					<TextBlock VerticalAlignment="Center" FontSize="11">GitHub</TextBlock>
+				</StackPanel>
+			</HyperlinkButton>
+			<HyperlinkButton NavigateUri="https://www.patreon.com/praydog" Padding="0">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/PatreonLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
 					<TextBlock VerticalAlignment="Center" FontSize="11">Support UEVR Author PrayDog</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
-			<HyperlinkButton NavigateUri="https://www.discord.com/">
+			<HyperlinkButton NavigateUri="https://www.discord.com/" Padding="0">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/DiscordLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
 					<TextBlock VerticalAlignment="Center" FontSize="11">Get Support</TextBlock>
