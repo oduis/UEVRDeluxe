@@ -11,6 +11,10 @@ public class MainPageVM : VMBase {
 	List<GameInstallation> games;
 	public List<GameInstallation> Games { get => games; set => Set(ref games, value); }
 
+	string warning;
+	public string Warning { get => warning; set => Set(ref warning, value, [nameof(WarningVisible)]); }
+	public Visibility WarningVisible => string.IsNullOrWhiteSpace(warning) ? Visibility.Collapsed : Visibility.Visible;
+
 	List<OpenXRRuntime> openXRRuntimes;
 	public List<OpenXRRuntime> OpenXRRuntimes { get => openXRRuntimes; set => Set(ref openXRRuntimes, value, [nameof(OpenXRRuntimeVisible)]); }
 
