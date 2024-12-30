@@ -36,7 +36,11 @@ public sealed partial class MainWindow : Window {
 
 	/// <summary>Trick to make it work if installed in Program Files folder, where user has no access rights</summary>
 	async Task InitializeBrowser() {
-		string userDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\UEVRDeluxe\\BrowserCache";
-		WebViewEnv = await CoreWebView2Environment.CreateWithOptionsAsync(null, userDataFolder, new CoreWebView2EnvironmentOptions());
+		try {
+			string userDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\UEVRDeluxe\\BrowserCache";
+			WebViewEnv = await CoreWebView2Environment.CreateWithOptionsAsync(null, userDataFolder, new CoreWebView2EnvironmentOptions());
+		} catch (Exception ex) {
+			System.Diagnostics.Debug.WriteLine(ex.ToString());
+		}
 	}
 }

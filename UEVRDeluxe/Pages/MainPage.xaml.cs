@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using UEVRDeluxe.Code;
@@ -21,20 +22,24 @@ public sealed partial class MainPage : Page {
 	public MainPage() { this.InitializeComponent(); }
 
 	void Page_Loaded(object sender, RoutedEventArgs e) {
-		VM.IsLoading = true;
-		VM.Games = GameStoreManager.FindAllUEVRGames();
+		try {
+			VM.IsLoading = true;
+			VM.Games = GameStoreManager.FindAllUEVRGames();
 
-		VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
-		var defaultRuntime = VM.OpenXRRuntimes.FirstOrDefault(r => r.IsDefault);
-		if (defaultRuntime != null) VM.SelectedRuntime = defaultRuntime;
+			VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
+			var defaultRuntime = VM.OpenXRRuntimes.FirstOrDefault(r => r.IsDefault);
+			if (defaultRuntime != null) VM.SelectedRuntime = defaultRuntime;
 
-		// Check if hardware scheduling is enabled and warn the user
-		var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+			// Check if hardware scheduling is enabled and warn the user
+			var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
 
-		var keyOpenXRRoot = hklm.OpenSubKey(REGKEY_GRAPHICS, false);
-		string hwSchMode = keyOpenXRRoot.GetValue(REGKEY_NAME_SCHEDULER)?.ToString();
-		if (hwSchMode== "2") {
-			VM.Warning = "Consider disabling 'Hardware Accelerated GPU Scheduling' in your Windows 'Graphics settings' if you have issues in games";
+			var keyOpenXRRoot = hklm.OpenSubKey(REGKEY_GRAPHICS, false);
+			string hwSchMode = keyOpenXRRoot.GetValue(REGKEY_NAME_SCHEDULER)?.ToString();
+			if (hwSchMode == "2") {
+				VM.Warning = "Consider disabling 'Hardware Accelerated GPU Scheduling' in your Windows 'Graphics settings' if you have issues in games";
+			}
+		} catch (Exception ex) {
+			Debug.WriteLine(ex.ToString());
 		}
 
 		VM.IsLoading = false;
