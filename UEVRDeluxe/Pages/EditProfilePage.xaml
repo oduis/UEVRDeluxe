@@ -26,87 +26,102 @@
 		</StackPanel>
 
 		<ScrollView Grid.Row="1" HorizontalScrollBarVisibility="Hidden">
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-			</Grid.RowDefinitions>
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
 
-			<StackPanel x:Name="spRenderingMethod">
-				<TextBlock Style="{StaticResource stySubHeader}">Rendering method</TextBlock>
+				<StackPanel x:Name="spRenderingMethod">
+					<TextBlock Style="{StaticResource stySubHeader}">Rendering method</TextBlock>
 
-				<RadioButton Tag="0">
-					<StackPanel>
-						<TextBlock>Native Stereo</TextBlock>
-						<TextBlock Style="{StaticResource styHelpText}">Best performance, anti aliasing works (Recommended if no issues)</TextBlock>
-					</StackPanel>
-				</RadioButton>
-				<RadioButton Tag="1" Margin="0,4">
-					<StackPanel>
-						<TextBlock>Synced Sequential</TextBlock>
-						<TextBlock Style="{StaticResource styHelpText}">More CPU intensive, some anti aliasing will cause ghosting effects. But better compatiblity if game has issues with Native Stereo.</TextBlock>
-						<StackPanel x:Name="spSyncedSequentialMethod" Margin="0,4,0,0" Spacing="2">
-							<RadioButton Tag="0">
-								<StackPanel>
-									<TextBlock>Skip Tick</TextBlock>
-									<TextBlock Style="{StaticResource styHelpText}">Best performance, particle effects work (Recommended if no issues)</TextBlock>
-								</StackPanel>
-							</RadioButton>
-							<RadioButton Tag="1">
-								<StackPanel>
-									<TextBlock>Skip Draw</TextBlock>
-									<TextBlock Style="{StaticResource styHelpText}">Better compatibility, but partical effects may not play correctly</TextBlock>
-								</StackPanel>
-							</RadioButton>
+					<RadioButton Tag="0">
+						<StackPanel>
+							<TextBlock>Native Stereo</TextBlock>
+							<TextBlock Style="{StaticResource styHelpText}">Best performance, anti aliasing works (Recommended if no issues)</TextBlock>
 						</StackPanel>
-					</StackPanel>
-				</RadioButton>
-				<RadioButton Tag="2">
-					<StackPanel>
-						<TextBlock>Alternating/AFR</TextBlock>
-						<TextBlock Style="{StaticResource styHelpText}">Worse quality, may cause nausea, but highest compatibility</TextBlock>
-					</StackPanel>
-				</RadioButton>
-			</StackPanel>
-
-			<StackPanel Grid.Row="1" Margin="0,20">
-				<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
-
-				<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using using Meta Quest Link. May causes crashes.</CheckBox>
-			</StackPanel>
-
-			<StackPanel Grid.Row="2" Margin="0,0,0,20">
-				<TextBlock Style="{StaticResource stySubHeader}">Resolution scale</TextBlock>
-
-				<StackPanel Orientation="Horizontal">
-					<Slider x:Name="slResolutionScale" Minimum="70" Maximum="130" TickFrequency="5" 
-							TickPlacement="Outside" SnapsTo="Ticks" Width="640" Margin="0,0,16,0" />
-
-					<TextBlock Text="{x:Bind slResolutionScale.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
-					<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+					</RadioButton>
+					<RadioButton Tag="1" Margin="0,4">
+						<StackPanel>
+							<TextBlock>Synced Sequential</TextBlock>
+							<TextBlock Style="{StaticResource styHelpText}">More CPU intensive, some anti aliasing will cause ghosting effects. But better compatiblity if game has issues with Native Stereo.</TextBlock>
+							<StackPanel x:Name="spSyncedSequentialMethod" Margin="0,4,0,0" Spacing="2">
+								<RadioButton Tag="0">
+									<StackPanel>
+										<TextBlock>Skip Tick</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Best performance, particle effects work (Recommended if no issues)</TextBlock>
+									</StackPanel>
+								</RadioButton>
+								<RadioButton Tag="1">
+									<StackPanel>
+										<TextBlock>Skip Draw</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Better compatibility, but partical effects may not play correctly</TextBlock>
+									</StackPanel>
+								</RadioButton>
+							</StackPanel>
+						</StackPanel>
+					</RadioButton>
+					<RadioButton Tag="2">
+						<StackPanel>
+							<TextBlock>Alternating/AFR</TextBlock>
+							<TextBlock Style="{StaticResource styHelpText}">Worse quality, may cause nausea, but highest compatibility</TextBlock>
+						</StackPanel>
+					</RadioButton>
 				</StackPanel>
 
-				<TextBlock Style="{StaticResource styHelpText}">Higher scale gives more sharpness, lower scale more performance. OpenXR only.</TextBlock>
-			</StackPanel>
+				<StackPanel Grid.Row="1" Margin="0,20">
+					<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
 
-			<StackPanel Grid.Row="3">
-				<TextBlock Style="{StaticResource stySubHeader}">Typical in game settings</TextBlock>
-				<TextBlock TextWrapping="WrapWholeWords"><Run>VR is virtually rendering on very high resolutions is very demanding. 
-					Be sure to have a powerful GPU with lots of VRAM, and to not max out game settings. 
-					While optimizing, look out if GPU usage and espc. GPU VRAM hit the roof in Task Explorer.</Run><LineBreak/>
-					<Run>If the game supports it, set these in the in game graphic settings:</Run><LineBreak/> 
-					<Run>- Chromatic aberration OFF</Run><LineBreak/>
-					<Run>- Motion blur OFF</Run><LineBreak/>
-					<Run>- Depth of field OFF</Run><LineBreak/>
-					<Run>- View/head bobbing OFF</Run><LineBreak/>
-					<Run>- Anti aliasing: No TXAA if game does not support Native rendering</Run><LineBreak/>
-					<Run>- DLSS/FSR: OFF if game das not support Native rendering</Run><LineBreak/>
-					<Run>- Post processing typically looks better on LOW</Run><LineBreak/>
-				</TextBlock>
-			</StackPanel>
-		</Grid>
+					<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using using Meta Quest Link. May causes crashes.</CheckBox>
+				</StackPanel>
+
+				<StackPanel Grid.Row="2" Margin="0,0,0,20">
+					<TextBlock Style="{StaticResource stySubHeader}">Resolution scale</TextBlock>
+
+					<StackPanel Orientation="Horizontal">
+						<Slider x:Name="slResolutionScale" Minimum="70" Maximum="130" TickFrequency="5" 
+							TickPlacement="Outside" SnapsTo="Ticks" Width="640" Margin="0,0,16,0" />
+
+						<TextBlock Text="{x:Bind slResolutionScale.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+						<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+					</StackPanel>
+
+					<TextBlock Style="{StaticResource styHelpText}">Higher scale gives more sharpness, lower scale more performance. OpenXR only.</TextBlock>
+				</StackPanel>
+
+				<StackPanel Grid.Row="3">
+					<TextBlock Style="{StaticResource stySubHeader}">Typical in game settings</TextBlock>
+					<TextBlock TextWrapping="WrapWholeWords"><Run>VR is virtually rendering on very high resolutions is very demanding. 
+						Be sure to have a powerful GPU with lots of VRAM, and to not max out game settings. 
+						While optimizing, look out if GPU usage and espc. GPU VRAM hit the roof in Task Explorer.</Run><LineBreak/>
+						<Run>If the game supports it, set these in the in game graphic settings:</Run><LineBreak/> 
+						<Run>- Chromatic aberration OFF</Run><LineBreak/>
+						<Run>- Motion blur OFF</Run><LineBreak/>
+						<Run>- Depth of field OFF</Run><LineBreak/>
+						<Run>- View/head bobbing OFF</Run><LineBreak/>
+						<Run>- Anti aliasing: No TXAA if game does not support Native rendering</Run><LineBreak/>
+						<Run>- DLSS/FSR: OFF if game das not support Native rendering</Run><LineBreak/>
+						<Run>- Post processing typically looks better on LOW</Run><LineBreak/>
+					</TextBlock>
+					<Grid Margin="0,16">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+						</Grid.RowDefinitions>
+
+						<TextBlock Margin="0,0,8,0">Game EXE:</TextBlock>
+						<TextBlock Grid.Column="1" Text="{x:Bind VM.GameInstallation.EXEName}" />
+						<TextBlock Grid.Row="1">EXE Path:</TextBlock>
+						<TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind VM.GameInstallation.FolderPath}" />
+					</Grid>
+				</StackPanel>
+			</Grid>
 		</ScrollView>
 
 		<StackPanel Grid.Row="2" Spacing="12" Orientation="Horizontal">

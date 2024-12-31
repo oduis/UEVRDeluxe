@@ -50,9 +50,18 @@ public static class GameStoreManager {
 				?? exeProps.OrderBy(g => g.directoryCount).FirstOrDefault();
 
 			if (bestProps != null) {
+				// in Steam there are sometimes exes next to the shipping exe, like in Star Wars fallen order.
+				// So we need to check if the exe is in the same folder as the shipping exe
+				if (bestProps.isShipping) {
+					string folder = Path.GetDirectoryName(bestProps.filePath);
+					if (exeProps.Any(e => e.filePath != bestProps.filePath && Path.GetDirectoryName(e.filePath) == folder)) {
+						bestProps = exeProps.First(e => e.filePath != bestProps.filePath && Path.GetDirectoryName(e.filePath) == folder);
+					}
+				}
+
 				game.EXEName = Path.GetFileNameWithoutExtension(bestProps.filePath);
 
-				if (!bestProps.isShipping) {
+				if (!exeProps.Any(e=>e.isShipping)) {
 					// This is how UEVRFrontend does it
 					// Check if going up the parent directories reveals the directory "\Engine\Binaries\ThirdParty".
 					var parentPath = Path.GetDirectoryName(bestProps.filePath);
