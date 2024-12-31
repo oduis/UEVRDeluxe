@@ -31,19 +31,19 @@
                              ItemTemplate="{StaticResource styProfileMetaDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single" />
 
 		<StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16">
-			<Button Click="Download_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Style="{StaticResource styButton}" MinWidth="120">
+			<Button Click="Download_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Install</TextBlock>
 				</Grid>
 			</Button>
-			<Button Click="ShowDescription_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Style="{StaticResource styButton}" MinWidth="120">
+			<Button Click="ShowDescription_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE8a5;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Show Description</TextBlock>
 				</Grid>
 			</Button>
-			<Button Click="Back_Click" Style="{StaticResource styButton}" MinWidth="120">
+			<Button Click="Back_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Cancel</TextBlock>

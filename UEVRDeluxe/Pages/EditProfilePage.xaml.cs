@@ -118,6 +118,28 @@ public sealed partial class EditProfilePage : Page {
 		}
 	}
 
+	async void Delete_Click(object sender, RoutedEventArgs e) {
+		var confirmDialog = new ContentDialog {
+			Title = "Delete profile",
+			Content = "Are you sure you want to delete your local profile?\nCan be helpful if UEVR or the game was massively updated since it was built.",
+			PrimaryButtonText = "Yes", CloseButtonText = "No", DefaultButton = ContentDialogButton.Close,
+			XamlRoot = this.XamlRoot
+		};
+
+		var result = await confirmDialog.ShowAsync();
+		if (result != ContentDialogResult.Primary) return;
+		try {
+			VM.IsLoading = true;
+
+			VM.LocalProfile.Delete();
+
+			VM.IsLoading = false;
+
+			Frame.GoBack();
+		} catch (Exception ex) {
+			await HandleExceptionAsync(ex, "Delete error");
+		}
+	}
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
 
 	async Task HandleExceptionAsync(Exception ex, string title) {

@@ -106,6 +106,8 @@ public class LocalProfile {
 	string ProfileMetaPath => Path.Combine(FolderPath, ProfileMeta.FILENAME);
 	string ProfileDescriptionPath => Path.Combine(FolderPath, ProfileMeta.DESCRIPTION_FILENAME);
 
+	public void Delete() => Directory.Delete(FolderPath, true);
+
 	public void Load() {
 		var parser = new FileIniDataParser();
 

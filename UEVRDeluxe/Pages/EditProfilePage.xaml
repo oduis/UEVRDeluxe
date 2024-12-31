@@ -25,8 +25,10 @@
 			<TextBlock Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit UEVR profile" />
 		</StackPanel>
 
-		<Grid Grid.Row="1">
+		<ScrollView Grid.Row="1" HorizontalScrollBarVisibility="Hidden">
+		<Grid>
 			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
@@ -75,7 +77,7 @@
 				<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using using Meta Quest Link. May causes crashes.</CheckBox>
 			</StackPanel>
 
-			<StackPanel Grid.Row="2">
+			<StackPanel Grid.Row="2" Margin="0,0,0,20">
 				<TextBlock Style="{StaticResource stySubHeader}">Resolution scale</TextBlock>
 
 				<StackPanel Orientation="Horizontal">
@@ -88,32 +90,57 @@
 
 				<TextBlock Style="{StaticResource styHelpText}">Higher scale gives more sharpness, lower scale more performance. OpenXR only.</TextBlock>
 			</StackPanel>
+
+			<StackPanel Grid.Row="3">
+				<TextBlock Style="{StaticResource stySubHeader}">Typical in game settings</TextBlock>
+				<TextBlock TextWrapping="WrapWholeWords"><Run>VR is virtually rendering on very high resolutions is very demanding. 
+					Be sure to have a powerful GPU with lots of VRAM, and to not max out game settings. 
+					While optimizing, look out if GPU usage and espc. GPU VRAM hit the roof in Task Explorer.</Run><LineBreak/>
+					<Run>If the game supports it, set these in the in game graphic settings:</Run><LineBreak/> 
+					<Run>- Chromatic aberration OFF</Run><LineBreak/>
+					<Run>- Motion blur OFF</Run><LineBreak/>
+					<Run>- Depth of field OFF</Run><LineBreak/>
+					<Run>- View/head bobbing OFF</Run><LineBreak/>
+					<Run>- Anti aliasing: No TXAA if game does not support Native rendering</Run><LineBreak/>
+					<Run>- DLSS/FSR: OFF if game das not support Native rendering</Run><LineBreak/>
+					<Run>- Post processing typically looks better on LOW</Run><LineBreak/>
+				</TextBlock>
+			</StackPanel>
 		</Grid>
+		</ScrollView>
 
 		<StackPanel Grid.Row="2" Spacing="12" Orientation="Horizontal">
-			<Button Click="Save_Click" Style="{StaticResource styButton}" MinWidth="120">
+			<Button Click="Save_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Save</TextBlock>
 				</Grid>
 			</Button>
 
-			<Button Click="Publish_Click" Style="{StaticResource styButton}" MinWidth="120"
-					ToolTipService.ToolTip="Prepare profile for publishing. Deletes temporary files and generates a cleaned profile ZIP.">
+			<Button Click="Publish_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}"
+					ToolTipService.ToolTip="Prepare profile for publishing. Deletes temporary files and generates a cleaned profile ZIP for sharing.">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE78c;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Publish</TextBlock>
 				</Grid>
 			</Button>
 
-			<Button Click="OpenFolder_Click" Style="{StaticResource styButton}" MinWidth="120">
+			<Button Click="OpenFolder_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE838;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Open folder</TextBlock>
 				</Grid>
 			</Button>
 
-			<Button Click="Back_Click" Style="{StaticResource styButton}" MinWidth="120">
+			<Button Click="Delete_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}"
+					ToolTipService.ToolTip="Can be helpful if UEVR or the game was massively updated since the profile was built">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74D;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Delete</TextBlock>
+				</Grid>
+			</Button>
+
+			<Button Click="Back_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Cancel</TextBlock>

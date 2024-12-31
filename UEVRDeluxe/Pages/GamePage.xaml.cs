@@ -143,14 +143,13 @@ public sealed partial class GamePage : Page {
 			}
 
 			VM.StatusMessage = "Game stopped";
-			VM.IsRunning = false;
 		} catch (Exception ex) {
 			VM.StatusMessage += $" - {ex.Message}";
 
 			await new ContentDialog {
 				Title = "UEVR", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
-
+		} finally {
 			VM.IsRunning = false;
 		}
 	}

@@ -14,9 +14,8 @@ public class EditProfilePageVM : VMBase {
 	LocalProfile localProfile;
 	public LocalProfile LocalProfile {
 		get => localProfile;
-		set => Set(ref localProfile, value, [nameof(VisibleIfProfile), nameof(VisibleIfNoProfile)]);
+		set => Set(ref localProfile, value, [nameof(VisibleIfProfile)]);
 	}
 
 	public Visibility VisibleIfProfile => LocalProfile != null ? Visibility.Visible : Visibility.Collapsed;
-	public Visibility VisibleIfNoProfile => LocalProfile == null ? Visibility.Visible : Visibility.Collapsed;
 }
