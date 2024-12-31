@@ -138,7 +138,7 @@ public class LocalProfile {
 	}
 
 	public async Task SaveAsync() {
-		if (Directory.Exists(FolderPath)) Directory.CreateDirectory(FolderPath);
+		if (!Directory.Exists(FolderPath)) Directory.CreateDirectory(FolderPath);
 
 		await WriteTextFileIfChangedAsync(ConfigFilePath, CleanedIni(Config));
 		await WriteTextFileIfChangedAsync(ProfileMetaPath, JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
@@ -146,7 +146,9 @@ public class LocalProfile {
 	}
 
 	async Task WriteTextFileIfChangedAsync(string path, string content) {
-		string oldContent = await File.ReadAllTextAsync(path);
+		string oldContent = null;
+
+		if (File.Exists(path)) oldContent = await File.ReadAllTextAsync(path);
 		if (oldContent != content) {
 			await File.WriteAllTextAsync(path, content);
 			Debug.WriteLine($"{path} changed");
