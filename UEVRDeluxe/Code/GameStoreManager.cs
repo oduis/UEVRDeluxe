@@ -61,7 +61,7 @@ public static class GameStoreManager {
 
 				game.EXEName = Path.GetFileNameWithoutExtension(bestProps.filePath);
 
-				if (!exeProps.Any(e=>e.isShipping)) {
+				if (!exeProps.Any(e => e.isShipping)) {
 					// This is how UEVRFrontend does it
 					// Check if going up the parent directories reveals the directory "\Engine\Binaries\ThirdParty".
 					var parentPath = Path.GetDirectoryName(bestProps.filePath);
@@ -119,13 +119,10 @@ public static class GameStoreManager {
 			}
 		}
 
-		if (!File.Exists(Path.Join(steamInstallDir, "steam.exe"))) return allGames;
+		//if (!File.Exists(Path.Join(steamInstallDir, "steam.exe"))) return allGames;
 
-		var vdfPath = Path.Join(steamInstallDir, "steamapps", "libraryfolders.vdf");
-		if (!File.Exists(vdfPath)) {
-			Debug.WriteLine("Steam Library Definition file not found");
-			return allGames;
-		}
+		string vdfPath = Path.Join(steamInstallDir, "steamapps", "libraryfolders.vdf");
+		if (!File.Exists(vdfPath)) throw new Exception("Steam Library Definition file not found");
 
 		var steamLibraryDefinition = VdfConvert.Deserialize(File.ReadAllText(vdfPath));
 		foreach (var steamLibDirDefinition in steamLibraryDefinition.Value.Children<VProperty>()) {
@@ -135,6 +132,7 @@ public static class GameStoreManager {
 
 			foreach (var gameDefinition in vprop_apps.Children<VProperty>()) {
 				Debug.WriteLine($"Found {gameDefinition.Key}: {gameDefinition.Value}");
+
 				if (long.TryParse(gameDefinition.Key, out long gameAppId)) {
 					var gameManifestPath = Path.Join(vtoken_libPath, "steamapps", $"appmanifest_{gameAppId}.acf");
 
@@ -149,12 +147,12 @@ public static class GameStoreManager {
 						long lastPlayed = gameManifestDefinition.Value<long>("LastPlayed");
 						if (lastPlayed > 0) game.LastPlayed = DateTimeOffset.FromUnixTimeSeconds(lastPlayed).DateTime;
 
-
 						if (!IGNORE_GAME_NAMES.Contains(game.Name)) {
 							game.FolderPath = Path.GetFullPath(Path.Join("steamapps", "common", relativeDirectoryName), vtoken_libPath);
 							game.IconURL = $"https://cdn.cloudflare.steamstatic.com/steam/apps/{game.SteamID}/capsule_231x87.jpg"; //$"steam://install/{game.SteamID}";
 
-							allGames.Add(game);
+							// Sometimes guys manually delete the game folders
+							if (Directory.Exists(game.FolderPath)) allGames.Add(game);
 						}
 					}
 				}

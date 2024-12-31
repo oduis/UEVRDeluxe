@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Security;
+using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.ViewModels;
 #endregion
@@ -21,7 +22,7 @@ public sealed partial class MainPage : Page {
 
 	public MainPage() { this.InitializeComponent(); }
 
-	void Page_Loaded(object sender, RoutedEventArgs e) {
+	async void Page_Loaded(object sender, RoutedEventArgs e) {
 		try {
 			VM.IsLoading = true;
 			VM.Games = GameStoreManager.FindAllUEVRGames();
@@ -33,13 +34,17 @@ public sealed partial class MainPage : Page {
 			// Check if hardware scheduling is enabled and warn the user
 			var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
 
-			var keyOpenXRRoot = hklm.OpenSubKey(REGKEY_GRAPHICS, false);
-			string hwSchMode = keyOpenXRRoot.GetValue(REGKEY_NAME_SCHEDULER)?.ToString();
-			if (hwSchMode == "2") {
-				VM.Warning = "Consider disabling 'Hardware Accelerated GPU Scheduling' in your Windows 'Graphics settings' if you have issues in games";
+			if (hklm != null) {
+				var keyOpenXRRoot = hklm.OpenSubKey(REGKEY_GRAPHICS, false);
+				if (keyOpenXRRoot != null) {
+					string hwSchMode = keyOpenXRRoot.GetValue(REGKEY_NAME_SCHEDULER)?.ToString();
+					if (hwSchMode == "2") {
+						VM.Warning = "Consider disabling 'Hardware Accelerated GPU Scheduling' in your Windows 'Graphics settings' if you have issues in games";
+					}
+				}
 			}
 		} catch (Exception ex) {
-			Debug.WriteLine(ex.ToString());
+			await HandleExceptionAsync(ex, "Steam load");
 		}
 
 		VM.IsLoading = false;
@@ -51,12 +56,7 @@ public sealed partial class MainPage : Page {
 		try {
 			OpenXRManager.SetActiveRuntime((e.AddedItems.First() as OpenXRRuntime).Path);
 		} catch (Exception ex) {
-			string message = ex.Message;
-			if (ex is SecurityException) message = $"Security error: {message}\r\nYou might want to start UEVR Deluxe as administrator";
-
-			await new ContentDialog {
-				Title = "Runtime switcher", Content = message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
-			}.ShowAsync();
+			await HandleExceptionAsync(ex, "Runtime switcher");
 		}
 	}
 
@@ -65,4 +65,16 @@ public sealed partial class MainPage : Page {
 
 	void GamesView_ItemClick(object sender, ItemClickEventArgs e)
 		=> Frame.Navigate(typeof(GamePage), e.ClickedItem, new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
+
+	async Task HandleExceptionAsync(Exception ex, string title) {
+		VM.IsLoading = false;
+
+		string message = ex.Message;
+		if (ex is SecurityException) message = $"Security error: {message}\r\nYou might want to start UEVR Deluxe as administrator";
+
+		await new ContentDialog {
+			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
+		}.ShowAsync();
+	}
 }
