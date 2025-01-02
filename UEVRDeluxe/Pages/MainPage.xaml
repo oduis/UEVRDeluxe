@@ -36,7 +36,7 @@
 
 		<Image Grid.RowSpan="3" Source="/Assets/UELogo.svg" Width="300" Height="300" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="72" Opacity="0.1" />
 
-		<TextBlock Style="{StaticResource styPageHeader}" Margin="4,0,0,0">Select your Game from Steam</TextBlock>
+		<TextBlock Style="{StaticResource styPageHeader}" Margin="4,0,0,0">Select your installed Steam Game</TextBlock>
 
 		<GridView Grid.Row="1" Margin="0,16" ItemsSource="{x:Bind VM.Games, Mode=OneWay}" ItemTemplate="{StaticResource GameDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single"
 				  Background="{StaticResource SolidBackgroundFillColorTransparent}" ItemClick="GamesView_ItemClick">
@@ -59,11 +59,17 @@
 			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" />
 		</Border>
 
-		<StackPanel Grid.Row="5" Orientation="Horizontal" Spacing="48">
-			<HyperlinkButton NavigateUri="https://github.com/oduis/UEVRDeluxe" Padding="0">
+		<StackPanel Grid.Row="5" Orientation="Horizontal" Spacing="64">
+			<HyperlinkButton NavigateUri="https://uevrdeluxe.org" Padding="0">
 				<StackPanel Orientation="Horizontal">
-					<Image Source="/Assets/GitHubLogo.svg" Width="24" Height="24" Margin="0,0,6,0" />
-					<TextBlock VerticalAlignment="Center" FontSize="11">GitHub</TextBlock>
+					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xE80f;" />
+					<TextBlock VerticalAlignment="Center" FontSize="11">Homepage/Updates</TextBlock>
+				</StackPanel>
+			</HyperlinkButton>
+			<HyperlinkButton NavigateUri="https://uevrdeluxe.org/UEVRTutorial" Padding="0">
+				<StackPanel Orientation="Horizontal">
+					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xE946;" />
+					<TextBlock VerticalAlignment="Center" FontSize="11">How do I get started?</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
 			<HyperlinkButton NavigateUri="https://www.patreon.com/praydog" Padding="0">
@@ -72,7 +78,7 @@
 					<TextBlock VerticalAlignment="Center" FontSize="11">Support UEVR Author PrayDog</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
-			<HyperlinkButton NavigateUri="https://www.discord.com/" Padding="0">
+			<HyperlinkButton NavigateUri="https://discord.com/channels/747967102895390741/947806014344925274" Padding="0">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/DiscordLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
 					<TextBlock VerticalAlignment="Center" FontSize="11">Get Support</TextBlock>

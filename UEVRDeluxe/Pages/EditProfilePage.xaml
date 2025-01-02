@@ -25,7 +25,7 @@
 			<TextBlock Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit UEVR profile" />
 		</StackPanel>
 
-		<ScrollView Grid.Row="1" HorizontalScrollBarVisibility="Hidden">
+		<ScrollView Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
 			<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
@@ -46,7 +46,7 @@
 					<RadioButton Tag="1" Margin="0,4">
 						<StackPanel>
 							<TextBlock>Synced Sequential</TextBlock>
-							<TextBlock Style="{StaticResource styHelpText}">More CPU intensive, some anti aliasing will cause ghosting effects. But better compatiblity if game has issues with Native Stereo.</TextBlock>
+							<TextBlock Style="{StaticResource styHelpText}">More CPU intensive, some anti aliasing will cause ghosting effects. But better compatibility if game has issues with Native Stereo.</TextBlock>
 							<StackPanel x:Name="spSyncedSequentialMethod" Margin="0,4,0,0" Spacing="2">
 								<RadioButton Tag="0">
 									<StackPanel>
@@ -57,7 +57,7 @@
 								<RadioButton Tag="1">
 									<StackPanel>
 										<TextBlock>Skip Draw</TextBlock>
-										<TextBlock Style="{StaticResource styHelpText}">Better compatibility, but partical effects may not play correctly</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Better compatibility, but particle effects may not play correctly</TextBlock>
 									</StackPanel>
 								</RadioButton>
 							</StackPanel>
@@ -74,7 +74,7 @@
 				<StackPanel Grid.Row="1" Margin="0,20">
 					<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
 
-					<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using using Meta Quest Link. May causes crashes.</CheckBox>
+					<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using Meta Quest Link. May cause crashes.</CheckBox>
 				</StackPanel>
 
 				<StackPanel Grid.Row="2" Margin="0,0,0,20">
@@ -162,6 +162,13 @@
 				</Grid>
 			</Button>
 		</StackPanel>
+
+		<HyperlinkButton Grid.Row="2" HorizontalAlignment="Right" NavigateUri="https://uevrdeluxe.org/SubmitProfile" Padding="0">
+			<StackPanel Orientation="Horizontal">
+				<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xE946;" />
+				<TextBlock VerticalAlignment="Center" FontSize="11">How do I publish a profile for the community?</TextBlock>
+			</StackPanel>
+		</HyperlinkButton>
 
 		<ContentControl Grid.RowSpan="3" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 	</Grid>

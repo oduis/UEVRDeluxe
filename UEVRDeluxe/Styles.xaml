@@ -43,7 +43,14 @@
 		<Setter Property="MinHeight" Value="34" />
 		<Setter Property="MinWidth" Value="120" />
 	</Style>
-	
+
+	<Style x:Key="styHyperlinkIcon" TargetType="FontIcon">
+		<Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+		<Setter Property="FontSize" Value="22" />
+		<Setter Property="Margin" Value="0,0,6,0" />
+		<Setter Property="VerticalAlignment" Value="Center" />
+	</Style>
+
 	<Style x:Key="styButtonIcon" TargetType="FontIcon">
 		<Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
 		<Setter Property="FontSize" Value="16" />

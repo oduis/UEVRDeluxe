@@ -29,8 +29,8 @@ public class ProfileMeta {
 	[JsonPropertyName("authorName")]
 	public string AuthorName { get; set; }
 
-	/// <summary>Minimum version of UEVR, given as day to accomodate from interims releases.</summary>
-	/// <remarks>1.05 was 2024-11-16</remarks>
+	/// <summary>Minimum version of UEVR, given as day of UEVR code to accomodate from interims releases.</summary>
+	/// <remarks>1.05 was 2024-10-31</remarks>
 	[JsonPropertyName("minUEVRVersionDay")]
 	public DateTime MinEVRVersionDate { get; set; }
 
