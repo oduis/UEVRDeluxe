@@ -33,7 +33,7 @@ public class LocalProfile {
 		FrameworkConfig_EnableL3R3Toggle=true
 		FrameworkConfig_FontSize=16
 		FrameworkConfig_ImGuiTheme=0
-		FrameworkConfig_LogLevel=0
+		FrameworkConfig_LogLevel=3
 		OpenXR_IgnoreVirtualDesktopChecks=true
 		OpenXR_ResolutionScale=1.000000
 		VR_DPadShifting=true
