@@ -55,6 +55,9 @@ public class LocalProfile {
         ( Any more links, tips, etc. You can add more headers for more structure, e.g. changelogs )
         """;
 
+	/// <summary>Source code version release 1.05 october</summary>
+	readonly DateTime DEFAULT_MINEVRVERSIONDATE = new(2024, 10, 31);
+
 	public string FolderPath { get; private set; }
 
 	/// <summary>Content of the ProfileData.json</summary>
@@ -129,7 +132,7 @@ public class LocalProfile {
 				throw new Exception($"Incorrect profile meta {ProfileMetaPath}: {ex.Message}");
 			}
 		} else {
-			this.Meta = new();
+			this.Meta = new() { ModifiedDate = DateTime.Today, MinEVRVersionDate = DEFAULT_MINEVRVERSIONDATE };
 		}
 
 		if (File.Exists(ProfileDescriptionPath)) {
@@ -144,7 +147,7 @@ public class LocalProfile {
 
 		await WriteTextFileIfChangedAsync(ConfigFilePath, CleanedIni(Config));
 		await WriteTextFileIfChangedAsync(ProfileMetaPath, JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
-		await WriteTextFileIfChangedAsync(ProfileDescriptionPath, DescriptionMD);
+		if (!string.IsNullOrEmpty(DescriptionMD)) await WriteTextFileIfChangedAsync(ProfileDescriptionPath, DescriptionMD);
 	}
 
 	async Task WriteTextFileIfChangedAsync(string path, string content) {
@@ -175,11 +178,10 @@ public class LocalProfile {
 			Meta.ModifiedDate = DateTime.Today;
 
 			// Some empty string so its easier to edit without NULLs
-			Meta.GameName = installation?.Name ?? string.Empty;
+			Meta.GameName = installation?.Name?.Trim() ?? string.Empty;
 			Meta.AuthorName = Environment.UserName ?? string.Empty;
 			Meta.Remarks = string.Empty; Meta.GameVersion = string.Empty;
-			Meta.MinEVRVersionDate = new DateTime(2024, 10, 31);   // Source code version release 1.05 october
-			Meta.NullifyPlugins = true;
+			Meta.MinEVRVersionDate = DEFAULT_MINEVRVERSIONDATE;
 
 			File.WriteAllText(Path.Combine(FolderPath, ProfileMeta.FILENAME),
 				JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));

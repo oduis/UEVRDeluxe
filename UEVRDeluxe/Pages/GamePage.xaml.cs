@@ -101,7 +101,7 @@ public sealed partial class GamePage : Page {
 
 				IntPtr nullifierBase;
 				if (Injector.InjectDll(gameProcess.Id, SUBFOLDER + "UEVRPluginNullifier.dll", out nullifierBase) && nullifierBase.ToInt64() > 0) {
-					if (!Injector.CallFunctionNoArgs(gameProcess.Id, "UEVRPluginNullifier.dll", nullifierBase, "nullify", true)) {
+					if (!Injector.CallFunctionNoArgs(gameProcess.Id, SUBFOLDER + "UEVRPluginNullifier.dll", nullifierBase, "nullify", true)) {
 						Debug.WriteLine("Failed to nullify VR plugins.");
 					}
 				} else {
