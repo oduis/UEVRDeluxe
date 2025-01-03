@@ -41,6 +41,11 @@ public class ProfileMeta {
 	[JsonPropertyName("nullifyPlugins")]
 	public bool NullifyPlugins { get; set; }
 
+	/// <summary>If the game may not be injected directly, but only after it was started and in 3D mode</summary>
+	/// <remarks>e.g. Star Wars Fallen Order has this problem, leading to black windows if injected on start</remarks>
+	[JsonPropertyName("lateInjection")]
+	public bool LateInjection { get; set; }
+
 	[JsonPropertyName("modifiedDate")]
 	public DateTime ModifiedDate { get; set; }
 
