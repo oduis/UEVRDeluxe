@@ -119,7 +119,7 @@ public sealed partial class GamePage : Page {
 			VM.StatusMessage = "Focussing game window...";
 			Injector.SwitchToThisWindow(gameProcess.MainWindowHandle, true);
 
-			VM.StatusMessage = "Game is running! Press 'Ins' on keyboard or both controller joysticks to close the UEVR window in game.";
+			VM.StatusMessage = "Game is running! You may see a black screen while the intro movies are playing. The UEVR in-game window will open. Press 'Ins' on keyboard or both controller joysticks to close it.";
 
 			while (!shouldStop) {
 				await Task.Delay(1000);

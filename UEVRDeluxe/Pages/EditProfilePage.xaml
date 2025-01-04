@@ -161,7 +161,7 @@
 			</Button>
 		</StackPanel>
 
-		<HyperlinkButton Grid.Row="2" HorizontalAlignment="Right" NavigateUri="https://uevrdeluxe.org/SubmitProfile" Padding="0">
+		<HyperlinkButton Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" NavigateUri="https://uevrdeluxe.org/SubmitProfile" Padding="0,4">
 			<StackPanel Orientation="Horizontal">
 				<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xE946;" />
 				<TextBlock VerticalAlignment="Center" FontSize="11">How do I publish a profile for the community?</TextBlock>

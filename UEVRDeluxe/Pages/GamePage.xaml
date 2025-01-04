@@ -116,10 +116,11 @@
 				</Grid>
 			</Button>
 
-			<Button Grid.Column="2" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Launch_Click" Style="{StaticResource styButton}" HorizontalAlignment="Stretch">
+			<Button Grid.Column="2" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Launch_Click" Style="{StaticResource styButton}" HorizontalAlignment="Stretch"
+					ToolTipService.ToolTip="Starts game from Steam if not already running. Injects UEVR into game if already running.">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE768;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Start game</TextBlock>
+					<TextBlock Style="{StaticResource styButtonIconText}">Start / Inject game</TextBlock>
 				</Grid>
 			</Button>
 		</Grid>
