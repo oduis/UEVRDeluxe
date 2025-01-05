@@ -73,10 +73,10 @@ public sealed partial class GamePage : Page {
 
 			#region Launch process and wait
 			var gameProcess = Process.GetProcessesByName(VM.GameInstallation.EXEName.ToLowerInvariant()).FirstOrDefault();
-			if (gameProcess == null)  {
+			if (gameProcess == null) {
 				VM.StatusMessage = "Game not started yet. Launching via Steam...";
 
-				Process.Start(new ProcessStartInfo { FileName = $"steam://rungameid/{VM.GameInstallation.SteamID}", UseShellExecute = true });
+				Process.Start(new ProcessStartInfo { FileName = VM.GameInstallation.ShellLaunchPath, UseShellExecute = true });
 
 				if (VM.LocalProfile?.Meta?.LateInjection == true) {
 					VM.StatusMessage = "Manual injection needed";
