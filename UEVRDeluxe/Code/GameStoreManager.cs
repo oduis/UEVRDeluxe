@@ -57,7 +57,7 @@ public static class GameStoreManager {
 		cache = new GameInstallationCache {
 			CacheStructureVersion = GameInstallationCache.LATEST_CACHE_STRUCTURE_VERSION,
 			// simple clone, since the EXE is modified below
-			AllInstallations = JsonSerializer.Deserialize<List<GameInstallation>>(JsonSerializer.Serialize(allGames))
+			AllInstallations = allGames.ToArray().ToList()
 		};
 
 		// Find UE-Executable. This is more an art than a science and takes longer ;-)
@@ -131,6 +131,8 @@ public static class GameStoreManager {
 		allGames.RemoveAll(g => g.EXEName == null);
 
 		await File.WriteAllTextAsync(gameInstallationCachePath, JsonSerializer.Serialize(cache));
+
+		gameInstallations = allGames;
 
 		return allGames;
 	}
