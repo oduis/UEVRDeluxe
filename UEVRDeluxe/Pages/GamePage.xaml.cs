@@ -16,6 +16,7 @@ using UEVRDeluxe.ViewModels;
 namespace UEVRDeluxe.Pages;
 
 public sealed partial class GamePage : Page {
+	const int DEFAULT_DELAY_BEFORE_INJECTION_SEC = 3;
 	const string STEAMVR_EXE = "vrmonitor";
 	const string VIRTUALDESKTOP_EXE = "VirtualDesktop.Streamer";
 
@@ -84,12 +85,25 @@ public sealed partial class GamePage : Page {
 				}
 
 				VM.StatusMessage = "Waiting for launched game to start...";
+
+				int delayBeforeInjectionSec = DEFAULT_DELAY_BEFORE_INJECTION_SEC;
+				string appSetting = AppUserSettings.Read("DelayBeforeInjectionSec");
+				if (int.TryParse(appSetting, out int iAppSetting) && iAppSetting > 0) delayBeforeInjectionSec = iAppSetting;
+
+				DateTime? runningSinceUtc = null;
 				do {
 					gameProcess = Process.GetProcessesByName(VM.GameInstallation.EXEName.ToLowerInvariant()).FirstOrDefault();
-					await Task.Delay(1000);  // not if, since we want to give the EXE a second time...
+					if (gameProcess != null) {
+						if (runningSinceUtc == null) {
+							VM.StatusMessage = $"Game started. Waiting {delayBeforeInjectionSec} seconds before injection.";
+							runningSinceUtc = DateTime.UtcNow;
+						}
+					} else runningSinceUtc = null;  // In case it crashed on start or something
+
+					await Task.Delay(1000);
 
 					if (shouldStop) return;  // if the user cancelled
-				} while (gameProcess == null);
+				} while (runningSinceUtc == null || DateTime.UtcNow.Subtract(runningSinceUtc.Value).TotalSeconds < delayBeforeInjectionSec);
 			} else VM.StatusMessage = "Game already running, injecting...";
 			#endregion
 
