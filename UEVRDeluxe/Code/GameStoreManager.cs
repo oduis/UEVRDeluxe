@@ -27,8 +27,15 @@ public static class GameStoreManager {
 
 		// Find UE-Executable. This is more an art than a science ;-)
 		foreach (var game in allGames) {
-			string[] exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", SearchOption.AllDirectories);
-
+			string[] exesPaths = [];
+			try
+			{
+				exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", SearchOption.AllDirectories);
+			} catch (DirectoryNotFoundException)
+			{
+				//if the directory doesn't exist we will get an error, if so ignore the error
+			}
+			
 			var exeProps = new List<ExecutableProp>();
 			foreach (string exePath in exesPaths) {
 				var exe = new ExecutableProp { filePath = exePath };
