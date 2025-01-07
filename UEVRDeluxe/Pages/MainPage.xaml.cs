@@ -33,7 +33,7 @@ public sealed partial class MainPage : Page {
 
 			await CheckVersionAsync();
 
-			VM.Games = GameStoreManager.FindAllUEVRGames();
+			VM.Games = await GameStoreManager.FindAllUEVRGamesAsync();
 
 			VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
 			var defaultRuntime = VM.OpenXRRuntimes.FirstOrDefault(r => r.IsDefault);

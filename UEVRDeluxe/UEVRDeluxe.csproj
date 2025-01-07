@@ -11,7 +11,7 @@
     <UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<Nullable>disable</Nullable>
-		<VersionPrefix>0.9.4.0</VersionPrefix>
+		<VersionPrefix>0.9.4.1</VersionPrefix>
 		<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 		<FileVersion>$(VersionPrefix)</FileVersion>
 		<WindowsPackageType>None</WindowsPackageType>

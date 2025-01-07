@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 #endregion
 
 namespace UEVRDeluxe.Code;
@@ -19,13 +21,42 @@ public static class GameStoreManager {
 	readonly static string[] UNREAL_ENGINE_STRINGS = ["UnrealEngine", "UE4", "UE5", "UE6", "Epic Games"];
 
 	#region FindAllUEVRGames
-	public static List<GameInstallation> FindAllUEVRGames() {
+
+	static List<GameInstallation> gameInstallations;
+
+	public async static Task<List<GameInstallation>> FindAllUEVRGamesAsync() {
+		if (gameInstallations != null) return gameInstallations;  // If we e.g. get back from one game
+
+		// Check if cache is still valid
+		string gameInstallationCachePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\UEVRDeluxe\\GameInstallationCache.json";
+
+		GameInstallationCache cache = null;
+		if (File.Exists(gameInstallationCachePath)) {
+			cache = JsonSerializer.Deserialize<GameInstallationCache>(await File.ReadAllTextAsync(gameInstallationCachePath));
+			if (cache.CacheStructureVersion != GameInstallationCache.LATEST_CACHE_STRUCTURE_VERSION) cache = null;
+		}
+
 		var allGames = new List<GameInstallation>();
 
+		// This pretty quick, but catalogs in EPIC take a while. So try to augment with previous
 		allGames.AddRange(FindAllSteamGames());
-		allGames.AddRange(FindAllEPICGames());
+		allGames.AddRange(FindAllEPICGames(cache?.AllInstallations));
 
-		// Find UE-Executable. This is more an art than a science ;-)
+		if (cache != null && cache.AllInstallations.Count == allGames.Count
+				&& cache.AllInstallations.All(c => allGames.Any(g => g.ID == c.ID && g.EXEName == c.EXEName && g.FolderPath == c.FolderPath))) {
+
+			Debug.WriteLine("Taking cached game installations");
+			return cache.AllInstallations.Where(i => cache.FilteredInstallationIDs.Contains(i.ID)).ToList();
+		}
+
+		// Need to rebuild cache
+		cache = new GameInstallationCache {
+			CacheStructureVersion = GameInstallationCache.LATEST_CACHE_STRUCTURE_VERSION,
+			// simple clone, since the EXE is modified below
+			AllInstallations = JsonSerializer.Deserialize<List<GameInstallation>>(JsonSerializer.Serialize(allGames))
+		};
+
+		// Find UE-Executable. This is more an art than a science and takes longer ;-)
 		foreach (var game in allGames) {
 			string[] exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", SearchOption.AllDirectories);
 
@@ -91,14 +122,18 @@ public static class GameStoreManager {
 			}
 		}
 
+		cache.FilteredInstallationIDs = allGames.Where(g => g.EXEName != null).Select(g => g.ID).Order().ToList();
+
 		allGames.RemoveAll(g => g.EXEName == null);
+
+		await File.WriteAllTextAsync(gameInstallationCachePath, JsonSerializer.Serialize(cache));
 
 		return allGames;
 	}
 	#endregion
 
 	#region FindAllEPICGames
-	static List<GameInstallation> FindAllEPICGames() {
+	static List<GameInstallation> FindAllEPICGames(List<GameInstallation> cacheGameInstallations) {
 		var allGames = new List<GameInstallation>();
 
 		try {
@@ -107,15 +142,6 @@ public static class GameStoreManager {
 			string appDataPath = ReadWin32RegistryValue("SOFTWARE\\Epic Games\\EpicGamesLauncher", "AppDataPath");
 			if (string.IsNullOrEmpty(appDataPath)) return allGames;
 
-			// We need the catalog for Logo resultion
-			var catalogPath = Path.Combine(appDataPath, "Catalog", "catcache.bin");
-			var catalog = new List<EpicCatalogItem>();
-			if (File.Exists(catalogPath)) {
-				var catalogCacheFile = File.ReadAllText(catalogPath);
-				var json = Encoding.UTF8.GetString(Convert.FromBase64String(catalogCacheFile));
-				catalog = JsonSerializer.Deserialize<List<EpicCatalogItem>>(json, jsonOptions);
-			}
-			Debug.WriteLine($"Found {catalog.Count} cataloged EPIC items");
 
 			var manifestsPath = Path.Combine(appDataPath, "Manifests");
 			if (Directory.Exists(manifestsPath)) {
@@ -125,16 +151,40 @@ public static class GameStoreManager {
 					var manifest = JsonSerializer.Deserialize<EpicManifest>(File.ReadAllText(manifestPath), jsonOptions);
 					if (!Directory.Exists(manifest.InstallLocation)) continue;  // Might be delete manually
 
+					// IconURL later
 					var game = new GameInstallation {
-						StoreType = GameStoreType.Epic, EpicId = manifest.CatalogItemId, EpicNamespace = manifest.CatalogNamespace,
+						StoreType = GameStoreType.Epic, EpicID = manifest.CatalogItemId, EpicNamespace = manifest.CatalogNamespace,
 						FolderPath = manifest.InstallLocation, Name = manifest.DisplayName,
 						ShellLaunchPath = $"com.epicgames.launcher://apps/{manifest.AppName}?action=launch&silent=true"
 					};
 
-					var catalogItem = catalog.FirstOrDefault(c => c.Id == game.EpicId && c.Namespace == game.EpicNamespace);
-					game.IconURL = catalogItem?.KeyImages?.OrderBy(k => k.Height)?.FirstOrDefault()?.Url ?? "DUMMY";
-
 					allGames.Add(game);
+				}
+			}
+
+			// Try to resolve the Logos from Cache
+			if (cacheGameInstallations != null) {
+				foreach (var game in allGames)
+					game.IconURL = cacheGameInstallations.FirstOrDefault(g => g.ID == game.ID)?.IconURL;
+			}
+
+			// If not, we must expensively read the EPIC Catalog cache
+			if (allGames.Any(g => g.IconURL == null)) {
+				Debug.WriteLine("Reading catalog cache");
+
+				var catalogPath = Path.Combine(appDataPath, "Catalog", "catcache.bin");
+				var catalog = new List<EpicCatalogItem>();
+				if (File.Exists(catalogPath)) {
+					var catalogCacheFile = File.ReadAllText(catalogPath);
+					var json = Encoding.UTF8.GetString(Convert.FromBase64String(catalogCacheFile));
+					catalog = JsonSerializer.Deserialize<List<EpicCatalogItem>>(json, jsonOptions);
+
+					Debug.WriteLine($"Found {catalog.Count} cataloged EPIC items");
+
+					foreach (var game in allGames) {
+						var catalogItem = catalog.FirstOrDefault(c => c.Id == game.EpicID && c.Namespace == game.EpicNamespace);
+						game.IconURL = catalogItem?.KeyImages?.OrderBy(k => k.Height)?.FirstOrDefault()?.Url ?? "DUMMY";
+					}
 				}
 			}
 
@@ -222,9 +272,13 @@ public static class GameStoreManager {
 }
 
 public class GameInstallation {
-	public long SteamID { get; set; }
+	/// <summary>Global ID for comparisons</summary>
+	[JsonIgnore]
+	public string ID => SteamID.HasValue ? $"S{SteamID}" : $"E{EpicNamespace}|{EpicID}";
 
-	public string EpicId { get; set; }
+	public long? SteamID { get; set; }
+
+	public string EpicID { get; set; }
 	public string EpicNamespace { get; set; }
 
 	public string Name { get; set; }
@@ -246,6 +300,21 @@ public class GameInstallation {
 public enum GameStoreType {
 	Steam,
 	Epic
+}
+
+/// <summary>Disk representation.</summary>
+internal class GameInstallationCache {
+	public const int LATEST_CACHE_STRUCTURE_VERSION = 1;
+
+	/// <summary>What version was it built with?</summary>
+	/// <remarks>For future expansion, to determine if we'd need to recreate the cache because of structural changes.</remarks>
+	public int CacheStructureVersion { get; set; }
+
+	/// <summary>Before the expensive filter</summary>
+	public List<GameInstallation> AllInstallations { get; set; }
+
+	/// <summary>Just the resulting, filtered ones</summary>
+	public List<string> FilteredInstallationIDs { get; set; }
 }
 
 internal class ExecutableProp {
