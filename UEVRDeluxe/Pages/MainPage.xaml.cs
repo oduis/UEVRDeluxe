@@ -39,14 +39,24 @@ public sealed partial class MainPage : Page {
 			//Get games list on a non blocking thread and marshall the response back to the main thread
 			VM.FindingGames = true;
 			_ = Task.Run(() =>
-			{				
-				var games = GameStoreManager.FindAllUEVRGames();
-				
-				dispatcherQueue.TryEnqueue(() =>
-				{				
-					VM.Games = games;
-					VM.FindingGames = false;
-				});				
+			{
+				try
+				{
+					var games = GameStoreManager.FindAllUEVRGames();
+
+					dispatcherQueue.TryEnqueue(() =>
+					{
+						VM.Games = games;
+						VM.FindingGames = false;
+					});
+				} catch (Exception exc)
+				{
+					dispatcherQueue.TryEnqueue(() =>
+					{
+						VM.FindingGames = false;
+						VM.HandleExceptionAsync(this.XamlRoot, exc, "Steam load");
+					});					
+				}								
 			});						
 
 			VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
