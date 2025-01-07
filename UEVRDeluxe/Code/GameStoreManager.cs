@@ -123,6 +123,7 @@ public static class GameStoreManager {
 
 				foreach (var manifestPath in manifestPaths) {
 					var manifest = JsonSerializer.Deserialize<EpicManifest>(File.ReadAllText(manifestPath), jsonOptions);
+					if (!Directory.Exists(manifest.InstallLocation)) continue;  // Might be delete manually
 
 					var game = new GameInstallation {
 						StoreType = GameStoreType.Epic, EpicId = manifest.CatalogItemId, EpicNamespace = manifest.CatalogNamespace,
