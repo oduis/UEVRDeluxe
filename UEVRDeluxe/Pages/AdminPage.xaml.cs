@@ -4,13 +4,11 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using WinRT.Interop;
 #endregion
 
 namespace UEVRDeluxe.Pages;
@@ -25,15 +23,15 @@ public sealed partial class AdminPage : Page {
 		picker.SuggestedStartLocation = PickerLocationId.Desktop;
 		picker.FileTypeFilter.Add("*");
 
-		var hWnd = XamlRoot.ContentIslandEnvironment.AppWindowId;
-		WinRT.Interop.InitializeWithWindow.Initialize(picker, (nint)hWnd.Value);
+		//var hWnd = XamlRoot.ContentIslandEnvironment.AppWindowId;
+		WinRT.Interop.InitializeWithWindow.Initialize(picker, MainWindow.hWnd);
 
-#if !RELEASEx
+#if RELEASE
 		var folder = await picker.PickSingleFolderAsync();
 		if (folder == null) return;
 #else
-		// Sometimes picker throughs exceptions but only if called from within Visual Studio
-		StorageFolder folder = await StorageFolder.GetFolderFromPathAsync ("C:\\Temp\\SixDays-Win64-Shipping");
+		// Sometimes picker throws exceptions, but only if called from within Visual Studio
+		var folder = await StorageFolder.GetFolderFromPathAsync ("C:\\Temp\\Borderlands3");
 #endif
 		try {
 			VM.IsLoading = true;
@@ -51,7 +49,7 @@ public sealed partial class AdminPage : Page {
 				Title = "Upload", Content = "Profile uploaded successfully", CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Upload error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Upload error");
 		}
 	}
 
@@ -66,7 +64,7 @@ public sealed partial class AdminPage : Page {
 
 			VM.IsLoading = false;
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Search error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Search error");
 		}
 	}
 
@@ -83,8 +81,7 @@ public sealed partial class AdminPage : Page {
 			picker.DefaultFileExtension = ".zip";
 			picker.SuggestedFileName = AzConstants.GetProfileFileName(VM.SelectedProfileMeta.ID, VM.SelectedProfileMeta.EXEName);
 
-			var hWnd = XamlRoot.ContentIslandEnvironment.AppWindowId;
-			WinRT.Interop.InitializeWithWindow.Initialize(picker, (int)hWnd.Value);
+			WinRT.Interop.InitializeWithWindow.Initialize(picker, MainWindow.hWnd);
 
 			var saveFile = await picker.PickSaveFileAsync();
 			if (saveFile != null) {
@@ -94,7 +91,7 @@ public sealed partial class AdminPage : Page {
 			}
 
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Download error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Download error");
 		}
 	}
 
@@ -122,18 +119,9 @@ public sealed partial class AdminPage : Page {
 				Title = "Delete", Content = "Profile deleted successfully", CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Delete error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Delete error");
 		}
 	}
 
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
-
-	async Task HandleExceptionAsync(Exception ex, string title) {
-		VM.IsLoading = false;
-
-		await new ContentDialog {
-			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
-			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
-		}.ShowAsync();
-	}
 }

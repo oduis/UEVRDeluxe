@@ -24,6 +24,9 @@ public abstract class FunctionsBase {
 	/// <summary>Subdirectory name that contains the profile</summary>
 	string BLOB_PROFILE_CONTAINER_NAME = "uevrprofiles";
 
+	/// <summary>Cache containing a list of all game names.</summary>
+	protected string BLOB_ALLGAMES_DOCUMENT = "_AllGames.txt";
+
 	protected async Task<BlobContainerClient> CreateOpenBlobsContainerAsync() {
 		var container = new BlobContainerClient(config["StorageConnectString"], BLOB_PROFILE_CONTAINER_NAME);
 #if DEBUG

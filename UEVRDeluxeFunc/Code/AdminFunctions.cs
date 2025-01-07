@@ -1,15 +1,14 @@
 #region Usings
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Azure;
+using Azure.Data.Tables;
+using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 using UEVRDeluxe.Common;
-using Azure.Data.Tables;
-using Azure;
-using Microsoft.Azure.Functions.Worker.Http;
 #endregion
 
 namespace UEVRDeluxeFunc;
@@ -77,6 +76,8 @@ public class AdminFunctions : FunctionsBase {
 			await tableClient.AddEntityAsync(entity);
 			logger.LogInformation($"Uploaded profile {profileMeta.EXEName} {profileMeta.ID}");
 
+			await UpdateAllGamesDocumentAsync(tableClient, blobContainerClient);
+
 			var result = await ReadProfilesAsync(tableClient, profileMeta.EXEName);
 			resp = await HttpDataHelpers.CreateOKJsonResponseAsync(req, result);
 
@@ -125,13 +126,32 @@ public class AdminFunctions : FunctionsBase {
 
 			logger.LogInformation($"Deleted profile {id}");
 
-			resp = HttpDataHelpers.CreateOKResultReponse(req);
+			await UpdateAllGamesDocumentAsync(tableClient, blobContainerClient);
 
+			resp = HttpDataHelpers.CreateOKResultReponse(req);
 		} catch (Exception ex) {
 			resp = await HttpDataHelpers.CreateLogExceptionResponseAsync(logger, req, ex);
 		}
 
 		return resp;
+	}
+	#endregion
+
+	#region UpdateAllGamesDocumentAsync
+	/// <summary>Tables scans are expensive. Just cache the document</summary>
+	async Task UpdateAllGamesDocumentAsync(TableClient tableClient, BlobContainerClient blobContainerClient) {
+		var queryAll = tableClient.Query<TableEntity>();
+		var distinctGameNames = queryAll.Select(entity => entity.GetString(nameof(ProfileMeta.GameName)))
+						 .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().Order().ToList();
+
+		logger.LogInformation($"Caching {distinctGameNames} total games");
+
+		byte[] data = System.Text.Encoding.UTF8.GetBytes(string.Join("\n", distinctGameNames));
+
+		var blobClient = blobContainerClient.GetBlobClient(BLOB_ALLGAMES_DOCUMENT);
+		using (var strm = blobClient.OpenWrite(true)) {
+			await strm.WriteAsync(data);
+		}
 	}
 	#endregion
 }

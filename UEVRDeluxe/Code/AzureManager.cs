@@ -76,6 +76,22 @@ public static class AzureManager {
 		return result.OrderBy(p => p.GameName).ThenByDescending(p => p.ModifiedDate);
 	}
 
+	public static async Task<string> GetAllProfileNamesAsync(bool nocache = false) {
+		string cacheKey = "GetAllProfileNames";
+
+		if (!nocache && memCache.TryGetValue(cacheKey, out object cached)) return (string)cached;
+
+		var client = GetHttpClient();
+
+		var resp = await client.GetAsync("allprofilenames");
+		if (!resp.IsSuccessStatusCode) throw new Exception($"Failed to search all profile names ({(int)resp.StatusCode})");
+
+		var result = await resp.Content.ReadAsStringAsync();
+		memCache[cacheKey] = result;
+
+		return result;
+	}
+
 	public static async Task<byte[]> DownloadProfileZipAsync(string exeName, Guid profileID) {
 		string cacheKey = $"Download_{exeName}_{profileID:n}";
 		if (memCache.TryGetValue(cacheKey, out object cached)) return (byte[])cached;

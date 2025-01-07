@@ -39,7 +39,7 @@ public sealed partial class GamePage : Page {
 
 			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD);
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Load profile error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
 	}
 	#endregion
@@ -59,7 +59,7 @@ public sealed partial class GamePage : Page {
 
 			VM.IsLoading = false;
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Search online error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Search online error");
 		}
 	}
 	#endregion
@@ -170,14 +170,5 @@ public sealed partial class GamePage : Page {
 	void Edit_Click(object sender, RoutedEventArgs e) => Frame.Navigate(typeof(EditProfilePage), VM.GameInstallation, new DrillInNavigationTransitionInfo());
 
 	void Back_Click(object sender, RoutedEventArgs e) { if (!VM.IsRunning) Frame.GoBack(); }
-
-	async Task HandleExceptionAsync(Exception ex, string title) {
-		VM.IsLoading = false;
-
-		await new ContentDialog {
-			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
-			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
-		}.ShowAsync();
-	}
 }
 

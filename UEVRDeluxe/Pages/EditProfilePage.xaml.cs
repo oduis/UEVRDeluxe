@@ -40,7 +40,7 @@ public sealed partial class EditProfilePage : Page {
 
 			slResolutionScale.Value = Math.Round(double.Parse(VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] ?? "1.0", CultureInfo.InvariantCulture) * 100);
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Load profile error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
 	}
 
@@ -53,7 +53,7 @@ public sealed partial class EditProfilePage : Page {
 
 			Frame.GoBack();
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Save error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Save error");
 		}
 	}
 
@@ -100,7 +100,7 @@ public sealed partial class EditProfilePage : Page {
 				}.ShowAsync();
 			}
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Publish error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Publish error");
 		}
 	}
 
@@ -117,7 +117,7 @@ public sealed partial class EditProfilePage : Page {
 			};
 			Process.Start(startInfo);
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Open folder error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Open folder error");
 		}
 	}
 
@@ -140,17 +140,8 @@ public sealed partial class EditProfilePage : Page {
 
 			Frame.GoBack();
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Delete error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Delete error");
 		}
 	}
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
-
-	async Task HandleExceptionAsync(Exception ex, string title) {
-		VM.IsLoading = false;
-
-		await new ContentDialog {
-			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
-			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
-		}.ShowAsync();
-	}
 }

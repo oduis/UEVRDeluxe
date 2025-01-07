@@ -34,11 +34,9 @@
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
-		<Image Grid.RowSpan="3" Source="/Assets/UELogo.svg" Width="300" Height="300" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="72" Opacity="0.1" />
-
 		<TextBlock Style="{StaticResource styPageHeader}" Margin="4,0,0,0">Select your installed Steam/EPIC Game</TextBlock>
 
-		<GridView Grid.Row="1" Margin="0,16" ItemsSource="{x:Bind VM.Games, Mode=OneWay}" ItemTemplate="{StaticResource GameDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single"
+		<GridView x:Name="gvGames" Grid.Row="1" Margin="0,16" ItemsSource="{x:Bind VM.Games, Mode=OneWay}" ItemTemplate="{StaticResource GameDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single"
 				  Background="{StaticResource SolidBackgroundFillColorTransparent}" ItemClick="GamesView_ItemClick">
 			<GridView.ItemContainerStyle>
 				<Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
@@ -69,7 +67,13 @@
 			<HyperlinkButton NavigateUri="https://uevrdeluxe.org/UEVRTutorial" Padding="0">
 				<StackPanel Orientation="Horizontal">
 					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xE946;" />
-					<TextBlock VerticalAlignment="Center" FontSize="11">How do I get started?</TextBlock>
+					<TextBlock VerticalAlignment="Center" FontSize="11">Tutorial</TextBlock>
+				</StackPanel>
+			</HyperlinkButton>
+			<HyperlinkButton Click="NavigateAllProfilesPage" Padding="0">
+				<StackPanel Orientation="Horizontal">
+					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xEA37;" />
+					<TextBlock VerticalAlignment="Center" FontSize="11">Supported Games</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
 			<HyperlinkButton NavigateUri="https://www.patreon.com/praydog" Padding="0">

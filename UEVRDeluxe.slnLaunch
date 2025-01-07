@@ -5,7 +5,7 @@
       {
         "Path": "UEVRDeluxe\\UEVRDeluxe.csproj",
         "Action": "Start",
-        "DebugTarget": "UEVRDeluxe (Package)"
+        "DebugTarget": "UEVRDeluxe (Unpackaged)"
       },
       {
         "Path": "UEVRDeluxeFunc\\UEVRDeluxeFunc.csproj",

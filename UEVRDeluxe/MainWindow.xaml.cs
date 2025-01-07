@@ -14,6 +14,8 @@ namespace UEVRDeluxe;
 public sealed partial class MainWindow : Window {
 	public static CoreWebView2Environment WebViewEnv;
 
+	public static nint hWnd { get; private set; }
+
 	public MainWindow() {
 		InitializeComponent();
 		_ = InitializeBrowser();
@@ -21,8 +23,8 @@ public sealed partial class MainWindow : Window {
 		var version = Assembly.GetExecutingAssembly().GetName().Version;
 		tbCaption.Text = $"Unreal VR Deluxe {version} BETA";
 
-		var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-		var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
+		hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+		var windowId = Win32Interop.GetWindowIdFromWindow(hWnd);
 		var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
 
 		if (appWindow != null) {

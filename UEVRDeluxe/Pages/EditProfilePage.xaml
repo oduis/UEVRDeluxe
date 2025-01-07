@@ -22,7 +22,7 @@
 			<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
 				<FontIcon Style="{StaticResource styBackLink}" />
 			</HyperlinkButton>
-			<TextBlock Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit UEVR profile" />
+			<TextBlock VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit UEVR profile" />
 		</StackPanel>
 
 		<ScrollView Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">

@@ -51,8 +51,10 @@ public sealed partial class MainPage : Page {
 					}
 				}
 			}
+
+			gvGames.Focus(FocusState.Programmatic);  // WInUI selects links otherwise
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Steam load");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Steam load");
 		}
 
 		VM.IsLoading = false;
@@ -66,7 +68,7 @@ public sealed partial class MainPage : Page {
 		try {
 			OpenXRManager.SetActiveRuntime((e.AddedItems.First() as OpenXRRuntime).Path);
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Runtime switcher");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Runtime switcher");
 		}
 	}
 	#endregion
@@ -75,22 +77,11 @@ public sealed partial class MainPage : Page {
 	void NavigateAdminPage(object sender, RoutedEventArgs e)
 		=> Frame.Navigate(typeof(AdminPage), null, new DrillInNavigationTransitionInfo());
 
+	void NavigateAllProfilesPage(object sender, RoutedEventArgs e)
+	=> Frame.Navigate(typeof(AllProfilesPage), null, new DrillInNavigationTransitionInfo());
+
 	void GamesView_ItemClick(object sender, ItemClickEventArgs e)
 		=> Frame.Navigate(typeof(GamePage), e.ClickedItem, new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
-	#endregion
-
-	#region HandleExceptionAsync
-	async Task HandleExceptionAsync(Exception ex, string title) {
-		VM.IsLoading = false;
-
-		string message = ex.Message;
-		if (ex is SecurityException) message = $"Security error: {message}\r\nYou might want to start UEVR Deluxe as administrator";
-
-		await new ContentDialog {
-			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
-			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
-		}.ShowAsync();
-	}
 	#endregion
 
 	#region CheckVersionAsync

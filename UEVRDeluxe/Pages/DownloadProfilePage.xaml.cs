@@ -35,7 +35,7 @@ public sealed partial class DownloadProfilePage : Page {
 			VM.IsLoading = false;
 			Frame.GoBack();
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Download error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Download error");
 		}
 	}
 
@@ -61,18 +61,9 @@ public sealed partial class DownloadProfilePage : Page {
 
 			VM.IsLoading = false;
 		} catch (Exception ex) {
-			await HandleExceptionAsync(ex, "Download description error");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Download description error");
 		}
 	}
 
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
-
-	async Task HandleExceptionAsync(Exception ex, string title) {
-		VM.IsLoading = false;
-
-		await new ContentDialog {
-			Title = title, CloseButtonText = "OK", XamlRoot = this.XamlRoot,
-			Content = string.IsNullOrEmpty(ex.Message) ? ex.ToString() : ex.Message
-		}.ShowAsync();
-	}
 }

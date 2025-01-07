@@ -1,6 +1,10 @@
 ﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Security;
+using System.Threading.Tasks;
 
 namespace UEVRDeluxe.ViewModels;
 
@@ -50,4 +54,16 @@ public abstract class VMBase : INotifyPropertyChanged {
     /// <summary>On many pages is a loading control</summary>
     public bool IsLoading { get => isLoading; set => Set(ref isLoading, value, [nameof(VisibleIfLoading)]); }
 	public Visibility VisibleIfLoading => IsLoading ? Visibility.Visible : Visibility.Collapsed;
+
+	public async Task HandleExceptionAsync(XamlRoot xamlRoot, Exception ex, string title) {
+		IsLoading = false;
+
+		string message = ex.Message;
+		if (ex is SecurityException) message = $"Security error: {message}\r\nYou might want to start UEVR Deluxe as administrator";
+
+		await new ContentDialog {
+			Title = title, CloseButtonText = "OK", XamlRoot = xamlRoot,
+			Content = string.IsNullOrEmpty(message) ? ex.ToString() : ex.Message
+		}.ShowAsync();
+	}
 }

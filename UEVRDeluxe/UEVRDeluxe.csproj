@@ -11,7 +11,7 @@
     <UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<Nullable>disable</Nullable>
-		<VersionPrefix>0.9.3.0</VersionPrefix>
+		<VersionPrefix>0.9.4.0</VersionPrefix>
 		<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 		<FileVersion>$(VersionPrefix)</FileVersion>
 		<WindowsPackageType>None</WindowsPackageType>
@@ -20,6 +20,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Pages\AdminPage.xaml" />
+    <None Remove="Pages\AllProfilesPage.xaml" />
     <None Remove="Pages\EditProfilePage.xaml" />
     <None Remove="Pages\GamePage.xaml" />
     <None Remove="Pages\MainPage.xaml" />
@@ -84,9 +85,6 @@
     <Content Update="Assets\PatreonLogo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Update="Assets\UELogo.svg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\EditProfilePage.xaml">
@@ -96,6 +94,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <Page Update="Pages\AllProfilesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="UEVR\LuaVR.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

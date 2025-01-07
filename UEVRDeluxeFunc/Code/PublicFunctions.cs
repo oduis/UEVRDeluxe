@@ -1,6 +1,4 @@
 #region Usings
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
@@ -98,6 +96,30 @@ public class PublicFunctions : FunctionsBase {
 				resp = HttpDataHelpers.CreateOKResultReponse(req, 24 * 60, KnownMimeTypes.Zip);
 				await resp.Body.WriteAsync(result);
 			}
+		} catch (Exception ex) {
+			resp = await HttpDataHelpers.CreateLogExceptionResponseAsync(logger, req, ex);
+		}
+
+		return resp;
+	}
+
+	[Function("DownloadAllProfileNames")]
+	public async Task<HttpResponseData> RunDownloadAllProfileNamesAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "allprofilenames")] HttpRequestData req) {
+		HttpResponseData resp;
+
+		try {
+			logger.LogInformation($"DownloadAllProfileNames()");
+
+			CheckHttpRequest(req);
+
+			var blobContainerClient = await CreateOpenBlobsContainerAsync();
+			var blobClient = blobContainerClient.GetBlobClient(BLOB_ALLGAMES_DOCUMENT);
+
+			// Minimal download to get the description file
+			var blobContent = await blobClient.DownloadContentAsync();
+
+			resp = HttpDataHelpers.CreateOKResultReponse(req, 60, KnownMimeTypes.Text);
+			await resp.Body.WriteAsync(blobContent.Value.Content);
 		} catch (Exception ex) {
 			resp = await HttpDataHelpers.CreateLogExceptionResponseAsync(logger, req, ex);
 		}
