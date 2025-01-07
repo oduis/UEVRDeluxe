@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
+using Microsoft.UI.Dispatching;
 #endregion
 
 namespace UEVRDeluxe.Pages;
@@ -33,7 +34,20 @@ public sealed partial class MainPage : Page {
 
 			await CheckVersionAsync();
 
-			VM.Games = GameStoreManager.FindAllUEVRGames();
+			var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+
+			//Get games list on a non blocking thread and marshall the response back to the main thread
+			VM.FindingGames = true;
+			_ = Task.Run(() =>
+			{				
+				var games = GameStoreManager.FindAllUEVRGames();
+				
+				dispatcherQueue.TryEnqueue(() =>
+				{				
+					VM.Games = games;
+					VM.FindingGames = false;
+				});				
+			});						
 
 			VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
 			var defaultRuntime = VM.OpenXRRuntimes.FirstOrDefault(r => r.IsDefault);

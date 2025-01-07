@@ -11,6 +11,9 @@ public class MainPageVM : VMBase {
 	List<GameInstallation> games;
 	public List<GameInstallation> Games { get => games; set => Set(ref games, value); }
 
+	bool findingGames;
+	public bool FindingGames { get => findingGames; set => Set(ref findingGames, value); }
+
 	string warning;
 	public string Warning { get => warning; set => Set(ref warning, value, [nameof(WarningVisible)]); }
 	public Visibility WarningVisible => string.IsNullOrWhiteSpace(warning) ? Visibility.Collapsed : Visibility.Visible;

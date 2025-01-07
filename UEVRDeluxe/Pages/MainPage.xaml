@@ -45,6 +45,8 @@
 			</GridView.ItemContainerStyle>
 		</GridView>
 
+		<TextBlock Grid.Row="1" Style="{StaticResource stySubHeader}" HorizontalAlignment="Center" VerticalAlignment="Center"  Visibility="{x:Bind VM.FindingGames, Mode=OneWay}">Finding Games...</TextBlock>
+		
 		<TextBlock Grid.Row="2" Style="{StaticResource stySubHeader}" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}">Select Application to link your Headset to this PC</TextBlock>
 		<StackPanel Grid.Row="3" Orientation="Horizontal" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}" Margin="0,4,0,20">
 			<TextBlock VerticalAlignment="Center">OpenXR Runtime:</TextBlock>
