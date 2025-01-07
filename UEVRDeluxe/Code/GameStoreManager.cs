@@ -16,7 +16,8 @@ using System.Threading.Tasks;
 namespace UEVRDeluxe.Code;
 
 public static class GameStoreManager {
-	readonly static string[] IGNORE_GAME_NAMES = ["Steamworks Common Redistributables", "SteamVR"];
+	readonly static string[] IGNORE_GAME_NAMES = [
+		"Steamworks Common Redistributables", "SteamVR", "PlayStation\u00AEVR2 App", "Godot Engine", "Unreal Engine", "Blender"];
 
 	readonly static string[] UNREAL_ENGINE_STRINGS = ["UnrealEngine", "UE4", "UE5", "UE6", "Epic Games"];
 
@@ -27,8 +28,10 @@ public static class GameStoreManager {
 	public async static Task<List<GameInstallation>> FindAllUEVRGamesAsync() {
 		if (gameInstallations != null) return gameInstallations;  // If we e.g. get back from one game
 
-		// Check if cache is still valid
-		string gameInstallationCachePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\UEVRDeluxe\\GameInstallationCache.json";
+		string rootFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UEVRDeluxe");
+		if (!Directory.Exists(rootFolder)) Directory.CreateDirectory(rootFolder);
+
+		string gameInstallationCachePath = Path.Combine(rootFolder, "GameInstallationCache.json");
 
 		GameInstallationCache cache = null;
 		if (File.Exists(gameInstallationCachePath)) {
@@ -42,6 +45,7 @@ public static class GameStoreManager {
 		allGames.AddRange(FindAllSteamGames());
 		allGames.AddRange(FindAllEPICGames(cache?.AllInstallations));
 
+		// Check if cache is still valid
 		if (cache != null && cache.AllInstallations.Count == allGames.Count
 				&& cache.AllInstallations.All(c => allGames.Any(g => g.ID == c.ID && g.EXEName == c.EXEName && g.FolderPath == c.FolderPath))) {
 
