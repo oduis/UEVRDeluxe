@@ -40,7 +40,7 @@
 			</Setter.Value>
 		</Setter>
 		<Setter Property="CornerRadius" Value="6" />
-		<Setter Property="MinHeight" Value="34" />
+		<Setter Property="MinHeight" Value="38" />
 		<Setter Property="MinWidth" Value="120" />
 	</Style>
 

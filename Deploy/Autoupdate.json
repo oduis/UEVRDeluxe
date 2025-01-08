@@ -1,6 +1,6 @@
 {
   "app": "UEVRDeluxe",
-  "version": "0.9.4.0",
-  "releaseNotes": "EPIC Store added to launcher & List of all supported games with database profiles added",
+  "version": "0.9.5.0",
+  "releaseNotes": "Optimzed for large or corrupted game libraries; some delay before auto-injection",
   "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V0940"
 }
