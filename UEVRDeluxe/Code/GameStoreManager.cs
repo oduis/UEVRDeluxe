@@ -19,6 +19,9 @@ public static class GameStoreManager {
 	readonly static string[] IGNORE_GAME_NAMES = [
 		"Steamworks Common Redistributables", "SteamVR", "PlayStation\u00AEVR2 App", "Godot Engine", "Unreal Engine", "Blender"];
 
+	readonly static string[] IGNORE_EXE_NAME_PARTS = [
+		"Setup.exe", "Setup_x64.exe", "Setup_x32.exe", "Launcher.exe", "CrashReport", "easyanticheat", "installer.exe", "crashpad_handler" ];
+
 	readonly static string[] UNREAL_ENGINE_STRINGS = ["UnrealEngine", "UE4", "UE5", "UE6", "Epic Games"];
 
 	#region FindAllUEVRGames
@@ -62,13 +65,27 @@ public static class GameStoreManager {
 
 		// Find UE-Executable. This is more an art than a science and takes longer ;-)
 		foreach (var game in allGames) {
+			// First check if directories contain the magic directories that are specific to Unreal
+			string[] alldirs = Directory.GetDirectories(game.FolderPath, "*", SearchOption.AllDirectories);
+
+			if (!alldirs.Any(d => d.Contains("Engine\\Binaries\\Win64", StringComparison.OrdinalIgnoreCase)
+				|| d.Contains("Engine\\Binaries\\ThirdParty", StringComparison.OrdinalIgnoreCase))) 
+				continue;
+
+			// The find the EXE
 			string[] exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", SearchOption.AllDirectories);
 
 			var exeProps = new List<ExecutableProp>();
 			foreach (string exePath in exesPaths) {
+				string exeFileName = Path.GetFileName(exePath);
+
+				// Sometimes Crashreporters are sitting in prominent positions
+				if (IGNORE_EXE_NAME_PARTS.Any(f => exeFileName.Contains(f, StringComparison.OrdinalIgnoreCase)))
+					continue;
+
 				var exe = new ExecutableProp { filePath = exePath };
 
-				exe.isShipping = Path.GetFileName(exePath).EndsWith("-Shipping.exe", System.StringComparison.OrdinalIgnoreCase);
+				exe.isShipping = exeFileName.EndsWith("-Shipping.exe", StringComparison.OrdinalIgnoreCase);
 
 				string[] pathParts = Path.GetDirectoryName(exePath).Split(Path.DirectorySeparatorChar);
 				exe.directoryCount = pathParts.Length;
@@ -98,29 +115,6 @@ public static class GameStoreManager {
 				}
 
 				game.EXEName = Path.GetFileNameWithoutExtension(bestProps.filePath);
-
-				if (!exeProps.Any(e => e.isShipping)) {
-					// This is how UEVRFrontend does it
-					// Check if going up the parent directories reveals the directory "\Engine\Binaries\ThirdParty".
-					var parentPath = Path.GetDirectoryName(bestProps.filePath);
-					for (int i = 0; i < 10; ++i) {  // Limit the number of directories to move up to prevent endless loops.
-						if (parentPath == null) game.EXEName = null;
-
-						if (Directory.Exists(parentPath + "\\Engine\\Binaries\\ThirdParty") ||
-							Directory.Exists(parentPath + "\\Engine\\Binaries\\Win64")) break;
-
-						parentPath = Path.GetDirectoryName(parentPath);
-					}
-
-					/* Pretty resource intensive
-					string fileContent = File.ReadAllText(bestProps.filePath, Encoding.ASCII);
-
-					// Check for common Unreal Engine strings
-					if (!UNREAL_ENGINE_STRINGS.Any(s => fileContent.Contains(s, StringComparison.OrdinalIgnoreCase)))
-						game.EXEName = null;
-					Debug.WriteLine($"UE strings in {game.Name}: {game.EXEName != null}");
-					*/
-				}
 			} else {
 				Debug.WriteLine($"No executable found for {game.Name}");
 			}
@@ -155,7 +149,8 @@ public static class GameStoreManager {
 
 				foreach (var manifestPath in manifestPaths) {
 					var manifest = JsonSerializer.Deserialize<EpicManifest>(File.ReadAllText(manifestPath), jsonOptions);
-					if (!Directory.Exists(manifest.InstallLocation)) continue;  // Might be delete manually
+					if (!Directory.Exists(manifest.InstallLocation)  // Might be delete manually
+						|| IGNORE_GAME_NAMES.Contains(manifest.DisplayName)) continue;  // e.g. "Unreal Engine"
 
 					// IconURL later
 					var game = new GameInstallation {
