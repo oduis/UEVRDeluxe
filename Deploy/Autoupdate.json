@@ -1,6 +1,6 @@
 {
   "app": "UEVRDeluxe",
-  "version": "0.9.5.0",
-  "releaseNotes": "Optimzed for large or corrupted game libraries; some delay before auto-injection",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V0940"
+  "version": "0.9.5.2",
+  "releaseNotes": "Improved scanning of installed games (e.g. Hogwarts Legacy); Sorting for games list",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V0952"
 }

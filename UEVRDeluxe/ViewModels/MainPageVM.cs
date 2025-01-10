@@ -1,6 +1,7 @@
 ﻿#region Usings
 using Microsoft.UI.Xaml;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using UEVRDeluxe.Code;
 #endregion
@@ -8,8 +9,8 @@ using UEVRDeluxe.Code;
 namespace UEVRDeluxe.ViewModels;
 
 public class MainPageVM : VMBase {
-	List<GameInstallation> games;
-	public List<GameInstallation> Games { get => games; set => Set(ref games, value); }
+	ObservableCollection<GameInstallation> games;
+	public ObservableCollection<GameInstallation> Games { get => games; set => Set(ref games, value); }
 
 	string warning;
 	public string Warning { get => warning; set => Set(ref warning, value, [nameof(WarningVisible)]); }

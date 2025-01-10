@@ -1,9 +1,13 @@
 #region Usings
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -33,7 +37,9 @@ public sealed partial class MainPage : Page {
 
 			await CheckVersionAsync();
 
-			VM.Games = await GameStoreManager.FindAllUEVRGamesAsync();
+			InitSort();
+			VM.Games = new System.Collections.ObjectModel.ObservableCollection<GameInstallation>(await GameStoreManager.FindAllUEVRGamesAsync());
+			SortGames();
 
 			VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
 			var defaultRuntime = VM.OpenXRRuntimes.FirstOrDefault(r => r.IsDefault);
@@ -131,6 +137,33 @@ public sealed partial class MainPage : Page {
 			// Gracefully ignore
 			System.Diagnostics.Debug.WriteLine($"Cannot check version: {ex.Message}");
 		}
+	}
+	#endregion
+
+	#region * Sorting
+	static string sortBy = "recent";  // static so it survives back and forth
+
+	void InitSort() {
+		if (sortBy == "recent") rbSortRecent.IsChecked = true;
+		else rbSortName.IsChecked = true;
+	}
+	void SortRecentChecked(object sender, RoutedEventArgs e) { sortBy = "recent"; SortGames(); }
+	void SortNameChecked(object sender, RoutedEventArgs e) { sortBy = "name"; SortGames(); }
+
+	void SortGames() {
+		if (VM.Games == null) return;
+
+		Debug.WriteLine("Sort by " + sortBy);
+
+		// build a reference list. We only need it for sorting
+		List<GameInstallation> sortedList;
+		if (sortBy == "recent")
+			sortedList = VM.Games.OrderByDescending(g => g.LastPlayed ?? new DateTime()).ThenBy(g => g.Name).ToList();
+		else
+			sortedList = VM.Games.OrderBy(g => g.Name).ToList();
+
+		// Do NOT recreated the ObservableCollection
+		for (int i = 0; i < sortedList.Count; i++) VM.Games.Move(VM.Games.IndexOf(sortedList[i]), i);
 	}
 	#endregion
 }
