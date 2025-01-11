@@ -46,7 +46,7 @@
 
 			<TextBlock Grid.Column="1" VerticalAlignment="Center">Sort by</TextBlock>
 			<RadioButton Grid.Column="2" x:Name="rbSortRecent" Checked="SortRecentChecked" Content="Recently played" Margin="16,0" />
-			<RadioButton Grid.Column="3" x:Name="rbSortName" Checked="SortNameChecked" Content="Name" />
+			<RadioButton Grid.Column="3" MinWidth="64" x:Name="rbSortName" Checked="SortNameChecked" Content="Name" />
 		</Grid>
 
 		<GridView x:Name="gvGames" Grid.Row="1" Margin="0,16" ItemsSource="{x:Bind VM.Games, Mode=OneWay}" ItemTemplate="{StaticResource GameDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single"

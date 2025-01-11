@@ -69,11 +69,15 @@ public static class GameStoreManager {
 			string[] alldirs = Directory.GetDirectories(game.FolderPath, "*", SearchOption.AllDirectories);
 
 			if (!alldirs.Any(d => d.Contains("Engine\\Binaries\\Win64", StringComparison.OrdinalIgnoreCase)
-				|| d.Contains("Engine\\Binaries\\ThirdParty", StringComparison.OrdinalIgnoreCase))) 
+				|| d.Contains("Engine\\Binaries\\ThirdParty", StringComparison.OrdinalIgnoreCase)))
 				continue;
 
 			// The find the EXE
 			string[] exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", SearchOption.AllDirectories);
+
+			// the name of the game directory often partly occurs in the correct exe name
+			// e.g folder (=game) \ReadyOrNot\, exe like ReadyOrNot.exe
+			string folderShortName = Path.GetFileName(game.FolderPath.TrimEnd(Path.DirectorySeparatorChar)).Replace(" ", "");
 
 			var exeProps = new List<ExecutableProp>();
 			foreach (string exePath in exesPaths) {
@@ -87,6 +91,9 @@ public static class GameStoreManager {
 
 				exe.isShipping = exeFileName.EndsWith("-Shipping.exe", StringComparison.OrdinalIgnoreCase);
 
+				if (exeFileName.Length > 3 && folderShortName.Length > 3)
+					exe.isSimilarName = folderShortName.Substring(0, 4).Equals(exeFileName.Substring(0, 4), StringComparison.OrdinalIgnoreCase);
+
 				string[] pathParts = Path.GetDirectoryName(exePath).Split(Path.DirectorySeparatorChar);
 				exe.directoryCount = pathParts.Length;
 
@@ -97,9 +104,15 @@ public static class GameStoreManager {
 				exeProps.Add(exe);
 			}
 
-			var bestProps = exeProps.FirstOrDefault(g => g.isShipping && g.isInWinFolder)
+			var bestProps =
+				exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInWinFolder)
+				?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInBinariesFolder)
+				?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping)
+				?? exeProps.FirstOrDefault(g => g.isShipping && g.isInWinFolder)
 				?? exeProps.FirstOrDefault(g => g.isShipping && g.isInBinariesFolder)
 				?? exeProps.FirstOrDefault(g => g.isShipping)
+				?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInWinFolder)
+				?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInBinariesFolder)
 				?? exeProps.FirstOrDefault(g => g.isInWinFolder)
 				?? exeProps.FirstOrDefault(g => g.isInBinariesFolder)
 				?? exeProps.OrderBy(g => g.directoryCount).FirstOrDefault();
@@ -142,58 +155,63 @@ public static class GameStoreManager {
 			string appDataPath = ReadWin32RegistryValue("SOFTWARE\\Epic Games\\EpicGamesLauncher", "AppDataPath");
 			if (string.IsNullOrEmpty(appDataPath)) return allGames;
 
-
 			var manifestsPath = Path.Combine(appDataPath, "Manifests");
 			if (Directory.Exists(manifestsPath)) {
 				var manifestPaths = Directory.GetFiles(manifestsPath, "*.item");
 
 				foreach (var manifestPath in manifestPaths) {
-					var manifest = JsonSerializer.Deserialize<EpicManifest>(File.ReadAllText(manifestPath), jsonOptions);
-					if (!Directory.Exists(manifest.InstallLocation)  // Might be delete manually
-						|| IGNORE_GAME_NAMES.Contains(manifest.DisplayName)) continue;  // e.g. "Unreal Engine"
+					try {
+						var manifest = JsonSerializer.Deserialize<EpicManifest>(File.ReadAllText(manifestPath), jsonOptions);
+						if (!Directory.Exists(manifest.InstallLocation)  // Might be delete manually
+							|| IGNORE_GAME_NAMES.Contains(manifest.DisplayName)) continue;  // e.g. "Unreal Engine"
 
-					// IconURL later
-					var game = new GameInstallation {
-						StoreType = GameStoreType.Epic, EpicID = manifest.CatalogItemId, EpicNamespace = manifest.CatalogNamespace,
-						FolderPath = manifest.InstallLocation, Name = manifest.DisplayName,
-						ShellLaunchPath = $"com.epicgames.launcher://apps/{manifest.AppName}?action=launch&silent=true"
-					};
+						// IconURL later
+						var game = new GameInstallation {
+							StoreType = GameStoreType.Epic, EpicID = manifest.CatalogItemId, EpicNamespace = manifest.CatalogNamespace,
+							FolderPath = manifest.InstallLocation, Name = manifest.DisplayName,
+							ShellLaunchPath = $"com.epicgames.launcher://apps/{manifest.AppName}?action=launch&silent=true"
+						};
 
-					allGames.Add(game);
-				}
-			}
-
-			// Try to resolve the Logos from Cache
-			if (cacheGameInstallations != null) {
-				foreach (var game in allGames)
-					game.IconURL = cacheGameInstallations.FirstOrDefault(g => g.ID == game.ID)?.IconURL;
-			}
-
-			// If not, we must expensively read the EPIC Catalog cache
-			if (allGames.Any(g => g.IconURL == null)) {
-				Debug.WriteLine("Reading catalog cache");
-
-				var catalogPath = Path.Combine(appDataPath, "Catalog", "catcache.bin");
-				var catalog = new List<EpicCatalogItem>();
-				if (File.Exists(catalogPath)) {
-					var catalogCacheFile = File.ReadAllText(catalogPath);
-					var json = Encoding.UTF8.GetString(Convert.FromBase64String(catalogCacheFile));
-					catalog = JsonSerializer.Deserialize<List<EpicCatalogItem>>(json, jsonOptions);
-
-					Debug.WriteLine($"Found {catalog.Count} cataloged EPIC items");
-
-					foreach (var game in allGames) {
-						var catalogItem = catalog.FirstOrDefault(c => c.Id == game.EpicID && c.Namespace == game.EpicNamespace);
-						game.IconURL = catalogItem?.KeyImages?.OrderBy(k => k.Height)?.FirstOrDefault()?.Url ?? "DUMMY";
+						allGames.Add(game);
+					} catch (Exception ex) {
+						// For the guys still running their corrupted hard drives... show must go on
+						Debug.WriteLine($"Failed to read EPIC manifest {manifestPath}: {ex.Message}");
 					}
 				}
-			}
 
-			Debug.WriteLine($"Found {allGames.Count} installed EPIC games");
+				// Try to resolve the Logos from Cache
+				if (cacheGameInstallations != null) {
+					foreach (var game in allGames)
+						game.IconURL = cacheGameInstallations.FirstOrDefault(g => g.ID == game.ID)?.IconURL;
+				}
+
+				// If not, we must expensively read the EPIC Catalog cache
+				if (allGames.Any(g => g.IconURL == null)) {
+					Debug.WriteLine("Reading catalog cache");
+
+					var catalogPath = Path.Combine(appDataPath, "Catalog", "catcache.bin");
+					var catalog = new List<EpicCatalogItem>();
+					if (File.Exists(catalogPath)) {
+						var catalogCacheFile = File.ReadAllText(catalogPath);
+						var json = Encoding.UTF8.GetString(Convert.FromBase64String(catalogCacheFile));
+						catalog = JsonSerializer.Deserialize<List<EpicCatalogItem>>(json, jsonOptions);
+
+						Debug.WriteLine($"Found {catalog.Count} cataloged EPIC items");
+
+						foreach (var game in allGames) {
+							var catalogItem = catalog.FirstOrDefault(c => c.Id == game.EpicID && c.Namespace == game.EpicNamespace);
+							game.IconURL = catalogItem?.KeyImages?.OrderBy(k => k.Height)?.FirstOrDefault()?.Url ?? "DUMMY";
+						}
+					}
+				}
+
+				Debug.WriteLine($"Found {allGames.Count} installed EPIC games");
+			}
 		} catch (Exception ex) {
 			// Show must go on if an installation of one store is flawed
-			Debug.WriteLine($"Failed to scan EPIC: {ex}");
+			Debug.WriteLine($"Failed to scan EPIC: {ex.Message}");
 		}
+
 		return allGames.OrderByDescending(g => g.Name).ToList();
 	}
 	#endregion
@@ -225,23 +243,28 @@ public static class GameStoreManager {
 						var gameManifestPath = Path.Join(vtoken_libPath, "steamapps", $"appmanifest_{gameAppId}.acf");
 
 						if (File.Exists(gameManifestPath)) {
-							var path_gameManifestDefinition = VdfConvert.Deserialize(File.ReadAllText(gameManifestPath));
-							var gameManifestDefinition = path_gameManifestDefinition.Value;
-							string relativeDirectoryName = gameManifestDefinition.Value<string>("installdir");
+							try {
+								var path_gameManifestDefinition = VdfConvert.Deserialize(File.ReadAllText(gameManifestPath));
+								var gameManifestDefinition = path_gameManifestDefinition.Value;
+								string relativeDirectoryName = gameManifestDefinition.Value<string>("installdir");
 
-							var game = new GameInstallation { SteamID = gameAppId, StoreType = GameStoreType.Steam };
-							game.Name = gameManifestDefinition.Value<string>("name");
+								var game = new GameInstallation { SteamID = gameAppId, StoreType = GameStoreType.Steam };
+								game.Name = gameManifestDefinition.Value<string>("name");
 
-							long lastPlayed = gameManifestDefinition.Value<long>("LastPlayed");
-							if (lastPlayed > 0) game.LastPlayed = DateTimeOffset.FromUnixTimeSeconds(lastPlayed).DateTime;
+								long lastPlayed = gameManifestDefinition.Value<long>("LastPlayed");
+								if (lastPlayed > 0) game.LastPlayed = DateTimeOffset.FromUnixTimeSeconds(lastPlayed).DateTime;
 
-							if (!IGNORE_GAME_NAMES.Contains(game.Name)) {
-								game.FolderPath = Path.GetFullPath(Path.Join("steamapps", "common", relativeDirectoryName), vtoken_libPath);
-								game.IconURL = $"https://cdn.cloudflare.steamstatic.com/steam/apps/{game.SteamID}/capsule_231x87.jpg"; //$"steam://install/{game.SteamID}";
-								game.ShellLaunchPath = $"steam://rungameid/{game.SteamID}";
+								if (!IGNORE_GAME_NAMES.Contains(game.Name)) {
+									game.FolderPath = Path.GetFullPath(Path.Join("steamapps", "common", relativeDirectoryName), vtoken_libPath);
+									game.IconURL = $"https://cdn.cloudflare.steamstatic.com/steam/apps/{game.SteamID}/capsule_231x87.jpg"; //$"steam://install/{game.SteamID}";
+									game.ShellLaunchPath = $"steam://rungameid/{game.SteamID}";
 
-								// Sometimes guys manually delete the game folders
-								if (Directory.Exists(game.FolderPath)) allGames.Add(game);
+									// Sometimes guys manually delete the game folders
+									if (Directory.Exists(game.FolderPath)) allGames.Add(game);
+								}
+							} catch (Exception ex) {
+								// For the guys still running their corrupted hard drives... show must go on
+								Debug.WriteLine($"Failed to read Steam manifest {gameManifestPath}: {ex.Message}");
 							}
 						}
 					}
@@ -320,7 +343,7 @@ internal class GameInstallationCache {
 
 internal class ExecutableProp {
 	public string filePath;
-	public bool isInWinFolder, isInBinariesFolder, isShipping;
+	public bool isInWinFolder, isInBinariesFolder, isShipping, isSimilarName;
 	public int directoryCount;
 }
 
