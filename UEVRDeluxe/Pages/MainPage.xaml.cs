@@ -123,7 +123,7 @@ public sealed partial class MainPage : Page {
 								PrimaryButtonText = "Yes",
 								CloseButtonText = "No",
 								XamlRoot = this.XamlRoot,
-								Content = ($"An update ot UEVR Deluxe is available. Would you like to download the update now?\n{autoupdate.ReleaseNotes}").Trim()
+								Content = ($"An update ot UEVR Easy Injector is available. Would you like to download the update now?\n{autoupdate.ReleaseNotes}").Trim()
 							}.ShowAsync();
 
 							if (dialogResult == ContentDialogResult.Primary)

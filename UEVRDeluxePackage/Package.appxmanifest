@@ -15,7 +15,7 @@
   <mp:PhoneIdentity PhoneProductId="d8dbc4de-3d61-4049-af5e-983d0778f74e" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>UEVR Deluxe</DisplayName>
+    <DisplayName>UEVR Easy Injector</DisplayName>
     <PublisherDisplayName>Duis Consulting</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
@@ -34,7 +34,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Unreal VR Deluxe"
+        DisplayName="Unreal VR Easy Injector"
         Description="App1 (Package)"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"

@@ -13,8 +13,8 @@
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
-		<Border Height="30" VerticalAlignment="Top">
-			<TextBlock x:Name="tbCaption" Foreground="Gray" VerticalAlignment="Center" Margin="10,8,0,10"/>
+		<Border Height="36" VerticalAlignment="Top">
+			<TextBlock x:Name="tbCaption" Foreground="Gray" VerticalAlignment="Center" Margin="10,8,0,0"/>
 		</Border>
 		<Frame x:Name="mainFrame" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="White"/>
 	</Grid>

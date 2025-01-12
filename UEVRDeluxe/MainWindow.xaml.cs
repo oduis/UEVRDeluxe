@@ -26,7 +26,7 @@ public sealed partial class MainWindow : Window {
 		_ = InitializeBrowser();
 
 		var version = Assembly.GetExecutingAssembly().GetName().Version;
-		tbCaption.Text = $"Unreal VR Deluxe {version} BETA";
+		tbCaption.Text = $"Unreal VR Easy Injector {version}";
 
 		hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
 		var windowId = Win32Interop.GetWindowIdFromWindow(hWnd);
