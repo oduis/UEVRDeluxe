@@ -1,19 +1,16 @@
 #region Usings
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection;
-using System.Security;
 using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
@@ -36,6 +33,8 @@ public sealed partial class MainPage : Page {
 			VM.IsLoading = true;
 
 			await CheckVersionAsync();
+
+			//if (!Win32.IsUserAnAdmin()) throw new Exception("Please run UEVR Deluxe as an Administrator");
 
 			InitSort();
 			VM.Games = new System.Collections.ObjectModel.ObservableCollection<GameInstallation>(await GameStoreManager.FindAllUEVRGamesAsync());
@@ -60,7 +59,7 @@ public sealed partial class MainPage : Page {
 
 			gvGames.Focus(FocusState.Programmatic);  // WInUI selects links otherwise
 		} catch (Exception ex) {
-			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Steam load");
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Startup");
 		}
 
 		VM.IsLoading = false;

@@ -95,7 +95,7 @@
 					<TextBlock VerticalAlignment="Center" FontSize="11">Support UEVR Author PrayDog</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
-			<HyperlinkButton NavigateUri="https://discord.com/channels/747967102895390741/947806014344925274" Padding="0">
+			<HyperlinkButton NavigateUri="https://discord.com/channels/747967102895390741/1020440446389993542" Padding="0">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/DiscordLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
 					<TextBlock VerticalAlignment="Center" FontSize="11">Get Support</TextBlock>

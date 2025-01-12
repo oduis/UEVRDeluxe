@@ -17,8 +17,6 @@ namespace UEVRDeluxe.Pages;
 
 public sealed partial class GamePage : Page {
 	const int DEFAULT_DELAY_BEFORE_INJECTION_SEC = 3;
-	const string STEAMVR_EXE = "vrmonitor";
-	const string VIRTUALDESKTOP_EXE = "VirtualDesktop.Streamer";
 
 	GamePageVM VM = new();
 
@@ -26,6 +24,12 @@ public sealed partial class GamePage : Page {
 	public GamePage() {
 		this.InitializeComponent();
 		this.Loaded += GamePage_Loaded;
+		this.Unloaded += GamePage_Unloaded;
+
+		// Initialize the DispatcherTimer
+		hotKeyCheckTimer = new DispatcherTimer();
+		hotKeyCheckTimer.Interval = TimeSpan.FromMilliseconds(500); // Adjust the interval as needed
+		hotKeyCheckTimer.Tick += HotKeyCheckTimer_Tick;
 	}
 
 	protected override void OnNavigatedTo(NavigationEventArgs e) {
@@ -39,9 +43,15 @@ public sealed partial class GamePage : Page {
 			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName);
 
 			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD);
+
+			hotKeyCheckTimer.Start();
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
+	}
+
+	void GamePage_Unloaded(object sender, RoutedEventArgs e) {
+		hotKeyCheckTimer.Stop();
 	}
 	#endregion
 
@@ -81,7 +91,7 @@ public sealed partial class GamePage : Page {
 
 				if (VM.LocalProfile?.Meta?.LateInjection == true) {
 					VM.StatusMessage = "Manual injection needed";
-					throw new Exception("Game launched, but this game needs you to start your session manually before injecting.\nWhen in 3D game view, hit 'Start game' again to inject.");
+					throw new Exception("Game launched, but this game needs you to start your session manually before injecting.\nWhen in 3D game view, hit 'Start game' again or press Strg+Alt+U to inject.");
 				}
 
 				VM.StatusMessage = "Waiting for launched game to start...";
@@ -131,7 +141,7 @@ public sealed partial class GamePage : Page {
 			Injector.InjectDll(gameProcess.Id, SUBFOLDER + "UEVRBackend.dll");
 
 			VM.StatusMessage = "Focussing game window...";
-			Injector.SwitchToThisWindow(gameProcess.MainWindowHandle, true);
+			Win32.SwitchToThisWindow(gameProcess.MainWindowHandle, true);
 
 			VM.StatusMessage = "Game is running! You may see a black screen while the intro movies are playing. The UEVR in-game window will open. Press 'Ins' on keyboard or both controller joysticks to close it.";
 
@@ -178,6 +188,17 @@ public sealed partial class GamePage : Page {
 	void Stop_Click(object sender, RoutedEventArgs e) {
 		VM.StatusMessage = "Stopping game...";
 		shouldStop = true;
+	}
+	#endregion
+
+	#region * HotKey
+	DispatcherTimer hotKeyCheckTimer;
+
+	void HotKeyCheckTimer_Tick(object sender, object e) {
+		if (MainWindow.HotkeyEvent.IsSet) {
+			MainWindow.HotkeyEvent.Reset();
+			if (!VM.IsRunning) Launch_Click(this, null);
+		}
 	}
 	#endregion
 

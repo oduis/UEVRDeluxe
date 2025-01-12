@@ -120,7 +120,7 @@
 					ToolTipService.ToolTip="Starts game from Steam if not already running. Injects UEVR into game if already running.">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE768;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Start / Inject game</TextBlock>
+					<TextBlock Style="{StaticResource styButtonIconText}">Start / Inject game (Ctrl-Alt-U)</TextBlock>
 				</Grid>
 			</Button>
 		</Grid>

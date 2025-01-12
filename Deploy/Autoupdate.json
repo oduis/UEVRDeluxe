@@ -1,6 +1,6 @@
 {
   "app": "UEVRDeluxe",
-  "version": "0.9.5.2",
-  "releaseNotes": "Improved scanning of installed games (e.g. Hogwarts Legacy); Sorting for games list",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V0952"
+  "version": "1.0.0.0",
+  "releaseNotes": "Global hotkey for injection, better games scanning",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1000"
 }
