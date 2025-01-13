@@ -36,6 +36,7 @@ public sealed partial class EditProfilePage : Page {
 			SetRadioButtonValue(spRenderingMethod, VM.LocalProfile.Config.Global["VR_RenderingMethod"]);
 			SetRadioButtonValue(spSyncedSequentialMethod, VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"]);
 			cbGhostingFix.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_GhostingFix"] ?? "false");
+			cbAimMPSupport.IsChecked= bool.Parse(VM.LocalProfile.Config.Global["VR_AimMPSupport"] ?? "false");
 			cbEnableDepth.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_EnableDepth"] ?? "false");
 
 			slResolutionScale.Value = Math.Round(double.Parse(VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] ?? "1.0", CultureInfo.InvariantCulture) * 100);
@@ -61,6 +62,7 @@ public sealed partial class EditProfilePage : Page {
 		VM.LocalProfile.Config.Global["VR_RenderingMethod"] = GetRadioButtonValue(spRenderingMethod);
 		VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"] = GetRadioButtonValue(spSyncedSequentialMethod);
 		VM.LocalProfile.Config.Global["VR_GhostingFix"] = cbGhostingFix.IsChecked.ToString();
+		VM.LocalProfile.Config.Global["VR_AimMPSupport"] = cbAimMPSupport.IsChecked.ToString();
 		VM.LocalProfile.Config.Global["VR_EnableDepth"] = cbEnableDepth.IsChecked.ToString();
 		VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] = Math.Round(slResolutionScale.Value / 100, 2).ToString(CultureInfo.InvariantCulture);
 

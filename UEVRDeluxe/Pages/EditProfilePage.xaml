@@ -70,6 +70,11 @@
 				</StackPanel>
 
 				<StackPanel>
+					<TextBlock Style="{StaticResource stySubHeader}">Multiplayer Aim Support</TextBlock>
+					<CheckBox x:Name="cbAimMPSupport">Enable if you experience weird e.g. camera effects when playing multiplayer games. Leave off if you experience no problems.</CheckBox>
+				</StackPanel>
+
+				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
 
 					<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using Meta Quest Link. May cause crashes.</CheckBox>
