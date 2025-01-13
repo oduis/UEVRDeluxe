@@ -75,6 +75,20 @@
 				</StackPanel>
 
 				<StackPanel>
+					<TextBlock Style="{StaticResource stySubHeader}">Snap turn</TextBlock>
+
+					<CheckBox x:Name="cbSnapTurn">Enable to turn in steps instead of continuously. Helps if you experience motion sickness while turning.</CheckBox>
+
+					<StackPanel Orientation="Horizontal">
+						<Slider x:Name="slSnapturnTurnAngle" IsEnabled="{x:Bind cbSnapTurn.IsChecked.Value, Mode=OneWay}" Minimum="10" Maximum="90" TickFrequency="5" 
+							TickPlacement="Outside" SnapsTo="Ticks" Width="640" Margin="0,0,16,0" />
+
+						<TextBlock Text="{x:Bind slSnapturnTurnAngle.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+						<TextBlock Text="°" FontSize="16" VerticalAlignment="Center" />
+					</StackPanel>
+				</StackPanel>
+
+				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
 
 					<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using Meta Quest Link. May cause crashes.</CheckBox>

@@ -119,7 +119,7 @@ public class LocalProfile {
 			try {
 				Config = parser.ReadFile(ConfigFilePath, Encoding.UTF8);
 			} catch (Exception ex) {
-				throw new Exception($"Incorrect config{ConfigFilePath}: {ex.Message}");
+				throw new Exception($"Incorrect config {ConfigFilePath}: {ex.Message}");
 			}
 		} else {
 			using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(CONFIG_DEFAULT)))

@@ -36,9 +36,10 @@ public sealed partial class EditProfilePage : Page {
 			SetRadioButtonValue(spRenderingMethod, VM.LocalProfile.Config.Global["VR_RenderingMethod"]);
 			SetRadioButtonValue(spSyncedSequentialMethod, VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"]);
 			cbGhostingFix.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_GhostingFix"] ?? "false");
-			cbAimMPSupport.IsChecked= bool.Parse(VM.LocalProfile.Config.Global["VR_AimMPSupport"] ?? "false");
+			cbAimMPSupport.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_AimMPSupport"] ?? "false");
 			cbEnableDepth.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_EnableDepth"] ?? "false");
-
+			cbSnapTurn.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_SnapTurn"] ?? "false");
+			slSnapturnTurnAngle.Value = int.Parse(VM.LocalProfile.Config.Global["VR_SnapturnTurnAngle"] ?? "45");
 			slResolutionScale.Value = Math.Round(double.Parse(VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] ?? "1.0", CultureInfo.InvariantCulture) * 100);
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
@@ -64,6 +65,8 @@ public sealed partial class EditProfilePage : Page {
 		VM.LocalProfile.Config.Global["VR_GhostingFix"] = cbGhostingFix.IsChecked.ToString();
 		VM.LocalProfile.Config.Global["VR_AimMPSupport"] = cbAimMPSupport.IsChecked.ToString();
 		VM.LocalProfile.Config.Global["VR_EnableDepth"] = cbEnableDepth.IsChecked.ToString();
+		VM.LocalProfile.Config.Global["VR_SnapTurn"] = cbSnapTurn.IsChecked.ToString();
+		VM.LocalProfile.Config.Global["VR_SnapturnTurnAngle"] = slSnapturnTurnAngle.Value.ToString();
 		VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] = Math.Round(slResolutionScale.Value / 100, 2).ToString(CultureInfo.InvariantCulture);
 
 		await VM.LocalProfile.SaveAsync();
