@@ -1,4 +1,5 @@
 ﻿#region Usings
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using UEVRDeluxe.Code;
 #endregion
@@ -49,7 +50,12 @@ public class GamePageVM : VMBase {
 
 
 	string statusMessage;
-	public string StatusMessage { get => statusMessage; set => Set(ref statusMessage, value); }
+	public string StatusMessage {
+		get => statusMessage; set {
+			Set(ref statusMessage, value);
+			if (!string.IsNullOrWhiteSpace(value)) Logger.Log.LogTrace(value);
+		}
+	}
 
 
 	bool searchEnabled = true;

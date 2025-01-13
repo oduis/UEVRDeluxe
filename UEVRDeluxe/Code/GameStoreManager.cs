@@ -1,10 +1,10 @@
 ﻿#region Usings
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -50,9 +50,9 @@ public static class GameStoreManager {
 
 		// Check if cache is still valid
 		if (cache != null && cache.AllInstallations.Count == allGames.Count
-				&& cache.AllInstallations.All(c => allGames.Any(g => g.ID == c.ID && g.EXEName == c.EXEName && g.FolderPath == c.FolderPath))) {
+				&& cache.AllInstallations.All(c => allGames.Any(g => g.ID == c.ID && g.FolderPath == c.FolderPath))) {
 
-			Debug.WriteLine("Taking cached game installations");
+			Logger.Log.LogTrace($"Taking cached game installations returning {cache.FilteredInstallationIDs.Count} games");
 			return cache.AllInstallations.Where(i => cache.FilteredInstallationIDs.Contains(i.ID)).ToList();
 		}
 
@@ -128,8 +128,10 @@ public static class GameStoreManager {
 				}
 
 				game.EXEName = Path.GetFileNameWithoutExtension(bestProps.filePath);
+
+				Logger.Log.LogTrace($"{game.Name} executable: {bestProps.filePath}");
 			} else {
-				Debug.WriteLine($"No executable found for {game.Name}");
+				Logger.Log.LogTrace($"No executable found for {game.Name}");
 			}
 		}
 
@@ -153,7 +155,12 @@ public static class GameStoreManager {
 			var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
 			string appDataPath = ReadWin32RegistryValue("SOFTWARE\\Epic Games\\EpicGamesLauncher", "AppDataPath");
-			if (string.IsNullOrEmpty(appDataPath)) return allGames;
+			if (string.IsNullOrEmpty(appDataPath)) {
+				Logger.Log.LogTrace("EPIC not installed");
+				return allGames;
+			}
+
+			Logger.Log.LogTrace($"EPIC installed in {appDataPath}");
 
 			var manifestsPath = Path.Combine(appDataPath, "Manifests");
 			if (Directory.Exists(manifestsPath)) {
@@ -165,6 +172,8 @@ public static class GameStoreManager {
 						if (!Directory.Exists(manifest.InstallLocation)  // Might be delete manually
 							|| IGNORE_GAME_NAMES.Contains(manifest.DisplayName)) continue;  // e.g. "Unreal Engine"
 
+						Logger.Log.LogTrace($"Game {manifest.DisplayName}");
+
 						// IconURL later
 						var game = new GameInstallation {
 							StoreType = GameStoreType.Epic, EpicID = manifest.CatalogItemId, EpicNamespace = manifest.CatalogNamespace,
@@ -175,7 +184,7 @@ public static class GameStoreManager {
 						allGames.Add(game);
 					} catch (Exception ex) {
 						// For the guys still running their corrupted hard drives... show must go on
-						Debug.WriteLine($"Failed to read EPIC manifest {manifestPath}: {ex.Message}");
+						Logger.Log.LogError($"Failed to read EPIC manifest {manifestPath}: {ex.Message}");
 					}
 				}
 
@@ -187,7 +196,7 @@ public static class GameStoreManager {
 
 				// If not, we must expensively read the EPIC Catalog cache
 				if (allGames.Any(g => g.IconURL == null)) {
-					Debug.WriteLine("Reading catalog cache");
+					Logger.Log.LogTrace("Reading catalog cache");
 
 					var catalogPath = Path.Combine(appDataPath, "Catalog", "catcache.bin");
 					var catalog = new List<EpicCatalogItem>();
@@ -196,7 +205,7 @@ public static class GameStoreManager {
 						var json = Encoding.UTF8.GetString(Convert.FromBase64String(catalogCacheFile));
 						catalog = JsonSerializer.Deserialize<List<EpicCatalogItem>>(json, jsonOptions);
 
-						Debug.WriteLine($"Found {catalog.Count} cataloged EPIC items");
+						Logger.Log.LogTrace($"Found {catalog.Count} cataloged EPIC items");
 
 						foreach (var game in allGames) {
 							var catalogItem = catalog.FirstOrDefault(c => c.Id == game.EpicID && c.Namespace == game.EpicNamespace);
@@ -205,11 +214,11 @@ public static class GameStoreManager {
 					}
 				}
 
-				Debug.WriteLine($"Found {allGames.Count} installed EPIC games");
+				Logger.Log.LogTrace($"Found {allGames.Count} installed EPIC games");
 			}
 		} catch (Exception ex) {
 			// Show must go on if an installation of one store is flawed
-			Debug.WriteLine($"Failed to scan EPIC: {ex.Message}");
+			Logger.Log.LogCritical(ex, "Failed to scan EPIC");
 		}
 
 		return allGames.OrderByDescending(g => g.Name).ToList();
@@ -223,12 +232,17 @@ public static class GameStoreManager {
 		try {
 			// Find Steam Root dir
 			string steamInstallDir = ReadWin32RegistryValue(@"SOFTWARE\Valve\Steam", "InstallPath");
-			if (string.IsNullOrEmpty(steamInstallDir)) return allGames;  // not installed
+			if (string.IsNullOrEmpty(steamInstallDir)) {
+				Logger.Log.LogTrace("STEAM not installed");
+				return allGames;
+			}
 
 			//if (!File.Exists(Path.Join(steamInstallDir, "steam.exe"))) return allGames;
 
 			string vdfPath = Path.Join(steamInstallDir, "steamapps", "libraryfolders.vdf");
 			if (!File.Exists(vdfPath)) throw new Exception("Steam Library Definition file not found");
+
+			Logger.Log.LogTrace($"Reading Steam Library Definition {vdfPath}");
 
 			var steamLibraryDefinition = VdfConvert.Deserialize(File.ReadAllText(vdfPath));
 			foreach (var steamLibDirDefinition in steamLibraryDefinition.Value.Children<VProperty>()) {
@@ -237,7 +251,7 @@ public static class GameStoreManager {
 				var vprop_apps = libDirData.Value<VObject>("apps");
 
 				foreach (var gameDefinition in vprop_apps.Children<VProperty>()) {
-					Debug.WriteLine($"Found {gameDefinition.Key}: {gameDefinition.Value}");
+					Logger.Log.LogTrace($"Found game {gameDefinition.Key}: {gameDefinition.Value}");
 
 					if (long.TryParse(gameDefinition.Key, out long gameAppId)) {
 						var gameManifestPath = Path.Join(vtoken_libPath, "steamapps", $"appmanifest_{gameAppId}.acf");
@@ -251,6 +265,8 @@ public static class GameStoreManager {
 								var game = new GameInstallation { SteamID = gameAppId, StoreType = GameStoreType.Steam };
 								game.Name = gameManifestDefinition.Value<string>("name");
 
+								Logger.Log.LogTrace($"Game {game.Name}");
+
 								long lastPlayed = gameManifestDefinition.Value<long>("LastPlayed");
 								if (lastPlayed > 0) game.LastPlayed = DateTimeOffset.FromUnixTimeSeconds(lastPlayed).DateTime;
 
@@ -260,19 +276,22 @@ public static class GameStoreManager {
 									game.ShellLaunchPath = $"steam://rungameid/{game.SteamID}";
 
 									// Sometimes guys manually delete the game folders
-									if (Directory.Exists(game.FolderPath)) allGames.Add(game);
+									if (Directory.Exists(game.FolderPath)) 
+										allGames.Add(game);
+									else
+										Logger.Log.LogWarning($"Steam game not installed any more in {game.FolderPath}");
 								}
 							} catch (Exception ex) {
 								// For the guys still running their corrupted hard drives... show must go on
-								Debug.WriteLine($"Failed to read Steam manifest {gameManifestPath}: {ex.Message}");
+								Logger.Log.LogCritical(ex, "Failed to read Steam manifest {0}", gameManifestPath);
 							}
-						}
-					}
+						} else Logger.Log.LogWarning($"Steam game manifest not found for {gameManifestPath}");
+					} else Logger.Log.LogWarning($"Steam game ID not a number {gameDefinition.Key}");
 				}
 			}
 		} catch (Exception ex) {
 			// Show must go on if an installation of one store is flawed
-			Debug.WriteLine($"Failed to scan EPIC: {ex}");
+			Logger.Log.LogCritical(ex, "Failed to scan Steam");
 		}
 
 		return allGames.OrderByDescending(g => g.LastPlayed ?? new DateTime()).ThenBy(g => g.Name).ToList();

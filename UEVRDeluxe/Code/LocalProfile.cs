@@ -1,6 +1,7 @@
 ﻿#region Usings
 using IniParser;
 using IniParser.Model;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -156,7 +157,7 @@ public class LocalProfile {
 		if (File.Exists(path)) oldContent = await File.ReadAllTextAsync(path);
 		if (oldContent != content) {
 			await File.WriteAllTextAsync(path, content);
-			Debug.WriteLine($"{path} changed");
+			Logger.Log.LogTrace($"{path} changed");
 		}
 	}
 

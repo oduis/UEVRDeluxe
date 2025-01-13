@@ -1,9 +1,13 @@
 #region Usings
+using Microsoft.Extensions.Logging;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.Web.WebView2.Core;
+using NReco.Logging.File;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -23,6 +27,10 @@ public sealed partial class MainWindow : Window {
 
 	public MainWindow() {
 		InitializeComponent();
+		this.Closed += MainWindow_Closed;
+
+		Logger.Startup();
+
 		_ = InitializeBrowser();
 
 		var version = Assembly.GetExecutingAssembly().GetName().Version;
@@ -43,13 +51,15 @@ public sealed partial class MainWindow : Window {
 		mainFrame.Navigate(typeof(MainPage));
 	}
 
+	void MainWindow_Closed(object sender, WindowEventArgs args) => Logger.Shutdown();
+
 	/// <summary>Trick to make it work if installed in Program Files folder, where user has no access rights</summary>
 	async Task InitializeBrowser() {
 		try {
 			string userDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\UEVRDeluxe\\BrowserCache";
 			WebViewEnv = await CoreWebView2Environment.CreateWithOptionsAsync(null, userDataFolder, new CoreWebView2EnvironmentOptions());
 		} catch (Exception ex) {
-			Debug.WriteLine(ex.ToString());
+			Logger.Log.LogCritical(ex, "InitBrowser failed");
 		}
 	}
 
@@ -70,7 +80,7 @@ public sealed partial class MainWindow : Window {
 	unsafe void InitGlobalShortcut() {
 		bool success = Win32.RegisterHotKey(hWnd, 0, MOD_ALT | MOD_CONTROL, VK_U);
 		if (!success) {
-			Debug.WriteLine("Failed to register hotkey");
+			Logger.Log.LogError("Failed to register hotkey");
 			return;
 		}
 
@@ -86,6 +96,6 @@ public sealed partial class MainWindow : Window {
 		}
 
 		return Win32.CallWindowProc(oldWndProc, hwnd, uMsg, wParam, lParam);
-	} 
+	}
 	#endregion
 }

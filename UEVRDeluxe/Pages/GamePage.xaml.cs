@@ -1,4 +1,5 @@
 #region Usings
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
@@ -40,6 +41,8 @@ public sealed partial class GamePage : Page {
 
 	async void GamePage_Loaded(object sender, RoutedEventArgs e) {
 		try {
+			Logger.Log.LogTrace($"Opening games page {VM?.GameInstallation?.Name}");
+
 			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName);
 
 			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD);
@@ -126,10 +129,10 @@ public sealed partial class GamePage : Page {
 				IntPtr nullifierBase;
 				if (Injector.InjectDll(gameProcess.Id, SUBFOLDER + "UEVRPluginNullifier.dll", out nullifierBase) && nullifierBase.ToInt64() > 0) {
 					if (!Injector.CallFunctionNoArgs(gameProcess.Id, SUBFOLDER + "UEVRPluginNullifier.dll", nullifierBase, "nullify", true)) {
-						Debug.WriteLine("Failed to nullify VR plugins.");
+						Logger.Log.LogError("Failed to nullify VR plugins.");
 					}
 				} else {
-					Debug.WriteLine("Failed to nullify VR plugins.");
+					Logger.Log.LogError("Failed to nullify VR plugins.");
 				}
 			}
 			#endregion

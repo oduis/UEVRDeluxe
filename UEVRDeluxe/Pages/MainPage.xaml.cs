@@ -1,4 +1,5 @@
 #region Usings
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
@@ -109,7 +110,7 @@ public sealed partial class MainPage : Page {
 
 			var utcNow = DateTime.UtcNow;
 			if (!lastUpdateCheckUtc.HasValue || utcNow.Subtract(lastUpdateCheckUtc.Value).TotalDays > DAYS_BETWEEN_CHECKS) {
-				System.Diagnostics.Debug.WriteLine("Starting version check");
+				Logger.Log.LogInformation("Starting version check");
 
 				// Short timeout, since the user will thing the app hangs otherwise
 				using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(4) }) {
@@ -134,7 +135,7 @@ public sealed partial class MainPage : Page {
 			}
 		} catch (Exception ex) {
 			// Gracefully ignore
-			System.Diagnostics.Debug.WriteLine($"Cannot check version: {ex.Message}");
+			Logger.Log.LogCritical(ex, "Cannot check version");
 		}
 	}
 	#endregion
