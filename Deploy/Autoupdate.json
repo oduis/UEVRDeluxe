@@ -1,6 +1,6 @@
 {
   "app": "UEVR Easy Injector",
-  "version": "1.0.0.0",
-  "releaseNotes": "Global hotkey for injection, better games scanning, renamed to Easy Injector",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1000"
+  "version": "1.1.0.0",
+  "releaseNotes": "Global hotkey also searched game; Injection delay configurable; More profile edit options",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1100"
 }

@@ -23,11 +23,10 @@ public sealed partial class GamePage : Page {
 	public GamePage() {
 		this.InitializeComponent();
 		this.Loaded += GamePage_Loaded;
-		this.Unloaded += GamePage_Unloaded;
 
 		// Initialize the DispatcherTimer
 		hotKeyCheckTimer = new DispatcherTimer();
-		hotKeyCheckTimer.Interval = TimeSpan.FromMilliseconds(500); // Adjust the interval as needed
+		hotKeyCheckTimer.Interval = TimeSpan.FromMilliseconds(400); // Adjust the interval as needed
 		hotKeyCheckTimer.Tick += HotKeyCheckTimer_Tick;
 	}
 
@@ -35,6 +34,13 @@ public sealed partial class GamePage : Page {
 		base.OnNavigatedTo(e);
 
 		VM.GameInstallation = e.Parameter as GameInstallation;
+	}
+
+	protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
+		base.OnNavigatingFrom(e);
+
+		Logger.Log.LogTrace("GamePage Timer stopped");
+		hotKeyCheckTimer?.Stop();
 	}
 
 	async void GamePage_Loaded(object sender, RoutedEventArgs e) {
@@ -51,11 +57,12 @@ public sealed partial class GamePage : Page {
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
-	}
 
-	void GamePage_Unloaded(object sender, RoutedEventArgs e) {
-		Logger.Log.LogTrace("GamePage Timer stopped");
-		hotKeyCheckTimer.Stop();
+		// WInUI selects links otherwise
+		if (VM.LocalProfile == null)
+			btnEdit.Focus(FocusState.Programmatic);
+		else
+			btnLaunch.Focus(FocusState.Programmatic);  // WInUI selects links otherwise
 	}
 	#endregion
 
@@ -201,7 +208,7 @@ public sealed partial class GamePage : Page {
 	void HotKeyCheckTimer_Tick(object sender, object e) {
 		if (MainWindow.HotkeyEvent.IsSet) {
 			MainWindow.HotkeyEvent.Reset();
-			if (!VM.IsRunning) Launch_Click(this, null);
+			if (!VM.IsRunning && VM.LocalProfile != null) Launch_Click(this, null);
 		}
 	}
 	#endregion

@@ -117,18 +117,18 @@
 				</Grid>
 			</Button>
 
-			<Button Grid.Column="1" Visibility="{x:Bind VM.VisibleIfNoProfile, Mode=OneWay}" Click="Edit_Click" Style="{StaticResource styButton}" Margin="12,0" MinWidth="160">
+			<Button Grid.Column="1" x:Name="btnEdit" Visibility="{x:Bind VM.VisibleIfNoProfile, Mode=OneWay}" Click="Edit_Click" Style="{StaticResource styButton}" Margin="12,0" MinWidth="160">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE710;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Create profile</TextBlock>
 				</Grid>
 			</Button>
 
-			<Button Grid.Column="2" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Launch_Click" Style="{StaticResource styButton}" HorizontalAlignment="Stretch"
+			<Button Grid.Column="2" x:Name="btnLaunch" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Launch_Click" Style="{StaticResource styButton}" HorizontalAlignment="Stretch"
 					ToolTipService.ToolTip="Starts game from Steam if not already running. Injects UEVR into game if already running.">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE768;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Start / Inject game (Ctrl-Alt-U)</TextBlock>
+					<TextBlock Style="{StaticResource styButtonIconText}">Start / Inject game (Ctrl+Alt+U)</TextBlock>
 				</Grid>
 			</Button>
 		</Grid>

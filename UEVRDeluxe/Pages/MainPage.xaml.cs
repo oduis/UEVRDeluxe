@@ -3,11 +3,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -27,7 +29,21 @@ public sealed partial class MainPage : Page {
 	MainPageVM VM = new();
 
 	#region * Init
-	public MainPage() { this.InitializeComponent(); }
+	public MainPage() {
+		this.InitializeComponent();
+
+		// Initialize the DispatcherTimer
+		hotKeyCheckTimer = new DispatcherTimer();
+		hotKeyCheckTimer.Interval = TimeSpan.FromMilliseconds(300); // Adjust the interval as needed
+		hotKeyCheckTimer.Tick += HotKeyCheckTimer_Tick;
+	}
+
+	protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
+		base.OnNavigatingFrom(e);
+
+		Logger.Log.LogTrace("MainPage Timer stopped");
+		hotKeyCheckTimer?.Stop();
+	}
 
 	async void Page_Loaded(object sender, RoutedEventArgs e) {
 		try {
@@ -54,12 +70,13 @@ public sealed partial class MainPage : Page {
 				}
 			}
 
-			gvGames.Focus(FocusState.Programmatic);  // WInUI selects links otherwise
+			hotKeyCheckTimer.Start();
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Startup");
 		}
 
 		VM.IsLoading = false;
+		gvGames.Focus(FocusState.Programmatic);  // WInUI selects links otherwise
 	}
 	#endregion
 
@@ -151,6 +168,55 @@ public sealed partial class MainPage : Page {
 
 		// Do NOT recreated the ObservableCollection
 		for (int i = 0; i < sortedList.Count; i++) VM.Games.Move(VM.Games.IndexOf(sortedList[i]), i);
+	}
+	#endregion
+
+	#region * HotKey for quicklaunch
+	DispatcherTimer hotKeyCheckTimer;
+
+	void HotKeyCheckTimer_Tick(object sender, object e) {
+		if (MainWindow.HotkeyEvent.IsSet) {
+			MainWindow.HotkeyEvent.Reset();
+			Logger.Log.LogDebug("Hotkey pressed");
+
+			// Try to the the EXE of the foreground window (presuably the game)
+			IntPtr hWnd = Win32.GetForegroundWindow();
+			if (hWnd == IntPtr.Zero) {
+				Logger.Log.LogWarning("No foreground window");
+				return;
+			}
+
+			Win32.GetWindowThreadProcessId(hWnd, out uint processId);
+			IntPtr hProcess = Win32.OpenProcess(ProcessAccessFlags.QUERY_INFORMATION | ProcessAccessFlags.VM_READ, false, processId);
+			if (hProcess == IntPtr.Zero) {
+				Logger.Log.LogWarning("Cannot find process");
+				return;
+			}
+
+			char[] buffer = new char[512];
+			Win32.GetModuleBaseName(hProcess, IntPtr.Zero, buffer, buffer.Length);
+
+			Win32.CloseHandle(hProcess);
+
+			string exeName = new string(buffer).TrimEnd('\0');
+			if (string.IsNullOrEmpty(exeName)) {
+				Logger.Log.LogWarning("Cannot find EXE name");
+				return;
+			}
+
+			exeName = Path.GetFileNameWithoutExtension(exeName);
+			Logger.Log.LogDebug($"Foreground EXE: {exeName}");
+
+			var foundGames = VM.Games.Where(g => string.Equals(g.EXEName, exeName, StringComparison.OrdinalIgnoreCase));
+			if (foundGames.Count() != 1) {
+				Logger.Log.LogWarning($"{foundGames.Count()} games found, nothing to call");
+				return;
+			}
+
+			hotKeyCheckTimer.Stop(); // so it doesnt pick the hotkey up
+			MainWindow.HotkeyEvent.Set();  // so the next page will pick it up
+			Frame.Navigate(typeof(GamePage), foundGames.First(), new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
+		}
 	}
 	#endregion
 }

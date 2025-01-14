@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Text;
 
 namespace UEVRDeluxe.Code;
 
 public static partial class Win32 {
 	[LibraryImport("kernel32.dll", SetLastError = true)]
 	internal static partial nint OpenProcess(int access, [MarshalAs(UnmanagedType.Bool)] bool inherit, int processId);
-	
+
 	[LibraryImport("kernel32.dll", SetLastError = true)]
 	[return: MarshalAs(UnmanagedType.Bool)]
 	internal static partial bool CloseHandle(IntPtr handle);
@@ -54,16 +55,33 @@ public static partial class Win32 {
 	internal static partial IntPtr CallWindowProc(IntPtr prevWndFunc, IntPtr hWnd, uint msg, IntPtr wparam, IntPtr lparam);
 
 	[LibraryImport("user32.dll")]
-	[return: MarshalAs(UnmanagedType.Bool)]
 	internal static partial void SwitchToThisWindow(IntPtr hWnd, [MarshalAs(UnmanagedType.Bool)] bool fAltTab);
 
 	[LibraryImport("user32.dll")]
 	[return: MarshalAs(UnmanagedType.Bool)]
 	internal static partial bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
 
+	[LibraryImport("user32.dll")]
+	internal static partial IntPtr GetForegroundWindow();
+
+	[LibraryImport("user32.dll")]
+	internal static partial uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+	[LibraryImport("kernel32.dll")]
+	internal static partial IntPtr OpenProcess(ProcessAccessFlags processAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, uint processId);
+
+	[LibraryImport("psapi.dll", EntryPoint = "GetModuleBaseNameW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+	internal static partial uint GetModuleBaseName(IntPtr hProcess, IntPtr hModule, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 3)] char[] lpBaseName, int nSize);
+
 	[LibraryImport("shell32.dll", SetLastError = true)]
 	[return: MarshalAs(UnmanagedType.Bool)]
 	internal static partial bool IsUserAnAdmin();
+}
+
+[Flags]
+public enum ProcessAccessFlags : uint {
+	QUERY_INFORMATION = 0x0400,
+	VM_READ = 0x0010
 }
 
 [Flags]

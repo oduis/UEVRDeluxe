@@ -26,7 +26,7 @@
 		</StackPanel>
 
 		<ScrollView Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
-			<StackPanel Spacing="20" HorizontalAlignment="Stretch">
+			<StackPanel Spacing="26" HorizontalAlignment="Stretch">
 				<StackPanel x:Name="spRenderingMethod">
 					<TextBlock Style="{StaticResource stySubHeader}">Rendering method</TextBlock>
 
@@ -64,14 +64,10 @@
 					</RadioButton>
 				</StackPanel>
 
+
 				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
 					<CheckBox x:Name="cbGhostingFix">Eleminates faint ghost images around e.g. the game characters. Especially helpful when using Synced Sequential. May cause side effects and crashes.</CheckBox>
-				</StackPanel>
-
-				<StackPanel>
-					<TextBlock Style="{StaticResource stySubHeader}">Multiplayer Aim Support</TextBlock>
-					<CheckBox x:Name="cbAimMPSupport">Enable if you experience weird e.g. camera effects when playing multiplayer games. Leave off if you experience no problems.</CheckBox>
 				</StackPanel>
 
 				<StackPanel>
@@ -88,11 +84,24 @@
 					</StackPanel>
 				</StackPanel>
 
-				<StackPanel>
-					<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="32" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
 
-					<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using Meta Quest Link. May cause crashes.</CheckBox>
-				</StackPanel>
+					<StackPanel>
+						<TextBlock Style="{StaticResource stySubHeader}">Multiplayer Aim Support</TextBlock>
+						<CheckBox x:Name="cbAimMPSupport">Enable if you experience weird e.g. camera effects when playing multiplayer games. Leave off if you experience no problems.</CheckBox>
+					</StackPanel>
+
+					<StackPanel Grid.Column="2">
+						<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
+
+						<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using Meta Quest Link. May cause crashes.</CheckBox>
+					</StackPanel>
+				</Grid>
 
 				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Resolution scale</TextBlock>
@@ -141,7 +150,7 @@
 			</StackPanel>
 		</ScrollView>
 
-		<StackPanel Grid.Row="2" Spacing="12" Orientation="Horizontal" Margin="0,12,0,0">
+		<StackPanel Grid.Row="2" Spacing="12" Orientation="Horizontal" Margin="0,16,0,0">
 			<Button Click="Save_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
