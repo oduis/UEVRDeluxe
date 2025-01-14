@@ -16,4 +16,7 @@ public class SettingsPageVM : VMBase {
 
 	/// <summary>There are some special runtimes liek WMR und Varjo that don't play nice. Leave them alone.</summary>
 	public Visibility OpenXRRuntimeVisible => (openXRRuntimes?.Count(r => r.IsDefault) ?? 0) == 1 ? Visibility.Visible : Visibility.Collapsed;
+
+	int delayBeforeInjection;
+	public int DelayBeforeInjection { get => delayBeforeInjection; set => Set(ref delayBeforeInjection, value); }
 }

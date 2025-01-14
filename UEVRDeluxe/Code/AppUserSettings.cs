@@ -8,6 +8,8 @@ namespace UEVRDeluxe.Code;
 
 /// <summary>Simple Ini file in user directory, since ApplicationDataContainer only works for packaged WinUI3 apps</summary>
 public static class AppUserSettings {
+	public const int DEFAULT_DELAY_BEFORE_INJECTION_SEC = 3;
+
 	static IniData settings = null;
 
 	static string GetINIFileName() => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\UEVRDeluxe\\UserSettings.ini";

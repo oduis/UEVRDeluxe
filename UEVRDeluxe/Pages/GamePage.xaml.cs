@@ -17,8 +17,6 @@ using UEVRDeluxe.ViewModels;
 namespace UEVRDeluxe.Pages;
 
 public sealed partial class GamePage : Page {
-	const int DEFAULT_DELAY_BEFORE_INJECTION_SEC = 3;
-
 	GamePageVM VM = new();
 
 	#region * Init
@@ -102,7 +100,7 @@ public sealed partial class GamePage : Page {
 
 				VM.StatusMessage = "Waiting for launched game to start...";
 
-				int delayBeforeInjectionSec = DEFAULT_DELAY_BEFORE_INJECTION_SEC;
+				int delayBeforeInjectionSec = AppUserSettings.DEFAULT_DELAY_BEFORE_INJECTION_SEC;
 				string appSetting = AppUserSettings.Read("DelayBeforeInjectionSec");
 				if (int.TryParse(appSetting, out int iAppSetting) && iAppSetting > 0) delayBeforeInjectionSec = iAppSetting;
 

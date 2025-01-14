@@ -34,6 +34,16 @@
 			<TextBlock Style="{StaticResource styHelpText}">( Applies globally to all apps using OpenXR )</TextBlock>
 		</StackPanel>
 
-		<ContentControl Grid.RowSpan="3" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+		<TextBlock Grid.Row="3" Style="{StaticResource stySubHeader}" Margin="0,12,0,10">Delay before injection</TextBlock>
+		<StackPanel Grid.Row="4" Orientation="Horizontal">
+			<NumberBox Width="104" Value="{x:Bind VM.DelayBeforeInjection, Mode=TwoWay}" Minimum="0" Maximum="100" SpinButtonPlacementMode="Inline"
+				SmallChange="1" LargeChange="10" />
+			<TextBlock VerticalAlignment="Center" Margin="8,0,32,0">seconds</TextBlock>
+			<TextBlock Style="{StaticResource styHelpText}">
+				( Some seconds are useful for stability. Make it longer to not see a black screen during intro films )
+			</TextBlock>
+		</StackPanel>
+
+		<ContentControl Grid.RowSpan="5" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 	</Grid>
 </Page>

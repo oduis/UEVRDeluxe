@@ -29,12 +29,22 @@ public sealed partial class SettingsPage : Page {
 		try {
 			Logger.Log.LogTrace("Opening settings page");
 
+			VM.DelayBeforeInjection = AppUserSettings.DEFAULT_DELAY_BEFORE_INJECTION_SEC;
+			string appSetting = AppUserSettings.Read("DelayBeforeInjectionSec");
+			if (int.TryParse(appSetting, out int iAppSetting) && iAppSetting > 0) VM.DelayBeforeInjection = iAppSetting;
+
 			VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
 			var defaultRuntime = VM.OpenXRRuntimes.FirstOrDefault(r => r.IsDefault);
 			if (defaultRuntime != null) VM.SelectedRuntime = defaultRuntime;
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load settings error");
 		}
+	}
+
+	protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
+		base.OnNavigatingFrom(e);
+
+		AppUserSettings.Write("DelayBeforeInjectionSec", VM.DelayBeforeInjection.ToString());
 	}
 	#endregion
 
