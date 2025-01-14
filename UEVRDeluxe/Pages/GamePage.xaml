@@ -69,21 +69,29 @@
 			<TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Text="{x:Bind VM.LocalProfile.Meta.Remarks, Mode=OneWay}" TextWrapping="WrapWholeWords" />
 		</Grid>
 
-		<controls:WebView2 Grid.Row="2" x:Name="webViewDescription" Visibility="{x:Bind VM.ProfileDescriptionVisible, Mode=OneWay}" Margin="0,12" />
+		<controls:WebView2 Grid.Row="2" x:Name="webViewDescription" Visibility="{x:Bind VM.ProfileDescriptionVisible, Mode=OneWay}" Margin="0,12,0,16" />
 
 		<TextBlock Grid.Row="3" Style="{StaticResource stySubHeader}"
 				   Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">How is your VR headset connected to the PC?</TextBlock>
 
-		<Grid Grid.Row="4" Margin="0,0,0,12" Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">
+		<Grid Grid.Row="4" Margin="0,0,0,16" Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">
 			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
-			<RadioButton Content="Virtual Desktop / Meta Quest Link (OpenXR)" Tag="XR" IsChecked="{x:Bind VM.LinkProtocol_XR, Mode=TwoWay}" Margin="0,0,24,0" />
-			<RadioButton Grid.Column="1" Content="SteamVR (OpenVR)" Tag="VR" IsChecked="{x:Bind VM.LinkProtocol_VR, Mode=TwoWay}" />
-			<TextBlock Grid.Column="2" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
-				( Connected VR headset to PC before starting the game )
+			<RadioButton Content="OpenXR, linking via:" Tag="XR" IsChecked="{x:Bind VM.LinkProtocol_XR, Mode=TwoWay}" />
+			<HyperlinkButton Grid.Column="1" Click="NavigateSettingsPage" Padding="0" Margin="4,0,28,1" 
+							 ToolTipService.ToolTip="Click to change default OpenXR runtime">
+				<StackPanel Orientation="Horizontal">
+					<TextBlock VerticalAlignment="Center" Text="{x:Bind VM.CurrentOpenXRRuntime, Mode=OneWay}" />
+					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xe70f;" FontSize="12" Margin="4,0,0,0" />
+				</StackPanel>
+			</HyperlinkButton>
+			<RadioButton Grid.Column="2" Content="OpenVR, linking via SteamVR" Tag="VR" IsChecked="{x:Bind VM.LinkProtocol_VR, Mode=TwoWay}" />
+			<TextBlock Grid.Column="3" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
+				( Connect VR headset to PC before starting game )
 			</TextBlock>
 		</Grid>
 

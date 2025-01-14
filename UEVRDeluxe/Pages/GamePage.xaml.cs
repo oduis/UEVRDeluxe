@@ -47,6 +47,8 @@ public sealed partial class GamePage : Page {
 
 			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD);
 
+			VM.CurrentOpenXRRuntime = OpenXRManager.GetAllRuntimes()?.FirstOrDefault(r => r.IsDefault)?.Name ?? "( undefinded )";
+
 			hotKeyCheckTimer.Start();
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
@@ -54,6 +56,7 @@ public sealed partial class GamePage : Page {
 	}
 
 	void GamePage_Unloaded(object sender, RoutedEventArgs e) {
+		Logger.Log.LogTrace("GamePage Timer stopped");
 		hotKeyCheckTimer.Stop();
 	}
 	#endregion
@@ -205,7 +208,11 @@ public sealed partial class GamePage : Page {
 	}
 	#endregion
 
-	void Edit_Click(object sender, RoutedEventArgs e) => Frame.Navigate(typeof(EditProfilePage), VM.GameInstallation, new DrillInNavigationTransitionInfo());
+	void Edit_Click(object sender, RoutedEventArgs e)
+		=> Frame.Navigate(typeof(EditProfilePage), VM.GameInstallation, new DrillInNavigationTransitionInfo());
+
+	void NavigateSettingsPage(object sender, RoutedEventArgs e)
+		=> Frame.Navigate(typeof(SettingsPage), null, new DrillInNavigationTransitionInfo());
 
 	void Back_Click(object sender, RoutedEventArgs e) { if (!VM.IsRunning) Frame.GoBack(); }
 }

@@ -41,10 +41,6 @@ public sealed partial class MainPage : Page {
 			VM.Games = new System.Collections.ObjectModel.ObservableCollection<GameInstallation>(await GameStoreManager.FindAllUEVRGamesAsync());
 			SortGames();
 
-			VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
-			var defaultRuntime = VM.OpenXRRuntimes.FirstOrDefault(r => r.IsDefault);
-			if (defaultRuntime != null) VM.SelectedRuntime = defaultRuntime;
-
 			// Check if hardware scheduling is enabled and warn the user
 			var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
 
@@ -53,7 +49,7 @@ public sealed partial class MainPage : Page {
 				if (keyOpenXRRoot != null) {
 					string hwSchMode = keyOpenXRRoot.GetValue(REGKEY_NAME_SCHEDULER)?.ToString();
 					if (hwSchMode == "2") {
-						VM.Warning = "Consider disabling 'Hardware Accelerated GPU Scheduling' in your Windows 'Graphics settings' if you have issues in games";
+						VM.Warning = "Consider disabling 'Hardware Accelerated GPU Scheduling' in your Windows 'Graphics settings', only if you have issues in games";
 					}
 				}
 			}
@@ -67,24 +63,15 @@ public sealed partial class MainPage : Page {
 	}
 	#endregion
 
-	#region OpenXR
-	async void OpenXRRuntimes_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-		if (VM.IsLoading || e.AddedItems.Count != 1) return;  // Still in initialisation
-
-		try {
-			OpenXRManager.SetActiveRuntime((e.AddedItems.First() as OpenXRRuntime).Path);
-		} catch (Exception ex) {
-			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Runtime switcher");
-		}
-	}
-	#endregion
-
 	#region * Link Handler
 	void NavigateAdminPage(object sender, RoutedEventArgs e)
 		=> Frame.Navigate(typeof(AdminPage), null, new DrillInNavigationTransitionInfo());
 
 	void NavigateAllProfilesPage(object sender, RoutedEventArgs e)
-	=> Frame.Navigate(typeof(AllProfilesPage), null, new DrillInNavigationTransitionInfo());
+		=> Frame.Navigate(typeof(AllProfilesPage), null, new DrillInNavigationTransitionInfo());
+
+	void NavigateSettingsPage(object sender, RoutedEventArgs e)
+		=> Frame.Navigate(typeof(SettingsPage), null, new DrillInNavigationTransitionInfo());
 
 	void GamesView_ItemClick(object sender, ItemClickEventArgs e)
 		=> Frame.Navigate(typeof(GamePage), e.ClickedItem, new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });

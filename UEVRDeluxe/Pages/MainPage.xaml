@@ -30,8 +30,6 @@
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
 		<Grid>
@@ -58,23 +56,15 @@
 			</GridView.ItemContainerStyle>
 		</GridView>
 
-		<TextBlock Grid.Row="2" Style="{StaticResource stySubHeader}" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}">Select Application to link your Headset to this PC</TextBlock>
-		<StackPanel Grid.Row="3" Orientation="Horizontal" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}" Margin="0,4,0,20">
-			<TextBlock VerticalAlignment="Center">OpenXR Runtime:</TextBlock>
-			<ComboBox DisplayMemberPath="Name" ItemsSource="{x:Bind VM.OpenXRRuntimes, Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedRuntime, Mode=TwoWay}" Margin="8,0,32,0"
-					 SelectionChanged="OpenXRRuntimes_SelectionChanged" />
-			<TextBlock Style="{StaticResource styHelpText}">( Applies globally to all apps using OpenXR. Please establish the connection before you start the game. )</TextBlock>
-		</StackPanel>
-
-		<Border Grid.Row="4" Visibility="{x:Bind VM.WarningVisible, Mode=OneWay}" Style="{StaticResource styWarning}" Margin="0,8,0,20">
+		<Border Grid.Row="2" Visibility="{x:Bind VM.WarningVisible, Mode=OneWay}" Style="{StaticResource styWarning}" Margin="0,8,0,20">
 			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" />
 		</Border>
 
-		<StackPanel Grid.Row="5" Orientation="Horizontal" Spacing="64">
+		<StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="52">
 			<HyperlinkButton NavigateUri="https://uevrdeluxe.org" Padding="0">
 				<StackPanel Orientation="Horizontal">
 					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xE80f;" />
-					<TextBlock VerticalAlignment="Center" FontSize="11">Homepage/Updates</TextBlock>
+					<TextBlock VerticalAlignment="Center" FontSize="11">Homepage</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
 			<HyperlinkButton NavigateUri="https://uevrdeluxe.org/UEVRTutorial" Padding="0">
@@ -83,22 +73,29 @@
 					<TextBlock VerticalAlignment="Center" FontSize="11">Tutorial</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
-			<HyperlinkButton Click="NavigateAllProfilesPage" Padding="0">
+			<HyperlinkButton Click="NavigateAllProfilesPage" Padding="0" ToolTipService.ToolTip="List of all games we have pre-configured profiles for">
 				<StackPanel Orientation="Horizontal">
 					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xEA37;" />
 					<TextBlock VerticalAlignment="Center" FontSize="11">Supported Games</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
-			<HyperlinkButton NavigateUri="https://www.patreon.com/praydog" Padding="0">
+			<HyperlinkButton Click="NavigateSettingsPage" Padding="0" ToolTipService.ToolTip="Global settings like OpenXR Runtime">
+				<StackPanel Orientation="Horizontal">
+					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xE713;" />
+					<TextBlock VerticalAlignment="Center" FontSize="11">Settings</TextBlock>
+				</StackPanel>
+			</HyperlinkButton>
+			<HyperlinkButton NavigateUri="https://www.patreon.com/praydog" Padding="0" ToolTipService.ToolTip="Donate on Patreon">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/PatreonLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
 					<TextBlock VerticalAlignment="Center" FontSize="11">Support UEVR Author PrayDog</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
-			<HyperlinkButton NavigateUri="https://discord.com/channels/747967102895390741/1020440446389993542" Padding="0">
+			<HyperlinkButton NavigateUri="https://discord.com/channels/747967102895390741/1020440446389993542" Padding="0"
+							 ToolTipService.ToolTip="Flat2VR on Discord">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/DiscordLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
-					<TextBlock VerticalAlignment="Center" FontSize="11">Get Support</TextBlock>
+					<TextBlock VerticalAlignment="Center" FontSize="11">Support</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
 			<HyperlinkButton Click="NavigateAdminPage" Visibility="{x:Bind VM.VisibleIfAdmin}">
@@ -106,6 +103,6 @@
 			</HyperlinkButton>
 		</StackPanel>
 
-		<ContentControl Grid.RowSpan="6" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+		<ContentControl Grid.RowSpan="4" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 	</Grid>
 </Page>

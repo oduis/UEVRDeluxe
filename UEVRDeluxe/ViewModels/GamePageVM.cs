@@ -17,6 +17,9 @@ public class GamePageVM : VMBase {
 			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning)]);
 	}
 
+	string currentOpenXRRuntime;
+	public string CurrentOpenXRRuntime { get=>currentOpenXRRuntime; set => Set(ref currentOpenXRRuntime, value); }
+
 	public Visibility ProfileMetaVisible => Warning == null && !string.IsNullOrEmpty(LocalProfile?.Meta?.EXEName) ? Visibility.Visible : Visibility.Collapsed;
 
 	public Visibility ProfileDescriptionVisible => Warning == null && !string.IsNullOrWhiteSpace(LocalProfile?.DescriptionMD) ? Visibility.Visible : Visibility.Collapsed;
