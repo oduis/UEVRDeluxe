@@ -27,6 +27,8 @@ public sealed partial class SettingsPage : Page {
 
 	async void Page_Loaded(object sender, RoutedEventArgs e) {
 		try {
+			VM.IsLoading = true;
+
 			Logger.Log.LogTrace("Opening settings page");
 
 			VM.DelayBeforeInjection = AppUserSettings.DEFAULT_DELAY_BEFORE_INJECTION_SEC;
@@ -36,7 +38,10 @@ public sealed partial class SettingsPage : Page {
 			VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
 			var defaultRuntime = VM.OpenXRRuntimes.FirstOrDefault(r => r.IsDefault);
 			if (defaultRuntime != null) VM.SelectedRuntime = defaultRuntime;
+
+			VM.IsLoading = false;
 		} catch (Exception ex) {
+			VM.IsLoading = false;
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load settings error");
 		}
 	}

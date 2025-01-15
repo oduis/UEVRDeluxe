@@ -1,10 +1,12 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Threading.Tasks;
+using UEVRDeluxe.Code;
 
 namespace UEVRDeluxe.ViewModels;
 
@@ -12,58 +14,60 @@ namespace UEVRDeluxe.ViewModels;
 /// Implementation of <see cref="INotifyPropertyChanged"/> to simplify models.
 /// </summary>
 public abstract class VMBase : INotifyPropertyChanged {
-    /// <summary> Occurs when a property value changes.</summary>
-    public event PropertyChangedEventHandler PropertyChanged;
+	/// <summary> Occurs when a property value changes.</summary>
+	public event PropertyChangedEventHandler PropertyChanged;
 
-    /// <summary>
-    /// Notifies listeners that a property value has changed.
-    /// </summary>
-    /// <param name="propertyName">Name of the property used to notify listeners. This
-    /// value is optional and can be provided automatically when invoked from compilers
-    /// that support <see cref="CallerMemberNameAttribute"/>.</param>
-    protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	/// <summary>
+	/// Notifies listeners that a property value has changed.
+	/// </summary>
+	/// <param name="propertyName">Name of the property used to notify listeners. This
+	/// value is optional and can be provided automatically when invoked from compilers
+	/// that support <see cref="CallerMemberNameAttribute"/>.</param>
+	protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-    /// <summary>
-    /// Checks if a property already matches a desired value. Sets the property and
-    /// notifies listeners only when necessary.
-    /// </summary>
-    /// <typeparam name="T">Type of the property.</typeparam>
-    /// <param name="storage">Reference to a property with both getter and setter.</param>
-    /// <param name="value">Desired value for the property.</param>
-    /// <param name="propertyName">Name of the property used to notify listeners. This
-    /// value is optional and can be provided automatically when invoked from compilers that
-    /// support CallerMemberName.</param>
-    /// <param name="additionalProperty">Zusätzliches Property zu benachrichtigen.</param>
-    /// <param name="additionalProperty2">Zusätzliches Property zu benachrichtigen.</param>
-    /// <returns>True if the value was changed, false if the existing value matched the
-    /// desired value.</returns>
-    protected bool Set<T>(ref T storage, T value, string[] additionalProperties = null, [CallerMemberName] string propertyName = null) {
-        if (Equals(storage, value)) return false;
+	/// <summary>
+	/// Checks if a property already matches a desired value. Sets the property and
+	/// notifies listeners only when necessary.
+	/// </summary>
+	/// <typeparam name="T">Type of the property.</typeparam>
+	/// <param name="storage">Reference to a property with both getter and setter.</param>
+	/// <param name="value">Desired value for the property.</param>
+	/// <param name="propertyName">Name of the property used to notify listeners. This
+	/// value is optional and can be provided automatically when invoked from compilers that
+	/// support CallerMemberName.</param>
+	/// <param name="additionalProperty">Zusätzliches Property zu benachrichtigen.</param>
+	/// <param name="additionalProperty2">Zusätzliches Property zu benachrichtigen.</param>
+	/// <returns>True if the value was changed, false if the existing value matched the
+	/// desired value.</returns>
+	protected bool Set<T>(ref T storage, T value, string[] additionalProperties = null, [CallerMemberName] string propertyName = null) {
+		if (Equals(storage, value)) return false;
 
-        storage = value;
-        OnPropertyChanged(propertyName);
-        if (additionalProperties != null) {
-            foreach (string prop in additionalProperties)
-                if (!string.IsNullOrEmpty(prop)) OnPropertyChanged(prop);
-        }
+		storage = value;
+		OnPropertyChanged(propertyName);
+		if (additionalProperties != null) {
+			foreach (string prop in additionalProperties)
+				if (!string.IsNullOrEmpty(prop)) OnPropertyChanged(prop);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    bool isLoading;
-    /// <summary>On many pages is a loading control</summary>
-    public bool IsLoading { get => isLoading; set => Set(ref isLoading, value, [nameof(VisibleIfLoading)]); }
+	bool isLoading;
+	/// <summary>On many pages is a loading control</summary>
+	public bool IsLoading { get => isLoading; set => Set(ref isLoading, value, [nameof(VisibleIfLoading)]); }
 	public Visibility VisibleIfLoading => IsLoading ? Visibility.Visible : Visibility.Collapsed;
 
 	public async Task HandleExceptionAsync(XamlRoot xamlRoot, Exception ex, string title) {
 		IsLoading = false;
 
+		Logger.Log.LogError(ex, title);
+
 		string message = ex.Message;
-		if (ex is SecurityException) message = $"Security error: {message}\r\nYou might want to start UEVR Deluxe as administrator";
+		if (ex is SecurityException) message = $"Security error: {message}\r\nPlease start UEVR Easy Injector as administrator";
 
 		await new ContentDialog {
 			Title = title, CloseButtonText = "OK", XamlRoot = xamlRoot,
-			Content = string.IsNullOrEmpty(message) ? ex.ToString() : ex.Message
+			Content = string.IsNullOrEmpty(message) ? ex.ToString() : message
 		}.ShowAsync();
 	}
 }
