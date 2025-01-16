@@ -1,6 +1,6 @@
 {
   "app": "UEVR Easy Injector",
-  "version": "1.1.0.0",
-  "releaseNotes": "Global hotkey also searched game; Injection delay configurable; More profile edit options",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1100"
+  "version": "1.1.1.0",
+  "releaseNotes": "If global hotkey is called from main page it returns there after game quits; Fixed security message in settings page",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1110"
 }

@@ -76,7 +76,7 @@ public sealed partial class MainPage : Page {
 		}
 
 		VM.IsLoading = false;
-		gvGames.Focus(FocusState.Programmatic);  // WInUI selects links otherwise
+		gvGames.Focus(FocusState.Programmatic);  // WinUI selects links otherwise
 	}
 	#endregion
 

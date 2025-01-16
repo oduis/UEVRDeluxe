@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿#region Usings
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -6,7 +7,8 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Threading.Tasks;
-using UEVRDeluxe.Code;
+using UEVRDeluxe.Code; 
+#endregion
 
 namespace UEVRDeluxe.ViewModels;
 

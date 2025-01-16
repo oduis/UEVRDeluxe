@@ -32,7 +32,7 @@ public class GamePageVM : VMBase {
 				return "You have no UEVR Profile locally installed for this game\r\n- Try \"Search profile\" (recommended) or\r\n- add a new profile yourself";
 
 			if (string.IsNullOrEmpty(localProfile.Meta.EXEName))
-				return "You have a local profile for this game, but it contains no publishing description";
+				return "You have a local profile for this game, but it contains no publishing description\r\nTry \"Search profile\" if there is an official one in the database";
 
 			return null;
 		}

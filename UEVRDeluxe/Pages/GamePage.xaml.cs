@@ -192,6 +192,9 @@ public sealed partial class GamePage : Page {
 		} finally {
 			VM.IsRunning = false;
 		}
+
+		// So the next game may be started
+		if (wasCalledViaHotKey.HasValue && wasCalledViaHotKey.Value) Frame.GoBack();
 	}
 	#endregion
 
@@ -205,10 +208,19 @@ public sealed partial class GamePage : Page {
 	#region * HotKey
 	DispatcherTimer hotKeyCheckTimer;
 
+	/// <summary>The first tick decides if a hotkey was passed through</summary>
+	bool? wasCalledViaHotKey = null;
+
 	void HotKeyCheckTimer_Tick(object sender, object e) {
 		if (MainWindow.HotkeyEvent.IsSet) {
 			MainWindow.HotkeyEvent.Reset();
-			if (!VM.IsRunning && VM.LocalProfile != null) Launch_Click(this, null);
+
+			if (!VM.IsRunning && VM.LocalProfile != null) {
+				if (!wasCalledViaHotKey.HasValue) wasCalledViaHotKey = true;
+				Launch_Click(this, null);
+			}
+		} else if (!wasCalledViaHotKey.HasValue) {
+			wasCalledViaHotKey = false;
 		}
 	}
 	#endregion
