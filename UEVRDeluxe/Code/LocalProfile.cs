@@ -106,6 +106,8 @@ public class LocalProfile {
 		Load();
 	}
 
+	public bool GetExists() => Directory.Exists(FolderPath);
+
 	string ConfigFilePath => Path.Combine(FolderPath, CONFIG_FILENAME);
 	string ProfileMetaPath => Path.Combine(FolderPath, ProfileMeta.FILENAME);
 	string ProfileDescriptionPath => Path.Combine(FolderPath, ProfileMeta.DESCRIPTION_FILENAME);

@@ -41,7 +41,7 @@
 				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 
-			<TextBlock Style="{StaticResource styPageHeader}" Margin="4,0,0,0">Select your installed Steam/EPIC Game</TextBlock>
+			<TextBlock Style="{StaticResource styPageHeader}" Margin="4,0,0,0">Select your installed Game</TextBlock>
 
 			<TextBlock Grid.Column="1" VerticalAlignment="Center">Sort by</TextBlock>
 			<RadioButton Grid.Column="2" x:Name="rbSortRecent" Checked="SortRecentChecked" Content="Recently played" Margin="16,0" />

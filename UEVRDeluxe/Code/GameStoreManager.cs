@@ -25,7 +25,6 @@ public static class GameStoreManager {
 	readonly static string[] UNREAL_ENGINE_STRINGS = ["UnrealEngine", "UE4", "UE5", "UE6", "Epic Games"];
 
 	#region FindAllUEVRGames
-
 	static List<GameInstallation> gameInstallations;
 
 	public async static Task<List<GameInstallation>> FindAllUEVRGamesAsync() {
@@ -47,6 +46,7 @@ public static class GameStoreManager {
 		// This pretty quick, but catalogs in EPIC take a while. So try to augment with previous
 		allGames.AddRange(FindAllSteamGames());
 		allGames.AddRange(FindAllEPICGames(cache?.AllInstallations));
+		allGames.AddRange(FindAllGOGGames());
 
 		// Check if cache is still valid
 		if (cache != null && cache.AllInstallations.Count == allGames.Count
@@ -69,8 +69,10 @@ public static class GameStoreManager {
 			string[] alldirs = Directory.GetDirectories(game.FolderPath, "*", SearchOption.AllDirectories);
 
 			if (!alldirs.Any(d => d.Contains("Engine\\Binaries\\Win64", StringComparison.OrdinalIgnoreCase)
-				|| d.Contains("Engine\\Binaries\\ThirdParty", StringComparison.OrdinalIgnoreCase)))
+				|| d.Contains("Engine\\Binaries\\ThirdParty", StringComparison.OrdinalIgnoreCase))) {
+				Logger.Log.LogTrace($"No UE directories found for {game.Name}");
 				continue;
+			}
 
 			// The find the EXE
 			string[] exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", SearchOption.AllDirectories);
@@ -209,7 +211,8 @@ public static class GameStoreManager {
 
 						foreach (var game in allGames) {
 							var catalogItem = catalog.FirstOrDefault(c => c.Id == game.EpicID && c.Namespace == game.EpicNamespace);
-							game.IconURL = catalogItem?.KeyImages?.OrderBy(k => k.Height)?.FirstOrDefault()?.Url ?? "DUMMY";
+							game.IconURL = catalogItem?.KeyImages?.OrderBy(k => k.Height)?.FirstOrDefault()?.Url
+								?? "/Assets/GenericGameLogo.jpg";
 						}
 					}
 				}
@@ -236,8 +239,6 @@ public static class GameStoreManager {
 				Logger.Log.LogTrace("STEAM not installed");
 				return allGames;
 			}
-
-			//if (!File.Exists(Path.Join(steamInstallDir, "steam.exe"))) return allGames;
 
 			string vdfPath = Path.Join(steamInstallDir, "steamapps", "libraryfolders.vdf");
 			if (!File.Exists(vdfPath)) throw new Exception("Steam Library Definition file not found");
@@ -276,7 +277,7 @@ public static class GameStoreManager {
 									game.ShellLaunchPath = $"steam://rungameid/{game.SteamID}";
 
 									// Sometimes guys manually delete the game folders
-									if (Directory.Exists(game.FolderPath)) 
+									if (Directory.Exists(game.FolderPath))
 										allGames.Add(game);
 									else
 										Logger.Log.LogWarning($"Steam game not installed any more in {game.FolderPath}");
@@ -295,6 +296,54 @@ public static class GameStoreManager {
 		}
 
 		return allGames.OrderByDescending(g => g.LastPlayed ?? new DateTime()).ThenBy(g => g.Name).ToList();
+	}
+	#endregion
+
+	#region FindAllGOGGames
+	static List<GameInstallation> FindAllGOGGames() {
+		var allGames = new List<GameInstallation>();
+
+		try {
+			// Find GOG launcher
+			string gogExeName = ReadWin32RegistryValue(@"SOFTWARE\GOG.com\GalaxyClient", "clientExecutable");
+			if (string.IsNullOrEmpty(gogExeName)) {
+				Logger.Log.LogTrace("GOG not installed");
+				return allGames;
+			}
+
+			Logger.Log.LogTrace($"Found GOG Client {gogExeName}");
+
+			var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
+
+			var keyGames = hklm.OpenSubKey(@"SOFTWARE\GOG.com\Games", false);
+
+			foreach (string subkeyName in keyGames.GetSubKeyNames()) {
+				var gameKey = keyGames.OpenSubKey(subkeyName, false);
+
+				string gameName = gameKey.GetValue("gameName") as string;
+				if (string.IsNullOrEmpty(gameName)) continue;
+
+				Logger.Log.LogTrace($"Found GOG game {gameName}");
+				var game = new GameInstallation {
+					GOGID = long.Parse(subkeyName),
+					StoreType = GameStoreType.GOG,
+					Name = gameName,
+#if DEBUG
+					//EXEName = "Test",  // Force visibility if you don't want to buy a UE game on GOG just to test
+#endif
+					FolderPath = gameKey.GetValue("path") as string,
+					IconURL = "/Assets/GOGLogo.jpg",
+					ShellLaunchPath = ($"{gameKey.GetValue("launchCommand") as string} {gameKey.GetValue("launchParam") as string}").Trim()
+				};
+
+				if (Directory.Exists(game.FolderPath)) allGames.Add(game);
+			}
+		} catch (Exception ex) {
+			// Show must go on if an installation of one store is flawed
+			Logger.Log.LogCritical(ex, "Failed to scan GOG");
+		}
+
+		return allGames.OrderBy(g => g.Name).ToList();
 	}
 	#endregion
 
@@ -317,9 +366,16 @@ public static class GameStoreManager {
 public class GameInstallation {
 	/// <summary>Global ID for comparisons</summary>
 	[JsonIgnore]
-	public string ID => SteamID.HasValue ? $"S{SteamID}" : $"E{EpicNamespace}|{EpicID}";
+	public string ID => StoreType switch {
+		GameStoreType.Steam => $"S{SteamID}",
+		GameStoreType.Epic => $"E{EpicNamespace}|{EpicID}",
+		GameStoreType.GOG => $"G{GOGID}",
+		_ => throw new NotImplementedException()
+	};
 
 	public long? SteamID { get; set; }
+
+	public long? GOGID { get; set; }
 
 	public string EpicID { get; set; }
 	public string EpicNamespace { get; set; }
@@ -342,7 +398,8 @@ public class GameInstallation {
 
 public enum GameStoreType {
 	Steam,
-	Epic
+	Epic,
+	GOG
 }
 
 /// <summary>Disk representation.</summary>
