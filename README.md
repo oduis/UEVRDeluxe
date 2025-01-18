@@ -1,17 +1,18 @@
-# Unreal VR Deluxe
+# Unreal Easy Injector
 Play many esp. first person Unreal Engine games in VR!  
 Replacing the old UEVR Injector with a much more user friendly, easy to use and automated app.  
-It auto-scans you Steam installed games and replaces tools like launcher, UEVRInjector, OpenXR switchers.
+It auto-scans you Steam/EPIC/GOG installed games and replaces tools like launcher, UEVRInjector, OpenXR switchers.
 
 Most profile websites are outdated, profiles floating in Discord discussions, hard to discover.
-UEVR Deluxe contains a web database for easy discovery and installation, plus adds authors information on how to use the profiles.
+UEVR Easy Injector contains a web database for easy discovery and installation, plus adds authors information on how to use the profiles.
 
-It uses [PrayDogs UEVR engine](https://github.com/praydog/UEVR) in the background but does not need an UEVR installation.
+It uses [PrayDogs UEVR engine](https://github.com/praydog/UEVR) but does not need an UEVR installation.
 
 ## Installation
 Simply download the setup program from the release section.  
 Some virus scanner mark the UEVR engine as a false positive, because it (suspiciously) injects itself into other game apps.
 Please add an exception for UEVR in your antivirus software if necessary.
+Do **not** run the classical UEVR injector in parallel (side by side install is no problem, just not start them).
 
 ## Submitting profiles
 Please only submit tested profiles, not work in progress.  
