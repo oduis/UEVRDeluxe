@@ -27,7 +27,7 @@ public static class GameStoreManager {
 	#region FindAllUEVRGames
 	static List<GameInstallation> gameInstallations;
 
-	public async static Task<List<GameInstallation>> FindAllUEVRGamesAsync() {
+	public async static Task<List<GameInstallation>> FindAllUEVRGamesAsync(bool forceRescan) {
 		if (gameInstallations != null) return gameInstallations;  // If we e.g. get back from one game
 
 		string rootFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UEVRDeluxe");
@@ -36,7 +36,7 @@ public static class GameStoreManager {
 		string gameInstallationCachePath = Path.Combine(rootFolder, "GameInstallationCache.json");
 
 		GameInstallationCache cache = null;
-		if (File.Exists(gameInstallationCachePath)) {
+		if (!forceRescan && File.Exists(gameInstallationCachePath)) {
 			cache = JsonSerializer.Deserialize<GameInstallationCache>(await File.ReadAllTextAsync(gameInstallationCachePath));
 			if (cache.CacheStructureVersion != GameInstallationCache.LATEST_CACHE_STRUCTURE_VERSION) cache = null;
 		}

@@ -54,7 +54,8 @@ public sealed partial class MainPage : Page {
 			//if (!Win32.IsUserAnAdmin()) throw new Exception("Please run UEVR Deluxe as an Administrator");
 
 			InitSort();
-			VM.Games = new System.Collections.ObjectModel.ObservableCollection<GameInstallation>(await GameStoreManager.FindAllUEVRGamesAsync());
+			VM.Games = new System.Collections.ObjectModel.ObservableCollection<GameInstallation>(
+				await GameStoreManager.FindAllUEVRGamesAsync(false));
 			SortGames();
 
 			// Check if hardware scheduling is enabled and warn the user
@@ -141,6 +142,24 @@ public sealed partial class MainPage : Page {
 			// Gracefully ignore
 			Logger.Log.LogCritical(ex, "Cannot check version");
 		}
+	}
+	#endregion
+
+	#region Rescan
+	async void Rescan_Click(object sender, RoutedEventArgs e) {
+		try {
+			VM.IsLoading = true;
+
+			InitSort();
+			VM.Games.Clear();
+			var games = await GameStoreManager.FindAllUEVRGamesAsync(true);
+			foreach (var game in games) VM.Games.Add(game);
+			SortGames();
+		} catch (Exception ex) {
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Rescan");
+		}
+
+		VM.IsLoading = false;
 	}
 	#endregion
 

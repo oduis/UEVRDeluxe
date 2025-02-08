@@ -24,7 +24,7 @@
 			<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
 				<FontIcon Style="{StaticResource styBackLink}" />
 			</HyperlinkButton>
-			<TextBlock Style="{StaticResource styPageHeader}">Download profile</TextBlock>
+			<TextBlock Style="{StaticResource styPageHeader}">Download Profile</TextBlock>
 		</StackPanel>
 		
 		<ListView Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12" ItemsSource="{x:Bind VM.ProfileMetas, Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedProfileMeta, Mode=TwoWay}"

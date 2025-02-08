@@ -41,7 +41,7 @@
 				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 
-			<TextBlock Style="{StaticResource styPageHeader}" Margin="4,0,0,0">Select your installed Game</TextBlock>
+			<TextBlock Style="{StaticResource styPageHeader}" Margin="4,0,0,0">Select Your Installed Game</TextBlock>
 
 			<TextBlock Grid.Column="1" VerticalAlignment="Center">Sort by</TextBlock>
 			<RadioButton Grid.Column="2" x:Name="rbSortRecent" Checked="SortRecentChecked" Content="Recently played" Margin="16,0" />
@@ -57,7 +57,14 @@
 			</GridView.ItemContainerStyle>
 		</GridView>
 
-		<TextBlock Grid.Row="2" Style="{StaticResource styHelpText}" HorizontalAlignment="Center" Margin="0,8,0,0">
+		<Button Grid.Row="2" Click="Rescan_Click" Style="{StaticResource styButton}"
+			ToolTipService.ToolTip="If your games is not shown, try to rescan the library. This may take a while, if you have many games installed.">
+			<Grid>
+				<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE72C;" />
+				<TextBlock Style="{StaticResource styButtonIconText}">Rescan game library</TextBlock>
+			</Grid>
+		</Button>
+		<TextBlock Grid.Row="2" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
 			( While in game, hit Ctrl+Alt+U to inject directly )
 		</TextBlock>
 
