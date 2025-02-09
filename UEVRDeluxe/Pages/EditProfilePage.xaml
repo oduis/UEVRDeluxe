@@ -28,12 +28,13 @@
 		<ScrollView Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
 			<StackPanel Spacing="26" HorizontalAlignment="Stretch">
 				<StackPanel x:Name="spRenderingMethod">
-					<TextBlock Style="{StaticResource stySubHeader}">Rendering method</TextBlock>
+					<TextBlock Style="{StaticResource stySubHeader}">Rendering Method</TextBlock>
 
 					<RadioButton Tag="0">
 						<StackPanel>
 							<TextBlock>Native Stereo</TextBlock>
-							<TextBlock Style="{StaticResource styHelpText}">Best performance, anti aliasing works (Recommended if no issues)</TextBlock>
+							<TextBlock Style="{StaticResource styHelpText}">Best performance, anti-aliasing works (Recommended if no issues)</TextBlock>
+							<CheckBox x:Name="cbNativeStereoFix">Increase compatibility (reduces performance).</CheckBox>
 						</StackPanel>
 					</RadioButton>
 					<RadioButton Tag="1" Margin="0,4">
@@ -67,13 +68,13 @@
 
 				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
-					<CheckBox x:Name="cbGhostingFix">Eleminates faint ghost images around e.g. the game characters. Especially helpful when using Synced Sequential. May cause side effects and crashes.</CheckBox>
+					<CheckBox x:Name="cbGhostingFix">Eliminates faint ghost images around game characters. Especially helpful when using Synced Sequential. May cause side effects and crashes.</CheckBox>
 				</StackPanel>
 
 				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Snap turn</TextBlock>
 
-					<CheckBox x:Name="cbSnapTurn">Enable to turn in steps instead of continuously. Helps if you experience motion sickness while turning.</CheckBox>
+					<CheckBox x:Name="cbSnapTurn">Enable to turn in increments instead of continuously. Helps if you experience motion sickness while turning.</CheckBox>
 
 					<StackPanel Orientation="Horizontal">
 						<Slider x:Name="slSnapturnTurnAngle" IsEnabled="{x:Bind cbSnapTurn.IsChecked.Value, Mode=OneWay}" Minimum="10" Maximum="90" TickFrequency="5" 
@@ -93,13 +94,13 @@
 
 					<StackPanel>
 						<TextBlock Style="{StaticResource stySubHeader}">Multiplayer Aim Support</TextBlock>
-						<CheckBox x:Name="cbAimMPSupport">Enable if you experience weird e.g. camera effects when playing multiplayer games. Leave off if you experience no problems.</CheckBox>
+						<CheckBox x:Name="cbAimMPSupport">Enable if you experience unusual camera effects when playing multiplayer games. Leave off if you encounter no issues.</CheckBox>
 					</StackPanel>
 
 					<StackPanel Grid.Column="2">
 						<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
 
-						<CheckBox x:Name="cbEnableDepth">Reduces latency especially when using Meta Quest Link. May cause crashes.</CheckBox>
+						<CheckBox x:Name="cbEnableDepth">Reduces latency, especially when using Meta Quest Link. May cause crashes.</CheckBox>
 					</StackPanel>
 				</Grid>
 
@@ -119,17 +120,25 @@
 
 				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Typical in game settings</TextBlock>
-					<TextBlock TextWrapping="WrapWholeWords"><Run>VR is virtually rendering on very high resolutions is very demanding. 
-						Be sure to have a powerful GPU with lots of VRAM, and to not max out game settings. 
-						While optimizing, look out if GPU usage and espc. GPU VRAM hit the roof in Task Explorer.</Run><LineBreak/>
-						<Run>If the game supports it, set these in the in game graphic settings:</Run><LineBreak/> 
-						<Run>- Chromatic aberration OFF</Run><LineBreak/>
-						<Run>- Motion blur OFF</Run><LineBreak/>
-						<Run>- Depth of field OFF</Run><LineBreak/>
-						<Run>- View/head bobbing OFF</Run><LineBreak/>
-						<Run>- Anti aliasing: No TXAA if game does not support Native rendering</Run><LineBreak/>
-						<Run>- DLSS/FSR: OFF if game das not support Native rendering</Run><LineBreak/>
-						<Run>- Post processing typically looks better on LOW</Run><LineBreak/>
+					<TextBlock TextWrapping="WrapWholeWords">
+						<Run>Rendering VR at very high resolutions is extremely demanding. 
+							Ensure you have a powerful GPU with ample VRAM, and avoid maxing out game settings. 
+							While optimizing, monitor GPU usage and especially GPU VRAM in Task Explorer.</Run>
+						<LineBreak/>
+						<Run>If the game supports it, adjust these in-game graphic settings:</Run>
+						<LineBreak/> 
+						<Run>- Chromatic aberration: OFF</Run>
+						<LineBreak/>
+						<Run>- Motion blur: OFF</Run>
+						<LineBreak/>
+						<Run>- Depth of field: OFF</Run>
+						<LineBreak/>
+						<Run>- View/head bobbing: OFF</Run>
+						<LineBreak/>
+						<Run>- DLSS/FSR: OFF if the game does not support Native Stereo rendering</Run>
+						<LineBreak/>
+						<Run>- Post processing: typically looks better on LOW</Run>
+						<LineBreak/>
 					</TextBlock>
 					<Grid Margin="0,16">
 						<Grid.ColumnDefinitions>
