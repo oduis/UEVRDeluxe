@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
+using Windows.ApplicationModel.UserDataTasks;
 #endregion
 
 namespace UEVRDeluxe.Pages;
@@ -25,9 +26,16 @@ public sealed partial class GamePage : Page {
 		this.Loaded += GamePage_Loaded;
 
 		// Initialize the DispatcherTimer
-		hotKeyCheckTimer = new DispatcherTimer();
-		hotKeyCheckTimer.Interval = TimeSpan.FromMilliseconds(400); // Adjust the interval as needed
+		hotKeyCheckTimer = new();
+		hotKeyCheckTimer.Interval = TimeSpan.FromMilliseconds(400);
 		hotKeyCheckTimer.Tick += HotKeyCheckTimer_Tick;
+
+		hideInjectManuallyTimer = new();
+		hideInjectManuallyTimer.Interval = TimeSpan.FromSeconds(10);
+		hideInjectManuallyTimer.Tick += (s, args) => {
+			VM.VisibleInjectManually = Visibility.Collapsed;
+			hideInjectManuallyTimer.Stop();
+		};
 	}
 
 	protected override void OnNavigatedTo(NavigationEventArgs e) {
@@ -89,9 +97,13 @@ public sealed partial class GamePage : Page {
 	#region Launch
 	bool shouldStop;
 
+	DispatcherTimer hideInjectManuallyTimer;
+
 	async void Launch_Click(object sender, RoutedEventArgs e) {
 		try {
-			shouldStop = false; VM.IsRunning = true;
+			shouldStop = false;
+			VM.IsRunning = true;
+			VM.VisibleInjectManually = Visibility.Collapsed; hideInjectManuallyTimer.Stop();
 
 			#region Launch process and wait
 			var gameProcess = Process.GetProcessesByName(VM.GameInstallation.EXEName.ToLowerInvariant()).FirstOrDefault();
@@ -102,7 +114,12 @@ public sealed partial class GamePage : Page {
 
 				if (VM.LocalProfile?.Meta?.LateInjection == true) {
 					VM.StatusMessage = "Manual injection needed";
-					throw new Exception("Game launched, but this game needs you to start your session manually before injecting.\nWhen in 3D game view, hit 'Start game' again or press Strg+Alt+U to inject.");
+					VM.VisibleInjectManually = Visibility.Visible;
+
+					// Start a timer to hide the manual injection message after 5 seconds
+					hideInjectManuallyTimer.Start();
+
+					return;
 				}
 
 				VM.StatusMessage = "Waiting for launched game to start...";
@@ -201,12 +218,12 @@ public sealed partial class GamePage : Page {
 	#region Stop
 	void Stop_Click(object sender, RoutedEventArgs e) {
 		VM.StatusMessage = "Stopping game...";
-		shouldStop = true;
+		shouldStop = true; VM.VisibleInjectManually = Visibility.Collapsed;
 	}
 	#endregion
 
 	#region * HotKey
-	DispatcherTimer hotKeyCheckTimer;
+	readonly DispatcherTimer hotKeyCheckTimer;
 
 	/// <summary>The first tick decides if a hotkey was passed through</summary>
 	bool? wasCalledViaHotKey = null;

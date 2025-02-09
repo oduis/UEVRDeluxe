@@ -60,6 +60,8 @@ public class GamePageVM : VMBase {
 		}
 	}
 
+	Visibility injectManuallyVisible=Visibility.Collapsed;
+	public Visibility VisibleInjectManually { get=>injectManuallyVisible; set => Set(ref injectManuallyVisible, value); }
 
 	bool searchEnabled = true;
 	public bool SearchEnabled { get => searchEnabled; set => Set(ref searchEnabled, value); }

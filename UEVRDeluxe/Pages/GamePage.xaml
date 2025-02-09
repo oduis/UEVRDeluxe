@@ -18,6 +18,7 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
 		<Image Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="72" Margin="4" Source="{x:Bind VM.GameInstallation.IconURL, Mode=OneWay}" />
@@ -95,7 +96,15 @@
 			</TextBlock>
 		</Grid>
 
-		<Grid Grid.Row="5"
+		<Border Grid.Row="5" Visibility="{x:Bind VM.VisibleInjectManually, Mode=OneWay}"
+				Background="#ffF0a0" Padding="16" Margin="0,0,0,8">
+			<TextBlock>
+				Game launched, but this game needs you to start your session manually before injecting.<LineBreak/>
+				When in 3D game view, hit 'Start game' again or press Strg+Alt+U to inject.
+			</TextBlock>
+		</Border>
+
+		<Grid Grid.Row="6"
 				   Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
@@ -152,6 +161,6 @@
 			</Grid>
 		</Border>
 
-		<ContentControl Grid.RowSpan="6" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+		<ContentControl Grid.RowSpan="7" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 	</Grid>
 </Page>
