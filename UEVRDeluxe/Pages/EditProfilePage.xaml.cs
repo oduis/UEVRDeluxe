@@ -42,6 +42,21 @@ public sealed partial class EditProfilePage : Page {
 			cbSnapTurn.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_SnapTurn"] ?? "false");
 			slSnapturnTurnAngle.Value = int.Parse(VM.LocalProfile.Config.Global["VR_SnapturnTurnAngle"] ?? "45");
 			slResolutionScale.Value = Math.Round(double.Parse(VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] ?? "1.0", CultureInfo.InvariantCulture) * 100);
+
+			// AntiAlias is special, since a set of values must be used. And it may be configured manually
+			string antiAliasingMethod = VM.LocalProfile.CVarsStandard.Global["Renderer_r.AntiAliasingMethod"];
+			if (antiAliasingMethod == "4") {
+				SetRadioButtonValue(spUpscaler, "1");
+				spUpscaler.Visibility = Visibility.Visible;
+			} else if (string.IsNullOrEmpty(antiAliasingMethod)) {
+				SetRadioButtonValue(spUpscaler, "0");
+				spUpscaler.Visibility = Visibility.Visible;
+			} else {
+				// Upscaling set to a very specific value. Don't touch that.
+				spUpscaler.Visibility = Visibility.Collapsed;
+			}
+
+			slScreenPercentage.Value = Math.Round(double.Parse(VM.LocalProfile.CVarsStandard.Global["Core_r.ScreenPercentage"] ?? "80.0", CultureInfo.InvariantCulture));
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
@@ -63,13 +78,30 @@ public sealed partial class EditProfilePage : Page {
 	async Task SaveAsync() {
 		VM.LocalProfile.Config.Global["VR_RenderingMethod"] = GetRadioButtonValue(spRenderingMethod);
 		VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"] = GetRadioButtonValue(spSyncedSequentialMethod);
-		VM.LocalProfile.Config.Global["VR_NativeStereoFix"] = cbNativeStereoFix.IsChecked.ToString();
-		VM.LocalProfile.Config.Global["VR_GhostingFix"] = cbGhostingFix.IsChecked.ToString();
-		VM.LocalProfile.Config.Global["VR_AimMPSupport"] = cbAimMPSupport.IsChecked.ToString();
-		VM.LocalProfile.Config.Global["VR_EnableDepth"] = cbEnableDepth.IsChecked.ToString();
-		VM.LocalProfile.Config.Global["VR_SnapTurn"] = cbSnapTurn.IsChecked.ToString();
+		VM.LocalProfile.Config.Global["VR_NativeStereoFix"] = cbNativeStereoFix.IsChecked.ToString().ToLower();
+		VM.LocalProfile.Config.Global["VR_GhostingFix"] = cbGhostingFix.IsChecked.ToString().ToLower();
+		VM.LocalProfile.Config.Global["VR_AimMPSupport"] = cbAimMPSupport.IsChecked.ToString().ToLower();
+		VM.LocalProfile.Config.Global["VR_EnableDepth"] = cbEnableDepth.IsChecked.ToString().ToLower();
+		VM.LocalProfile.Config.Global["VR_SnapTurn"] = cbSnapTurn.IsChecked.ToString().ToLower();
 		VM.LocalProfile.Config.Global["VR_SnapturnTurnAngle"] = slSnapturnTurnAngle.Value.ToString();
 		VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] = Math.Round(slResolutionScale.Value / 100, 2).ToString(CultureInfo.InvariantCulture);
+
+		if (spUpscaler.Visibility == Visibility.Visible) {
+			if (GetRadioButtonValue(spUpscaler) == "1") {
+				VM.LocalProfile.CVarsStandard.Global["Renderer_r.AntiAliasingMethod"] = "4"; // TSR/TXAA
+				VM.LocalProfile.CVarsStandard.Global["Renderer_r.TemporalAA.Upscaler"] = "1";  // GTemporalUpscaler which may be overridden by a third party plugin
+				VM.LocalProfile.CVarsStandard.Global["Renderer_r.TemporalAA.Algorithm"] = "1";  // GTemporalUpscaler which may be overridden by a third party plugin (default)
+				VM.LocalProfile.CVarsStandard.Global["Core_r.ScreenPercentage"] = Math.Round(slScreenPercentage.Value).ToString(CultureInfo.InvariantCulture);
+				VM.LocalProfile.CVarsStandard.Global["Renderer_r.Upscale.Quality"] = "4";   // 13-tap Lanczos 3 
+			} else {
+				// Remove the whole set to let the game decide
+				VM.LocalProfile.CVarsStandard.Global.RemoveKey("Renderer_r.AntiAliasingMethod");
+				VM.LocalProfile.CVarsStandard.Global.RemoveKey("Renderer_r.TemporalAA.Upscaler");
+				VM.LocalProfile.CVarsStandard.Global.RemoveKey("Renderer_r.TemporalAA.Algorithm");
+				VM.LocalProfile.CVarsStandard.Global.RemoveKey("Core_r.ScreenPercentage");
+				VM.LocalProfile.CVarsStandard.Global.RemoveKey("Renderer_r.Upscale.Quality");
+			}
+		}
 
 		await VM.LocalProfile.SaveAsync();
 	}

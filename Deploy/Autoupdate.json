@@ -1,6 +1,6 @@
 {
   "app": "UEVR Easy Injector",
-  "version": "1.2.0.0",
-  "releaseNotes": "GOG Game Store support added",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1200"
+  "version": "1.3.0.0",
+  "releaseNotes": "Added Upscaling option in profile editor; Support for the new Native Stereo Fix; Rescan Library button",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1300"
 }

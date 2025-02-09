@@ -17,6 +17,7 @@ namespace UEVRDeluxe.Code;
 
 public class LocalProfile {
 	const string CONFIG_FILENAME = "config.txt";
+	const string CVARS_STANDARD_FILENAME = "cvars_standard.txt";
 
 	/// <summary>Default settings if no file is found</summary>
 	const string CONFIG_DEFAULT = """
@@ -67,6 +68,9 @@ public class LocalProfile {
 	/// <summary>Content of the Config.txt</summary>
 	public IniData Config { get; private set; }
 
+	/// <summary>Content of the cvars_standard.txt</summary>
+	public IniData CVarsStandard { get; private set; }
+
 	/// <summary>Content of the ProfileDescription.md</summary>
 	public string DescriptionMD { get; private set; }
 
@@ -109,6 +113,8 @@ public class LocalProfile {
 	public bool GetExists() => Directory.Exists(FolderPath);
 
 	string ConfigFilePath => Path.Combine(FolderPath, CONFIG_FILENAME);
+	string CVarStandardFilePath => Path.Combine(FolderPath, CVARS_STANDARD_FILENAME);
+
 	string ProfileMetaPath => Path.Combine(FolderPath, ProfileMeta.FILENAME);
 	string ProfileDescriptionPath => Path.Combine(FolderPath, ProfileMeta.DESCRIPTION_FILENAME);
 
@@ -126,6 +132,16 @@ public class LocalProfile {
 		} else {
 			using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(CONFIG_DEFAULT)))
 			using (var rdr = new StreamReader(memoryStream)) this.Config = parser.ReadData(rdr);
+		}
+
+		if (File.Exists(CVarStandardFilePath)) {
+			try {
+				CVarsStandard = parser.ReadFile(CVarStandardFilePath, Encoding.UTF8);
+			} catch (Exception ex) {
+				throw new Exception($"Incorrect CVARStandard {CVarStandardFilePath}: {ex.Message}");
+			}
+		} else {
+			CVarsStandard = new IniData();
 		}
 
 		if (File.Exists(ProfileMetaPath)) {
@@ -149,6 +165,8 @@ public class LocalProfile {
 		if (!Directory.Exists(FolderPath)) Directory.CreateDirectory(FolderPath);
 
 		await WriteTextFileIfChangedAsync(ConfigFilePath, CleanedIni(Config));
+		await WriteTextFileIfChangedAsync(CVarStandardFilePath, CleanedIni(CVarsStandard));
+
 		await WriteTextFileIfChangedAsync(ProfileMetaPath, JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
 		if (!string.IsNullOrEmpty(DescriptionMD)) await WriteTextFileIfChangedAsync(ProfileDescriptionPath, DescriptionMD);
 	}
@@ -156,9 +174,15 @@ public class LocalProfile {
 	async Task WriteTextFileIfChangedAsync(string path, string content) {
 		string oldContent = null;
 
-		if (File.Exists(path)) oldContent = await File.ReadAllTextAsync(path);
+		bool oldExists = File.Exists(path);
+		if (oldExists) oldContent = await File.ReadAllTextAsync(path);
+
 		if (oldContent != content) {
-			await File.WriteAllTextAsync(path, content);
+			if (!string.IsNullOrWhiteSpace(content))
+				await File.WriteAllTextAsync(path, content);
+			else if (oldExists)
+				File.Delete(path);  // e.g. CVars are better not available than empty
+
 			Logger.Log.LogTrace($"{path} changed");
 		}
 	}

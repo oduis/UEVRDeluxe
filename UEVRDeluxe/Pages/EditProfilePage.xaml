@@ -34,7 +34,7 @@
 						<StackPanel>
 							<TextBlock>Native Stereo</TextBlock>
 							<TextBlock Style="{StaticResource styHelpText}">Best performance, anti-aliasing works (Recommended if no issues)</TextBlock>
-							<CheckBox x:Name="cbNativeStereoFix">Increase compatibility (reduces performance).</CheckBox>
+							<CheckBox x:Name="cbNativeStereoFix">Increase compatibility (reduces performance)</CheckBox>
 						</StackPanel>
 					</RadioButton>
 					<RadioButton Tag="1" Margin="0,4">
@@ -65,12 +65,52 @@
 					</RadioButton>
 				</StackPanel>
 
-
 				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
 					<CheckBox x:Name="cbGhostingFix">Eliminates faint ghost images around game characters. Especially helpful when using Synced Sequential. May cause side effects and crashes.</CheckBox>
 				</StackPanel>
 
+				<StackPanel>
+					<TextBlock Style="{StaticResource stySubHeader}">Resolution Scale</TextBlock>
+
+					<StackPanel Orientation="Horizontal">
+						<Slider x:Name="slResolutionScale" Minimum="70" Maximum="130" TickFrequency="5" 
+						TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
+
+						<TextBlock Text="{x:Bind slResolutionScale.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+						<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+					</StackPanel>
+
+					<TextBlock Style="{StaticResource styHelpText}">100% means full resolution of headset display. Higher scale gives more sharpness (since optical distortion is reduced), lower scale more performance. OpenXR only.</TextBlock>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Style="{StaticResource stySubHeader}">Upscaling</TextBlock>
+
+					<StackPanel x:Name="spUpscaler" Margin="0,4,0,0" Spacing="4">
+						<RadioButton Tag="0">
+							<StackPanel>
+								<TextBlock>Use Game Default Upscaling</TextBlock>
+								<TextBlock Style="{StaticResource styHelpText}">If game supports e.g. DLSS or FSR, and upscaling looks good in VR</TextBlock>
+							</StackPanel>
+						</RadioButton>
+						<RadioButton Tag="1">
+							<StackPanel>
+								<TextBlock>Force Temporal Upscaling</TextBlock>
+								<TextBlock Style="{StaticResource styHelpText}">Replace game upscaler by a Unreal Engine built-in one. Use if game does not support upscaling or DLSS/FSR has rendering glitches.</TextBlock>
+								<StackPanel Orientation="Horizontal">
+									<Slider x:Name="slScreenPercentage" Minimum="40" Maximum="100" TickFrequency="5" 
+										TickPlacement="Outside" SnapsTo="Ticks" Width="654" Margin="0,0,16,0" />
+
+									<TextBlock Text="{x:Bind slScreenPercentage.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+									<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+								</StackPanel>
+								<TextBlock Style="{StaticResource styHelpText}">Higher percentage of the total resolution gives more sharpness, lower percentage more performance.</TextBlock>
+							</StackPanel>
+						</RadioButton>
+					</StackPanel>
+				</StackPanel>
+				
 				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Snap turn</TextBlock>
 
@@ -78,7 +118,7 @@
 
 					<StackPanel Orientation="Horizontal">
 						<Slider x:Name="slSnapturnTurnAngle" IsEnabled="{x:Bind cbSnapTurn.IsChecked.Value, Mode=OneWay}" Minimum="10" Maximum="90" TickFrequency="5" 
-							TickPlacement="Outside" SnapsTo="Ticks" Width="640" Margin="0,0,16,0" />
+							TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
 
 						<TextBlock Text="{x:Bind slSnapturnTurnAngle.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
 						<TextBlock Text="°" FontSize="16" VerticalAlignment="Center" />
@@ -104,19 +144,7 @@
 					</StackPanel>
 				</Grid>
 
-				<StackPanel>
-					<TextBlock Style="{StaticResource stySubHeader}">Resolution scale</TextBlock>
-
-					<StackPanel Orientation="Horizontal">
-						<Slider x:Name="slResolutionScale" Minimum="70" Maximum="130" TickFrequency="5" 
-							TickPlacement="Outside" SnapsTo="Ticks" Width="640" Margin="0,0,16,0" />
-
-						<TextBlock Text="{x:Bind slResolutionScale.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
-						<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
-					</StackPanel>
-
-					<TextBlock Style="{StaticResource styHelpText}">Higher scale gives more sharpness, lower scale more performance. OpenXR only.</TextBlock>
-				</StackPanel>
+	
 
 				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Typical in game settings</TextBlock>
@@ -159,11 +187,18 @@
 			</StackPanel>
 		</ScrollView>
 
-		<StackPanel Grid.Row="2" Spacing="12" Orientation="Horizontal" Margin="0,16,0,0">
+		<StackPanel Grid.Row="2" Spacing="12" Orientation="Horizontal" Margin="0,14,0,0">
 			<Button Click="Save_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
 					<TextBlock Style="{StaticResource styButtonIconText}">Save</TextBlock>
+				</Grid>
+			</Button>
+
+			<Button Click="OpenFolder_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE838;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Open Folder</TextBlock>
 				</Grid>
 			</Button>
 
@@ -174,14 +209,7 @@
 					<TextBlock Style="{StaticResource styButtonIconText}">Publish</TextBlock>
 				</Grid>
 			</Button>
-
-			<Button Click="OpenFolder_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE838;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Open folder</TextBlock>
-				</Grid>
-			</Button>
-
+			
 			<Button Click="Delete_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}"
 					ToolTipService.ToolTip="Can be helpful if UEVR or the game was massively updated since the profile was built">
 				<Grid>
