@@ -36,6 +36,7 @@ public sealed partial class EditProfilePage : Page {
 			SetRadioButtonValue(spRenderingMethod, VM.LocalProfile.Config.Global["VR_RenderingMethod"]);
 			SetRadioButtonValue(spSyncedSequentialMethod, VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"]);
 			cbNativeStereoFix.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_NativeStereoFix"] ?? "false");
+			cbNativeStereoFixSamePass.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_NativeStereoFixSamePass"] ?? "false");
 			cbGhostingFix.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_GhostingFix"] ?? "false");
 			cbAimMPSupport.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_AimMPSupport"] ?? "false");
 			cbEnableDepth.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_EnableDepth"] ?? "false");
@@ -79,6 +80,7 @@ public sealed partial class EditProfilePage : Page {
 		VM.LocalProfile.Config.Global["VR_RenderingMethod"] = GetRadioButtonValue(spRenderingMethod);
 		VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"] = GetRadioButtonValue(spSyncedSequentialMethod);
 		VM.LocalProfile.Config.Global["VR_NativeStereoFix"] = cbNativeStereoFix.IsChecked.ToString().ToLower();
+		VM.LocalProfile.Config.Global["VR_NativeStereoFixSamePass"] = cbNativeStereoFixSamePass.IsChecked.ToString().ToLower();
 		VM.LocalProfile.Config.Global["VR_GhostingFix"] = cbGhostingFix.IsChecked.ToString().ToLower();
 		VM.LocalProfile.Config.Global["VR_AimMPSupport"] = cbAimMPSupport.IsChecked.ToString().ToLower();
 		VM.LocalProfile.Config.Global["VR_EnableDepth"] = cbEnableDepth.IsChecked.ToString().ToLower();

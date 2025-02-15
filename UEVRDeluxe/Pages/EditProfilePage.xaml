@@ -34,7 +34,8 @@
 						<StackPanel>
 							<TextBlock>Native Stereo</TextBlock>
 							<TextBlock Style="{StaticResource styHelpText}">Best performance, anti-aliasing works (Recommended if no issues)</TextBlock>
-							<CheckBox x:Name="cbNativeStereoFix">Increase compatibility (reduces performance)</CheckBox>
+							<CheckBox x:Name="cbNativeStereoFix">Increased compatiblity, reduced performance, but better than Synced Squential (Fix)</CheckBox>
+                            <CheckBox x:Name="cbNativeStereoFixSamePass" Margin="28,0,0,0" IsEnabled="{x:Bind cbNativeStereoFix.IsChecked.Value, Mode=OneWay}">Further increased compatibility. May prevent crashes in UE5 games (Same pass stereo)</CheckBox>
 						</StackPanel>
 					</RadioButton>
 					<RadioButton Tag="1" Margin="0,4">
