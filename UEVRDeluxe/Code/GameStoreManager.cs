@@ -247,47 +247,52 @@ public static class GameStoreManager {
 
 			var steamLibraryDefinition = VdfConvert.Deserialize(File.ReadAllText(vdfPath));
 			foreach (var steamLibDirDefinition in steamLibraryDefinition.Value.Children<VProperty>()) {
-				var libDirData = steamLibDirDefinition.Value;
-				var vtoken_libPath = libDirData.Value<string>("path");
-				var vprop_apps = libDirData.Value<VObject>("apps");
+				try {
+					var libDirData = steamLibDirDefinition.Value;
+					var vtoken_libPath = libDirData.Value<string>("path");
+					var vprop_apps = libDirData.Value<VObject>("apps");
 
-				foreach (var gameDefinition in vprop_apps.Children<VProperty>()) {
-					Logger.Log.LogTrace($"Found game {gameDefinition.Key}: {gameDefinition.Value}");
+					foreach (var gameDefinition in vprop_apps.Children<VProperty>()) {
+						Logger.Log.LogTrace($"Found game {gameDefinition.Key}: {gameDefinition.Value}");
 
-					if (long.TryParse(gameDefinition.Key, out long gameAppId)) {
-						var gameManifestPath = Path.Join(vtoken_libPath, "steamapps", $"appmanifest_{gameAppId}.acf");
+						if (long.TryParse(gameDefinition.Key, out long gameAppId)) {
+							var gameManifestPath = Path.Join(vtoken_libPath, "steamapps", $"appmanifest_{gameAppId}.acf");
 
-						if (File.Exists(gameManifestPath)) {
-							try {
-								var path_gameManifestDefinition = VdfConvert.Deserialize(File.ReadAllText(gameManifestPath));
-								var gameManifestDefinition = path_gameManifestDefinition.Value;
-								string relativeDirectoryName = gameManifestDefinition.Value<string>("installdir");
+							if (File.Exists(gameManifestPath)) {
+								try {
+									var path_gameManifestDefinition = VdfConvert.Deserialize(File.ReadAllText(gameManifestPath));
+									var gameManifestDefinition = path_gameManifestDefinition.Value;
+									string relativeDirectoryName = gameManifestDefinition.Value<string>("installdir");
 
-								var game = new GameInstallation { SteamID = gameAppId, StoreType = GameStoreType.Steam };
-								game.Name = gameManifestDefinition.Value<string>("name");
+									var game = new GameInstallation { SteamID = gameAppId, StoreType = GameStoreType.Steam };
+									game.Name = gameManifestDefinition.Value<string>("name");
 
-								Logger.Log.LogTrace($"Game {game.Name}");
+									Logger.Log.LogTrace($"Game {game.Name}");
 
-								long lastPlayed = gameManifestDefinition.Value<long>("LastPlayed");
-								if (lastPlayed > 0) game.LastPlayed = DateTimeOffset.FromUnixTimeSeconds(lastPlayed).DateTime;
+									long lastPlayed = gameManifestDefinition.Value<long>("LastPlayed");
+									if (lastPlayed > 0) game.LastPlayed = DateTimeOffset.FromUnixTimeSeconds(lastPlayed).DateTime;
 
-								if (!IGNORE_GAME_NAMES.Contains(game.Name)) {
-									game.FolderPath = Path.GetFullPath(Path.Join("steamapps", "common", relativeDirectoryName), vtoken_libPath);
-									game.IconURL = $"https://cdn.cloudflare.steamstatic.com/steam/apps/{game.SteamID}/capsule_231x87.jpg"; //$"steam://install/{game.SteamID}";
-									game.ShellLaunchPath = $"steam://rungameid/{game.SteamID}";
+									if (!IGNORE_GAME_NAMES.Contains(game.Name)) {
+										game.FolderPath = Path.GetFullPath(Path.Join("steamapps", "common", relativeDirectoryName), vtoken_libPath);
+										game.IconURL = $"https://cdn.cloudflare.steamstatic.com/steam/apps/{game.SteamID}/capsule_231x87.jpg"; //$"steam://install/{game.SteamID}";
+										game.ShellLaunchPath = $"steam://rungameid/{game.SteamID}";
 
-									// Sometimes guys manually delete the game folders
-									if (Directory.Exists(game.FolderPath))
-										allGames.Add(game);
-									else
-										Logger.Log.LogWarning($"Steam game not installed any more in {game.FolderPath}");
+										// Sometimes guys manually delete the game folders
+										if (Directory.Exists(game.FolderPath))
+											allGames.Add(game);
+										else
+											Logger.Log.LogWarning($"Steam game not installed any more in {game.FolderPath}");
+									}
+								} catch (Exception ex) {
+									// For the guys still running their corrupted hard drives... show must go on
+									Logger.Log.LogCritical(ex, "Failed to read Steam manifest {0}", gameManifestPath);
 								}
-							} catch (Exception ex) {
-								// For the guys still running their corrupted hard drives... show must go on
-								Logger.Log.LogCritical(ex, "Failed to read Steam manifest {0}", gameManifestPath);
-							}
-						} else Logger.Log.LogWarning($"Steam game manifest not found for {gameManifestPath}");
-					} else Logger.Log.LogWarning($"Steam game ID not a number {gameDefinition.Key}");
+							} else Logger.Log.LogWarning($"Steam game manifest not found for {gameManifestPath}");
+						} else Logger.Log.LogWarning($"Steam game ID not a number {gameDefinition.Key}");
+					}
+				} catch (Exception ex) {
+					// In case of a corrupted library definition
+					Logger.Log.LogWarning($"Failed to read Steam Library {steamLibDirDefinition.Key}: {ex}");
 				}
 			}
 		} catch (Exception ex) {
