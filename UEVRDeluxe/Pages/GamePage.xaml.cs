@@ -18,12 +18,14 @@ using Windows.ApplicationModel.UserDataTasks;
 namespace UEVRDeluxe.Pages;
 
 public sealed partial class GamePage : Page {
-	GamePageVM VM = new();
+	readonly GamePageVM VM = new();
+	VoiceCommandRecognizer speechRecognizer = new();
+
 
 	#region * Init
 	public GamePage() {
 		this.InitializeComponent();
-		this.Loaded += GamePage_Loaded;
+		this.Loaded += Page_Loaded;
 
 		// Initialize the DispatcherTimer
 		hotKeyCheckTimer = new();
@@ -49,9 +51,11 @@ public sealed partial class GamePage : Page {
 
 		Logger.Log.LogTrace("GamePage Timer stopped");
 		hotKeyCheckTimer?.Stop();
+
+		speechRecognizer?.StopAsync()?.Wait();
 	}
 
-	async void GamePage_Loaded(object sender, RoutedEventArgs e) {
+	async void Page_Loaded(object sender, RoutedEventArgs e) {
 		try {
 			Logger.Log.LogTrace($"Opening games page {VM?.GameInstallation?.Name}");
 
@@ -59,7 +63,7 @@ public sealed partial class GamePage : Page {
 
 			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD);
 
-			VM.CurrentOpenXRRuntime = OpenXRManager.GetAllRuntimes()?.FirstOrDefault(r => r.IsDefault)?.Name ?? "( undefinded )";
+			VM.CurrentOpenXRRuntime = OpenXRManager.GetAllRuntimes()?.FirstOrDefault(r => r.IsDefault)?.Name ?? "( undefined )";
 
 			hotKeyCheckTimer.Start();
 		} catch (Exception ex) {

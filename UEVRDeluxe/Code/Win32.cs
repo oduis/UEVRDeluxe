@@ -76,6 +76,19 @@ public static partial class Win32 {
 	[LibraryImport("shell32.dll", SetLastError = true)]
 	[return: MarshalAs(UnmanagedType.Bool)]
 	internal static partial bool IsUserAnAdmin();
+
+	[LibraryImport("user32.dll")]
+	internal static partial uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray), In] INPUT[] pInputs, int cbSize);
+
+	[LibraryImport("user32.dll", EntryPoint = "GetKeyboardLayout", SetLastError = true)]
+	internal static partial IntPtr GetKeyboardLayout(uint idThread);
+
+	[LibraryImport("user32.dll", EntryPoint = "VkKeyScanExW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+	internal static partial ushort VkKeyScanExW(char ch, IntPtr dwhkl);
+
+	internal const uint INPUT_KEYBOARD = 1;
+	internal const ushort VK_RETURN = 0x0D;
+	internal const uint KEYEVENTF_KEYUP = 0x0002;
 }
 
 [Flags]
@@ -153,4 +166,43 @@ public enum SetWindowLongFlags : uint {
 	WS_EX_LAYOUTRTL = 0x00400000,
 	WS_EX_COMPOSITED = 0x02000000,
 	WS_EX_NOACTIVATE = 0x08000000,
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct INPUT {
+	public uint type;
+	public InputUnion u;
+}
+
+[StructLayout(LayoutKind.Explicit)]
+internal struct InputUnion {
+	[FieldOffset(0)] public MOUSEINPUT mi;
+	[FieldOffset(0)] public KEYBDINPUT ki;
+	[FieldOffset(0)] public HARDWAREINPUT hi;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct MOUSEINPUT {
+	public int dx;
+	public int dy;
+	public uint mouseData;
+	public uint dwFlags;
+	public uint time;
+	public IntPtr dwExtraInfo;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct KEYBDINPUT {
+	public ushort wVk;
+	public ushort wScan;
+	public uint dwFlags;
+	public uint time;
+	public IntPtr dwExtraInfo;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct HARDWAREINPUT {
+	public uint uMsg;
+	public ushort wParamL;
+	public ushort wParamH;
 }

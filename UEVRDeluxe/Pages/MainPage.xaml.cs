@@ -26,7 +26,7 @@ public sealed partial class MainPage : Page {
 	const string REGKEY_GRAPHICS = @"SYSTEM\CurrentControlSet\Control\GraphicsDrivers";
 	const string REGKEY_NAME_SCHEDULER = "HwSchMode";
 
-	MainPageVM VM = new();
+	readonly MainPageVM VM = new();
 
 	#region * Init
 	public MainPage() {

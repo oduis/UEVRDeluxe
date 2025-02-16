@@ -13,10 +13,10 @@ public sealed partial class AllProfilesPage : Page {
 
 	public AllProfilesPage() {
 		this.InitializeComponent();
-		this.Loaded += AllProfilesPage_Loaded;
+		this.Loaded += Page_Loaded;
 	}
 
-	async void AllProfilesPage_Loaded(object sender, RoutedEventArgs e) {
+	async void Page_Loaded(object sender, RoutedEventArgs e) {
 		try {
 			VM.IsLoading = true;
 

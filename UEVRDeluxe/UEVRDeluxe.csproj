@@ -22,6 +22,7 @@
     <None Remove="Pages\AdminPage.xaml" />
     <None Remove="Pages\AllProfilesPage.xaml" />
     <None Remove="Pages\EditProfilePage.xaml" />
+    <None Remove="Pages\EditVoiceCommandsPage.xaml" />
     <None Remove="Pages\GamePage.xaml" />
     <None Remove="Pages\MainPage.xaml" />
     <None Remove="Pages\ProfileDescrPage.xaml" />
@@ -73,6 +74,7 @@
     <PackageReference Include="NReco.Logging.File" Version="1.2.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
+    <PackageReference Include="System.Speech" Version="8.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
@@ -101,6 +103,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <Page Update="Pages\EditVoiceCommandsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Pages\AllProfilesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
