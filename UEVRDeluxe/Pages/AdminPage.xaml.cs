@@ -26,13 +26,10 @@ public sealed partial class AdminPage : Page {
 		//var hWnd = XamlRoot.ContentIslandEnvironment.AppWindowId;
 		WinRT.Interop.InitializeWithWindow.Initialize(picker, MainWindow.hWnd);
 
-#if RELEASE
+		// If it crashes here while debugging, run VS as normal user, NOT admin
 		var folder = await picker.PickSingleFolderAsync();
 		if (folder == null) return;
-#else
-		// Sometimes picker throws exceptions, but only if called from within Visual Studio
-		var folder = await StorageFolder.GetFolderFromPathAsync ("C:\\Temp\\Borderlands3");
-#endif
+
 		try {
 			VM.IsLoading = true;
 

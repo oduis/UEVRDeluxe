@@ -7,12 +7,15 @@ using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
-using Windows.ApplicationModel.UserDataTasks;
+using Windows.Devices.Enumeration;
+using Windows.Media.Devices;
+using Windows.System;
 #endregion
 
 namespace UEVRDeluxe.Pages;
@@ -66,6 +69,18 @@ public sealed partial class GamePage : Page {
 			VM.CurrentOpenXRRuntime = OpenXRManager.GetAllRuntimes()?.FirstOrDefault(r => r.IsDefault)?.Name ?? "( undefined )";
 
 			hotKeyCheckTimer.Start();
+
+			string defaultAudioInputDeviceId = MediaDevice.GetDefaultAudioCaptureId(AudioDeviceRole.Communications);
+
+			if (!string.IsNullOrEmpty(defaultAudioInputDeviceId)) {
+				var deviceInformation = DeviceInformation.CreateFromIdAsync(defaultAudioInputDeviceId).AsTask().Result;
+				VM.DefaultInputDeviceName = deviceInformation?.Name ?? "Unknown Device";
+
+				VM.EnableVoiceCommands = File.Exists(VoiceCommandProfile.GetFilePath(VM.GameInstallation.EXEName));
+			} else {
+				VM.DefaultInputDeviceName = "( no default audio input )";
+				VM.EnableVoiceCommands = false;
+			}
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
@@ -251,6 +266,13 @@ public sealed partial class GamePage : Page {
 
 	void NavigateSettingsPage(object sender, RoutedEventArgs e)
 		=> Frame.Navigate(typeof(SettingsPage), null, new DrillInNavigationTransitionInfo());
+
+	void NavigateVoiceCommandsPage(object sender, RoutedEventArgs e)
+		=> Frame.Navigate(typeof(EditVoiceCommandsPage), VM.GameInstallation.EXEName, new DrillInNavigationTransitionInfo());
+
+	async void OpenWinAudio_Click(object sender, RoutedEventArgs e) {
+		await Launcher.LaunchUriAsync(new Uri("ms-settings:sound"));
+	}
 
 	void Back_Click(object sender, RoutedEventArgs e) { if (!VM.IsRunning) Frame.GoBack(); }
 }

@@ -42,13 +42,12 @@ public class VoiceCommandRecognizer {
 		commandMap = new Dictionary<string, int>();
 
 		var phraseList = new List<string>();
-		string keyword = profile.Keyword.Trim();
 
 		if (profile.Commands?.Any() ?? false) {
 			foreach (var command in profile.Commands) {
-				string phrase = $"{keyword} {command.Text.Trim()}".ToLowerInvariant();
+				string phrase = command.Text.Trim();
 				phraseList.Add(phrase);
-				commandMap[phrase] = command.VKKeyCode;
+				commandMap[phrase.ToLowerInvariant()] = command.VKKeyCode;
 			}
 		}
 		var listConstraint = new SpeechRecognitionListConstraint(phraseList, "commands");
@@ -74,7 +73,6 @@ public class VoiceCommandRecognizer {
 		await recognizer.ContinuousRecognitionSession.StartAsync();
 	}
 
-	// Changed Stop to be asynchronous
 	public async Task StopAsync() {
 		if (recognizer != null) {
 			await recognizer.ContinuousRecognitionSession.StopAsync();
@@ -83,7 +81,6 @@ public class VoiceCommandRecognizer {
 		}
 	}
 
-	// Updated event handler to process SpeechRecognitionResult
 	void Recognizer_SpeechRecognized(SpeechRecognitionResult result) {
 		if (result.Status == SpeechRecognitionResultStatus.Success) {
 			var recognizedText = result.Text.ToLowerInvariant();
@@ -124,6 +121,7 @@ public class VoiceCommandRecognizer {
 	}
 }
 
+#region * VoiceCommandProfile
 public class VoiceCommandProfile {
 	/// <summary>E.g. "en-us"</summary>
 	public string LanguageTag { get; set; }
@@ -131,10 +129,7 @@ public class VoiceCommandProfile {
 	/// <summary>The real executable (not the launchers) without .exe</summary>
 	public string EXEName { get; set; }
 
-	/// <summary>Keyword listened for that starts the chain</summary>
-	public string Keyword { get; set; }
-
-	/// <summary>Commands following the keyword</summary>
+	/// <summary>Commands (may include keywords)</summary>
 	public List<VoiceCommand> Commands { get; set; }
 
 	public static string GetFilePath(string exeName) {
@@ -151,9 +146,10 @@ public class VoiceCommandProfile {
 }
 
 public class VoiceCommand {
-	/// <summary>The spoken text</summary>
+	/// <summary>The spoken text (may contain multiple words)</summary>
 	public string Text { get; set; }
 
 	/// <summary>Virtual keyboard code</summary>
 	public int VKKeyCode { get; set; }
 }
+#endregion

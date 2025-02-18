@@ -34,5 +34,6 @@ The format is MarkDown. There are a of online editors, like [Dillinger](https://
 The backend database lives on Azure and is privately paid for by myself. 
 - Do not make any code changes that would result in more calls or loads to the backend
 - Do not use the backend database from other apps
+- Do NOT start Visual Studio as Admin, as this [will crash the debugger](https://github.com/microsoft/WindowsAppSDK/issues/567) when accessing system functions
 
 Please mention the license, as it is designed to forbit closed source usage, hindering commercial exploitation.

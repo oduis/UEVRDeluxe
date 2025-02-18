@@ -1,4 +1,5 @@
 #region Usings
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -31,6 +32,8 @@ public sealed partial class EditProfilePage : Page {
 
 	async void EditProfilePage_Loaded(object sender, RoutedEventArgs e) {
 		try {
+			Logger.Log.LogTrace($"Opening profile page {VM.GameInstallation?.Name}");
+
 			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName, true);
 
 			SetRadioButtonValue(spRenderingMethod, VM.LocalProfile.Config.Global["VR_RenderingMethod"]);

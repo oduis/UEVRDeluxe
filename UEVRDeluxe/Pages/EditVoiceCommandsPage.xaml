@@ -9,8 +9,53 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-		<ListBox ItemsSource="{x:Bind VM.Languages,Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedLanguage,Mode=TwoWay}" />
+	<Grid Margin="20,8,20,20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
 
+		<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+			<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
+				<FontIcon Style="{StaticResource styBackLink}" />
+			</HyperlinkButton>
+			<TextBlock VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit Voice Profile" />
+		</StackPanel>
+
+		<StackPanel Grid.Row="1">
+			<TextBlock Style="{StaticResource stySubHeader}">Select Recognition Language</TextBlock>
+
+			<StackPanel Orientation="Horizontal" Margin="0,8">
+				<ComboBox ItemsSource="{x:Bind VM.Languages,Mode=OneWay}" DisplayMemberPath="NativeName" SelectedItem="{x:Bind VM.SelectedLanguage, Mode=TwoWay}" />
+				<HyperlinkButton Click="OpenWinLanguages_Click" Padding="0" Margin="48,0,0,0"
+								 ToolTipService.ToolTip="Open Windows System Settings to add speech recognition for a language">
+					<StackPanel Orientation="Horizontal">
+						<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xF2B7;" FontSize="18" Margin="0,0,8,0" />
+						<TextBlock VerticalAlignment="Center" Text="Open Windows System Settings to add speech recognitions" />
+					</StackPanel>
+				</HyperlinkButton>
+			</StackPanel>
+		</StackPanel>
+
+		<TextBlock Grid.Row="2" Style="{StaticResource stySubHeader}" Margin="0,16,0,8">Voice Commands</TextBlock>
+
+		<StackPanel Grid.Row="4" Spacing="12" Orientation="Horizontal" Margin="0,14,0,0">
+			<Button Click="Save_Click" Style="{StaticResource styButton}">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Save</TextBlock>
+				</Grid>
+			</Button>
+
+			<Button Click="Back_Click" Style="{StaticResource styButton}">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Cancel</TextBlock>
+				</Grid>
+			</Button>
+		</StackPanel>
 	</Grid>
 </Page>

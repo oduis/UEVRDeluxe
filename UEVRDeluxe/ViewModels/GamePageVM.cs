@@ -86,4 +86,11 @@ public class GamePageVM : VMBase {
 			if (value) Set(ref linkProtocol, "VR");
 		}
 	}
+
+
+	bool enableVoiceCommands;
+	public bool EnableVoiceCommands { get => enableVoiceCommands; set => Set(ref enableVoiceCommands, value); }
+
+	string defaultInputDeviceName;
+	public string DefaultInputDeviceName { get => defaultInputDeviceName; set => Set(ref defaultInputDeviceName, value); }
 }
