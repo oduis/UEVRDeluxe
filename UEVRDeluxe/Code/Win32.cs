@@ -93,7 +93,6 @@ public static partial class Win32 {
 	internal static partial int GetKeyNameTextW(int lParam, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] char[] lpBaseName, int nSize);
 
 	internal const uint INPUT_KEYBOARD = 1;
-	internal const ushort VK_RETURN = 0x0D;
 	internal const uint KEYEVENTF_KEYUP = 0x0002;
 }
 

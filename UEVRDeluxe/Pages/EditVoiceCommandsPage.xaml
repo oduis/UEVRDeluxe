@@ -15,7 +15,9 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
@@ -42,11 +44,24 @@
 			</StackPanel>
 		</StackPanel>
 
-		<TextBlock Grid.Row="2" Style="{StaticResource stySubHeader}" Margin="0,16,0,8">Voice Commands</TextBlock>
-		<tv:TableView Grid.Row="3" ItemsSource="{x:Bind VM.VoiceCommands, Mode=OneWay}" AutoGenerateColumns="False">
+		<StackPanel Grid.Row="2" Margin="0,16,0,0">
+			<TextBlock Style="{StaticResource stySubHeader}">Minimum Confidence Level for Recognition</TextBlock>
+
+			<StackPanel Orientation="Horizontal">
+				<Slider x:Name="slMinConfidence" Minimum="0" Maximum="100" TickFrequency="5" 
+						TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
+
+				<TextBlock Text="{x:Bind slMinConfidence.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+				<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+			</StackPanel>
+		</StackPanel>
+
+		<TextBlock Grid.Row="3" Style="{StaticResource stySubHeader}" Margin="0,20,0,8">Voice Commands</TextBlock>
+		<tv:TableView Grid.Row="4" ItemsSource="{x:Bind VM.VoiceCommands, Mode=OneWay}" CanFilterColumns="False" IsReadOnly="True"
+					  AutoGenerateColumns="False" SelectionMode="None" ShowOptionsButton="False" ShowExportOptions="False">
 			<tv:TableView.Columns>
 				<tv:TableViewTextColumn Header="Text to say" Binding="{Binding Text}" Width="*" />
-				<tv:TableViewTextColumn Header="presses in game keyboard key" Binding="{Binding TextKeyCode}" />
+				<tv:TableViewTextColumn Header="Keyboard key" Binding="{Binding TextKeyCode}" />
 				<tv:TableViewTemplateColumn Header="Remove">
 					<tv:TableViewTemplateColumn.CellTemplate>
 						<DataTemplate>
@@ -61,10 +76,10 @@
 			</tv:TableView.Columns>
 		</tv:TableView>
 
-		<StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,16" Spacing="12">
+		<StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,16,0,4" Spacing="12">
 			<TextBlock VerticalAlignment="Center">When I say</TextBlock>
 			<TextBox Text="{x:Bind VM.Text, Mode=TwoWay}" Width="200" MaxLength="96" />
-			<TextBlock VerticalAlignment="Center">press in-game key</TextBlock>
+			<TextBlock VerticalAlignment="Center">press keyboard key</TextBlock>
 			<TextBox Text="{x:Bind VM.TextKeyCode, Mode=TwoWay}" Width="100" MaxLength="16" />
 			<Button Click="AddCommand_Click" Style="{StaticResource styButton}">
 				<Grid>
@@ -74,7 +89,9 @@
 			</Button>
 		</StackPanel>
 
-		<StackPanel Grid.Row="5" Spacing="12" Orientation="Horizontal" Margin="0,14,0,0">
+		<TextBlock Grid.Row="6" Style="{StaticResource styHelpText}">You can explicitly write e.g. "Tab", "F12", "Enter", "PgUp", "Ins" etc. in the key to press field</TextBlock>
+
+		<StackPanel Grid.Row="7" Spacing="12" Orientation="Horizontal" Margin="0,24,0,0">
 			<Button Click="Save_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
@@ -90,6 +107,6 @@
 			</Button>
 		</StackPanel>
 
-		<ContentControl Grid.RowSpan="5" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+		<ContentControl Grid.RowSpan="7" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 	</Grid>
 </Page>

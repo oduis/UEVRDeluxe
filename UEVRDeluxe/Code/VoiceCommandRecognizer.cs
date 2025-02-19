@@ -6,28 +6,23 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Speech.Recognition;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Windows.Globalization;
-using Windows.Media.SpeechRecognition;
 #endregion
 
 namespace UEVRDeluxe.Code;
 
 public class VoiceCommandRecognizer {
-	// Replaced SpeechRecognitionEngine with SpeechRecognizer
-	SpeechRecognizer recognizer;
+	SpeechRecognitionEngine recognizer;
 	string exeName;
 
-	// Added fields for mapping phrases to commands
-	Dictionary<string, int> commandMap;
+	Dictionary<string, int> mapCommand2KeyCode;
+	float minConfidence;
 
-	public async Task StartAsync(string exeName) {
+	public void Start(string exeName) {
 		this.exeName = exeName;
 
-		// Stop any ongoing recognition session
-		await StopAsync();
+		Stop();
 
 		string profilePath = VoiceCommandProfile.GetFilePath(exeName);
 		if (!File.Exists(profilePath)) {
@@ -38,8 +33,10 @@ public class VoiceCommandRecognizer {
 		var profile = JsonSerializer.Deserialize<VoiceCommandProfile>(File.ReadAllText(profilePath),
 			new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
+		minConfidence = profile.MinConfidence;
+
 		// Build a list of expected phrases (they must start with the keyword)
-		commandMap = new Dictionary<string, int>();
+		mapCommand2KeyCode = new();
 
 		var phraseList = new List<string>();
 
@@ -47,55 +44,54 @@ public class VoiceCommandRecognizer {
 			foreach (var command in profile.Commands) {
 				string phrase = command.Text.Trim();
 				phraseList.Add(phrase);
-				commandMap[phrase.ToLowerInvariant()] = command.VKKeyCode;
+				mapCommand2KeyCode[phrase.ToLowerInvariant()] = command.VKKeyCode;
 			}
 		}
-		var listConstraint = new SpeechRecognitionListConstraint(phraseList, "commands");
-		
+
 		if (string.IsNullOrWhiteSpace(profile.LanguageTag))
 			throw new Exception("LanguageTag is empty in voice profile");
 
-		var language = new Language(profile.LanguageTag);
+		recognizer = new SpeechRecognitionEngine(new System.Globalization.CultureInfo(profile.LanguageTag));
 
-		recognizer = new SpeechRecognizer(language);
-		recognizer.Constraints.Add(listConstraint);
+		var grammarBuilder = new GrammarBuilder();
+		grammarBuilder.Culture = recognizer.RecognizerInfo.Culture;
+		grammarBuilder.Append(new Choices(phraseList.ToArray()));
+		var grammar = new Grammar(grammarBuilder);
 
-		var compilationResult = await recognizer.CompileConstraintsAsync();
-		if (compilationResult.Status != SpeechRecognitionResultStatus.Success) {
-			Logger.Log.LogError("Failed to compile speech recognition constraints");
-			return;
-		}
+		recognizer.LoadGrammar(grammar);
 
-		recognizer.ContinuousRecognitionSession.ResultGenerated += (sender, args) => {
-			Recognizer_SpeechRecognized(args.Result);
-		};
+		recognizer.SpeechRecognized += Recognizer_SpeechRecognized;
 
-		await recognizer.ContinuousRecognitionSession.StartAsync();
+		recognizer.SetInputToDefaultAudioDevice();
+		recognizer.RecognizeAsync(RecognizeMode.Multiple);
 	}
 
-	public async Task StopAsync() {
+	public void Stop() {
 		if (recognizer != null) {
 			Logger.Log.LogTrace("Stopping voice recognition");
-			await recognizer.ContinuousRecognitionSession.CancelAsync();
+			recognizer.RecognizeAsyncCancel();
 			recognizer.Dispose();
 			recognizer = null;
 		}
 	}
 
-	void Recognizer_SpeechRecognized(SpeechRecognitionResult result) {
-		if (result.Status == SpeechRecognitionResultStatus.Success) {
-			var recognizedText = result.Text.ToLowerInvariant();
-			Logger.Log.LogTrace($"Command recognized: {recognizedText}");
+	void Recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs args) {
+		if (args.Result == null) return;
 
-			if (commandMap.TryGetValue(recognizedText, out int vk)) {
-				// Check if the foreground window belongs to the game process
-				IntPtr foregroundWindow = Win32.GetForegroundWindow();
-				Win32.GetWindowThreadProcessId(foregroundWindow, out uint foregroundProcessId);
-				var process = Process.GetProcessById((int)foregroundProcessId);
+		var recognizedText = args.Result.Text.ToLowerInvariant();
+		Logger.Log.LogTrace($"Command recognized: {recognizedText} ({args.Result.Confidence:p1})");
 
-				if (true || process.ProcessName.Equals(exeName, StringComparison.OrdinalIgnoreCase)) {
-					// Simulate a key press and release
-					var inputs = new INPUT[] {
+		if (args.Result.Confidence < minConfidence) return;
+
+		if (mapCommand2KeyCode.TryGetValue(recognizedText, out int vk)) {
+			// Check if the foreground window belongs to the game process
+			IntPtr foregroundWindow = Win32.GetForegroundWindow();
+			Win32.GetWindowThreadProcessId(foregroundWindow, out uint foregroundProcessId);
+			var process = Process.GetProcessById((int)foregroundProcessId);
+
+			if (process.ProcessName.Equals(exeName, StringComparison.OrdinalIgnoreCase)) {
+				// Simulate a key press and release
+				var inputs = new INPUT[] {
 						new() {
 							type = Win32.INPUT_KEYBOARD,
 							u = new InputUnion {
@@ -115,10 +111,10 @@ public class VoiceCommandRecognizer {
 						}
 					};
 
-					Win32.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
-				}
+				Win32.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
 			}
 		}
+
 	}
 }
 
@@ -130,11 +126,14 @@ public class VoiceCommandProfile {
 	/// <summary>The real executable (not the launchers) without .exe</summary>
 	public string EXEName { get; set; }
 
+	/// <summary>Minimum confidence for a command being recognized (0..1)</summary>
+	public float MinConfidence { get; set; }
+
 	/// <summary>Commands (may include keywords)</summary>
 	public List<VoiceCommand> Commands { get; set; }
 
 	public static string GetFilePath(string exeName) {
-		string rootDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UnrealVRMod");
+		string rootDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UEVRDeluxe");
 
 		if (!Directory.Exists(rootDir)) Directory.CreateDirectory(rootDir);
 		string directory = Path.Combine(rootDir, "VoiceCommandProfiles");

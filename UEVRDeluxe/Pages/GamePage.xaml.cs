@@ -55,11 +55,15 @@ public sealed partial class GamePage : Page {
 		Logger.Log.LogTrace("GamePage Timer stopped");
 		hotKeyCheckTimer?.Stop();
 
-		speechRecognizer?.StopAsync()?.Wait();
+		speechRecognizer?.Stop();
+
+		MediaDevice.DefaultAudioCaptureDeviceChanged -= MediaDevice_DefaultAudioCaptureDeviceChanged;
 	}
 
 	async void Page_Loaded(object sender, RoutedEventArgs e) {
 		try {
+			VM.IsLoading = true;
+
 			Logger.Log.LogTrace($"Opening games page {VM?.GameInstallation?.Name}");
 
 			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName);
@@ -70,17 +74,11 @@ public sealed partial class GamePage : Page {
 
 			hotKeyCheckTimer.Start();
 
-			string defaultAudioInputDeviceId = MediaDevice.GetDefaultAudioCaptureId(AudioDeviceRole.Communications);
+			MediaDevice.DefaultAudioCaptureDeviceChanged += MediaDevice_DefaultAudioCaptureDeviceChanged;
+			string defaultAudioInputDeviceId = MediaDevice.GetDefaultAudioCaptureId(AudioDeviceRole.Default);
+			DisplayAudioDevice(defaultAudioInputDeviceId);
 
-			if (!string.IsNullOrEmpty(defaultAudioInputDeviceId)) {
-				var deviceInformation = DeviceInformation.CreateFromIdAsync(defaultAudioInputDeviceId).AsTask().Result;
-				VM.DefaultInputDeviceName = deviceInformation?.Name ?? "Unknown Device";
-
-				VM.EnableVoiceCommands = File.Exists(VoiceCommandProfile.GetFilePath(VM.GameInstallation.EXEName));
-			} else {
-				VM.DefaultInputDeviceName = "( no default audio input )";
-				VM.EnableVoiceCommands = false;
-			}
+			VM.IsLoading = false;
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
@@ -92,6 +90,7 @@ public sealed partial class GamePage : Page {
 			btnLaunch.Focus(FocusState.Programmatic);  // WInUI selects links otherwise
 	}
 	#endregion
+
 
 	#region Search
 	async void Search_Click(object sender, RoutedEventArgs e) {
@@ -192,7 +191,7 @@ public sealed partial class GamePage : Page {
 
 			if (VM.EnableVoiceCommands) {
 				VM.StatusMessage = "Starting voice recognition...";
-				await speechRecognizer.StartAsync(VM.GameInstallation.EXEName);
+				speechRecognizer.Start(VM.GameInstallation.EXEName);
 			}
 
 			VM.StatusMessage = "Game is running! You may see a black screen while the intro movies are playing. The UEVR in-game window will open. Press 'Ins' on keyboard or both controller joysticks to close it.";
@@ -231,7 +230,7 @@ public sealed partial class GamePage : Page {
 				Title = "UEVR", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 		} finally {
-			await speechRecognizer.StopAsync();
+			speechRecognizer?.Stop();
 			VM.IsRunning = false;
 		}
 
@@ -267,18 +266,35 @@ public sealed partial class GamePage : Page {
 	}
 	#endregion
 
-	void Edit_Click(object sender, RoutedEventArgs e)
-		=> Frame.Navigate(typeof(EditProfilePage), VM.GameInstallation, new DrillInNavigationTransitionInfo());
-
-	void NavigateSettingsPage(object sender, RoutedEventArgs e)
-		=> Frame.Navigate(typeof(SettingsPage), null, new DrillInNavigationTransitionInfo());
-
+	#region * Voice commands
 	void NavigateVoiceCommandsPage(object sender, RoutedEventArgs e)
 		=> Frame.Navigate(typeof(EditVoiceCommandsPage), VM.GameInstallation.EXEName, new DrillInNavigationTransitionInfo());
 
 	async void OpenWinAudio_Click(object sender, RoutedEventArgs e) {
 		await Launcher.LaunchUriAsync(new Uri("ms-settings:sound"));
 	}
+
+	void MediaDevice_DefaultAudioCaptureDeviceChanged(object sender, DefaultAudioCaptureDeviceChangedEventArgs args)
+		=> DispatcherQueue.TryEnqueue(() => DisplayAudioDevice(args.Id));
+
+	void DisplayAudioDevice(string deviceID) {
+		if (!string.IsNullOrEmpty(deviceID)) {
+			var deviceInformation = DeviceInformation.CreateFromIdAsync(deviceID).AsTask().Result;
+			VM.DefaultInputDeviceName = deviceInformation?.Name ?? "Unknown Device";
+
+			VM.EnableVoiceCommands = File.Exists(VoiceCommandProfile.GetFilePath(VM.GameInstallation.EXEName));
+		} else {
+			VM.DefaultInputDeviceName = "( no default audio input )";
+			VM.EnableVoiceCommands = false;
+		}
+	}
+	#endregion
+
+	void Edit_Click(object sender, RoutedEventArgs e)
+		=> Frame.Navigate(typeof(EditProfilePage), VM.GameInstallation, new DrillInNavigationTransitionInfo());
+
+	void NavigateSettingsPage(object sender, RoutedEventArgs e)
+		=> Frame.Navigate(typeof(SettingsPage), null, new DrillInNavigationTransitionInfo());
 
 	void Back_Click(object sender, RoutedEventArgs e) { if (!VM.IsRunning) Frame.GoBack(); }
 }
