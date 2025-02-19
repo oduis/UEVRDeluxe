@@ -190,6 +190,11 @@ public sealed partial class GamePage : Page {
 			VM.StatusMessage = "Focussing game window...";
 			Win32.SwitchToThisWindow(gameProcess.MainWindowHandle, true);
 
+			if (VM.EnableVoiceCommands) {
+				VM.StatusMessage = "Starting voice recognition...";
+				await speechRecognizer.StartAsync(VM.GameInstallation.EXEName);
+			}
+
 			VM.StatusMessage = "Game is running! You may see a black screen while the intro movies are playing. The UEVR in-game window will open. Press 'Ins' on keyboard or both controller joysticks to close it.";
 
 			while (!shouldStop) {
@@ -226,6 +231,7 @@ public sealed partial class GamePage : Page {
 				Title = "UEVR", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 		} finally {
+			await speechRecognizer.StopAsync();
 			VM.IsRunning = false;
 		}
 

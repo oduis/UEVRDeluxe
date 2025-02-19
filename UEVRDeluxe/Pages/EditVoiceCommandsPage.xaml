@@ -5,8 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:UEVRDeluxe.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:vm="using:UEVRDeluxe.ViewModels"
+	xmlns:tv="using:WinUI.TableView"
+	mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
 	<Grid Margin="20,8,20,20">
@@ -15,6 +16,7 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
@@ -41,8 +43,38 @@
 		</StackPanel>
 
 		<TextBlock Grid.Row="2" Style="{StaticResource stySubHeader}" Margin="0,16,0,8">Voice Commands</TextBlock>
+		<tv:TableView Grid.Row="3" ItemsSource="{x:Bind VM.VoiceCommands, Mode=OneWay}" AutoGenerateColumns="False">
+			<tv:TableView.Columns>
+				<tv:TableViewTextColumn Header="Text to say" Binding="{Binding Text}" Width="*" />
+				<tv:TableViewTextColumn Header="presses in game keyboard key" Binding="{Binding TextKeyCode}" />
+				<tv:TableViewTemplateColumn Header="Remove">
+					<tv:TableViewTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<HyperlinkButton Click="RemoveCommand_Click" Padding="0" Margin="8,0,0,0"
+											 CommandParameter="{Binding Text}"
+											 ToolTipService.ToolTip="Remove this command">
+								<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xE74D;" FontSize="14" />
+							</HyperlinkButton>
+						</DataTemplate>
+					</tv:TableViewTemplateColumn.CellTemplate>
+				</tv:TableViewTemplateColumn>
+			</tv:TableView.Columns>
+		</tv:TableView>
 
-		<StackPanel Grid.Row="4" Spacing="12" Orientation="Horizontal" Margin="0,14,0,0">
+		<StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,16" Spacing="12">
+			<TextBlock VerticalAlignment="Center">When I say</TextBlock>
+			<TextBox Text="{x:Bind VM.Text, Mode=TwoWay}" Width="200" MaxLength="96" />
+			<TextBlock VerticalAlignment="Center">press in-game key</TextBlock>
+			<TextBox Text="{x:Bind VM.TextKeyCode, Mode=TwoWay}" Width="100" MaxLength="16" />
+			<Button Click="AddCommand_Click" Style="{StaticResource styButton}">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE710;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Add command</TextBlock>
+				</Grid>
+			</Button>
+		</StackPanel>
+
+		<StackPanel Grid.Row="5" Spacing="12" Orientation="Horizontal" Margin="0,14,0,0">
 			<Button Click="Save_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
@@ -57,5 +89,7 @@
 				</Grid>
 			</Button>
 		</StackPanel>
+
+		<ContentControl Grid.RowSpan="5" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 	</Grid>
 </Page>

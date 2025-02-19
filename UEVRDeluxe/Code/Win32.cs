@@ -86,6 +86,12 @@ public static partial class Win32 {
 	[LibraryImport("user32.dll", EntryPoint = "VkKeyScanExW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
 	internal static partial ushort VkKeyScanExW(char ch, IntPtr dwhkl);
 
+	[LibraryImport("user32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+	internal static partial uint MapVirtualKeyExW(uint uCode, uint uMapType, IntPtr dwhkl);
+
+	[LibraryImport("user32.dll", EntryPoint = "GetKeyNameTextW",SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+	internal static partial int GetKeyNameTextW(int lParam, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] char[] lpBaseName, int nSize);
+
 	internal const uint INPUT_KEYBOARD = 1;
 	internal const ushort VK_RETURN = 0x0D;
 	internal const uint KEYEVENTF_KEYUP = 0x0002;

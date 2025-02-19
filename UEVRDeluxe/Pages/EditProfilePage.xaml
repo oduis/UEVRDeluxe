@@ -145,8 +145,6 @@
 					</StackPanel>
 				</Grid>
 
-	
-
 				<StackPanel>
 					<TextBlock Style="{StaticResource stySubHeader}">Typical in game settings</TextBlock>
 					<TextBlock TextWrapping="WrapWholeWords">

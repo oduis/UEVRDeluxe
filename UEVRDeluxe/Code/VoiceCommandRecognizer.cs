@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Globalization;
 using Windows.Media.SpeechRecognition;
@@ -37,7 +38,6 @@ public class VoiceCommandRecognizer {
 		var profile = JsonSerializer.Deserialize<VoiceCommandProfile>(File.ReadAllText(profilePath),
 			new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-
 		// Build a list of expected phrases (they must start with the keyword)
 		commandMap = new Dictionary<string, int>();
 
@@ -51,7 +51,7 @@ public class VoiceCommandRecognizer {
 			}
 		}
 		var listConstraint = new SpeechRecognitionListConstraint(phraseList, "commands");
-
+		
 		if (string.IsNullOrWhiteSpace(profile.LanguageTag))
 			throw new Exception("LanguageTag is empty in voice profile");
 
@@ -75,7 +75,8 @@ public class VoiceCommandRecognizer {
 
 	public async Task StopAsync() {
 		if (recognizer != null) {
-			await recognizer.ContinuousRecognitionSession.StopAsync();
+			Logger.Log.LogTrace("Stopping voice recognition");
+			await recognizer.ContinuousRecognitionSession.CancelAsync();
 			recognizer.Dispose();
 			recognizer = null;
 		}
@@ -92,7 +93,7 @@ public class VoiceCommandRecognizer {
 				Win32.GetWindowThreadProcessId(foregroundWindow, out uint foregroundProcessId);
 				var process = Process.GetProcessById((int)foregroundProcessId);
 
-				if (process.ProcessName.Equals(exeName, StringComparison.OrdinalIgnoreCase)) {
+				if (true || process.ProcessName.Equals(exeName, StringComparison.OrdinalIgnoreCase)) {
 					// Simulate a key press and release
 					var inputs = new INPUT[] {
 						new() {
