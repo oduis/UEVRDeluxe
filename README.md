@@ -36,4 +36,4 @@ The backend database lives on Azure and is privately paid for by myself.
 - Do not use the backend database from other apps
 - Do NOT start Visual Studio as Admin, as this [will crash the debugger](https://github.com/microsoft/WindowsAppSDK/issues/567) when accessing system functions
 
-Please mention the license, as it is designed to forbit closed source usage, hindering commercial exploitation.
+While this is free to use for non-commercial users, the project is copyrighted and may not be used commercially.
