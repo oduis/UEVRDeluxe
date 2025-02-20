@@ -1,6 +1,6 @@
 {
   "app": "UEVR Easy Injector",
-  "version": "1.3.0.0",
-  "releaseNotes": "Added Upscaling option in profile editor; Support for the new Native Stereo Fix; Rescan Library button",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1300"
+  "version": "1.4.0.0",
+  "releaseNotes": "Added voice commands; Support for the new Native Stereo Fix Stereo Same pass",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1400"
 }

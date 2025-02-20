@@ -6,6 +6,8 @@ It auto-scans you Steam/EPIC/GOG installed games and replaces tools like launche
 Most profile websites are outdated, profiles floating in Discord discussions, hard to discover.
 UEVR Easy Injector contains a web database for easy discovery and installation, plus adds authors information on how to use the profiles.
 
+It also adds voice commands and global hotkeys to improve the VR experience.
+
 It uses [PrayDogs UEVR engine](https://github.com/praydog/UEVR) but does not need an UEVR installation.
 
 ## Installation
