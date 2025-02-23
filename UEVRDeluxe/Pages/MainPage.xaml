@@ -88,7 +88,7 @@
 			<HyperlinkButton Click="NavigateAllProfilesPage" Padding="0" ToolTipService.ToolTip="List of all games we have pre-configured profiles for">
 				<StackPanel Orientation="Horizontal">
 					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xEA37;" />
-					<TextBlock VerticalAlignment="Center" FontSize="11">Supported Games</TextBlock>
+					<TextBlock VerticalAlignment="Center" FontSize="11">Profile catalog</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
 			<HyperlinkButton Click="NavigateSettingsPage" Padding="0" ToolTipService.ToolTip="Global settings like OpenXR Runtime">
