@@ -1,6 +1,6 @@
 {
   "app": "UEVR Easy Injector",
-  "version": "1.4.0.0",
-  "releaseNotes": "Added voice commands; Support for the new Native Stereo Fix Stereo Same pass",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1400"
+  "version": "1.5.0.0",
+  "releaseNotes": "Added one click update to UEVR nightly",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1500"
 }

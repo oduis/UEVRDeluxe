@@ -3,36 +3,30 @@ using Microsoft.Win32.SafeHandles;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text; 
+using System.Text;
+using System.Net.Http;
+using System.IO.Compression;
+using HtmlAgilityPack;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 #endregion
 
 namespace UEVRDeluxe.Code;
 
 class Injector {
-	// Inject the DLL into the target process
-	// dllPath is local filename, relative to EXE.
-	public static bool InjectDll(int processID, string dllPath, out nint dllBase) {
-		string originalPath = dllPath;
+	const string UEVR_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases/latest";
 
-		try {
-			var exeDirectory = AppContext.BaseDirectory;
+	/// <summary>Inject the DLL into the target process</summary>
+	/// <param name="dllName">local filename</param>
+	public static bool InjectDll(int processID, string dllName, out nint dllBase) {
+		var fullPath = Path.Combine(UEVRBaseDir, dllName);
 
-			if (exeDirectory != null) {
-				var newPath = Path.Combine(exeDirectory, dllPath);
-
-				if (File.Exists(newPath)) {
-					dllPath = Path.Combine(exeDirectory, dllPath);
-				}
-			}
-		} catch (Exception) {
-		}
-
-		if (!File.Exists(dllPath))
-			throw new Exception($"{originalPath} does not appear to exist! Check if any anti-virus software has deleted the file. Reinstall UEVR if necessary.\n\nBaseDirectory: {AppContext.BaseDirectory}");
+		if (!File.Exists(fullPath))
+			throw new Exception($"{dllName} does not appear to exist! Check if any anti-virus software has deleted the file. Reinstall UEVR if necessary.\n\nBaseDirectory: {AppContext.BaseDirectory}");
 
 		dllBase = nint.Zero;
 
-		string fullPath = Path.GetFullPath(dllPath);
+		fullPath = Path.GetFullPath(fullPath);
 
 		// Open the target process with the necessary access
 		nint processHandle = Win32.OpenProcess(0x1F0FFF, false, processID);
@@ -55,7 +49,7 @@ class Injector {
 		// Create a remote thread in the target process that calls LoadLibrary with the DLL path
 		nint threadHandle = Win32.CreateRemoteThread(processHandle, nint.Zero, 0, loadLibraryAddress, dllPathAddress, 0, nint.Zero);
 
-		if (threadHandle == nint.Zero)throw new Exception("Failed to create remote thread in the target processs.");
+		if (threadHandle == nint.Zero) throw new Exception("Failed to create remote thread in the target processs.");
 
 		Win32.WaitForSingleObject(threadHandle, 1000);
 
@@ -77,19 +71,19 @@ class Injector {
 		return true;
 	}
 
-	public static bool InjectDll(int processId, string dllPath) {
+	public static bool InjectDll(int processId, string dllName) {
 		nint dummy;
-		return InjectDll(processId, dllPath, out dummy);
+		return InjectDll(processId, dllName, out dummy);
 	}
 
-	public static bool CallFunctionNoArgs(int processId, string dllPath, nint dllBase, string functionName, bool wait = false) {
+	public static bool CallFunctionNoArgs(int processId, string dllName, nint dllBase, string functionName, bool wait = false) {
 		nint processHandle = Win32.OpenProcess(0x1F0FFF, false, processId);
 
 		if (processHandle == nint.Zero)
 			throw new Exception("Could not open a handle to the target process.\nYou may need to start this program as an administrator, or the process may be protected.");
 
 		// We need to load the DLL into our own process temporarily as a workaround for GetProcAddress not working with remote DLLs
-		nint localDllHandle = Win32.LoadLibrary(dllPath);
+		nint localDllHandle = Win32.LoadLibrary(Path.Combine(UEVRBaseDir, dllName));
 
 		if (localDllHandle == nint.Zero) throw new Exception("Could not load the target DLL into our own process.");
 
@@ -111,4 +105,49 @@ class Injector {
 
 		return true;
 	}
+
+	public string GetBackendVersion() {
+		string filePath = Path.Combine(UEVRBaseDir, "UEVRBackend.dll");
+		if (!File.Exists(filePath)) return "UEVR backend not found (removed by Antivirus?)";
+		return File.GetLastWriteTime(filePath).ToString("yyyy-MM-dd HH:mm");
+	}
+
+	/// <summary>Download latest UEVR nightly and install locally</summary>
+	public static async Task UpdateBackendAsync() {
+		if (!Win32.IsUserAnAdmin()) throw new Exception("Please run UEVR Easy Injector as an Administrator");
+
+		byte[] zipData;
+		using (var client = new HttpClient()) {
+			string html = await client.GetStringAsync(UEVR_NIGHTLY_URL);
+			var doc = new HtmlDocument();
+			doc.LoadHtml(html);
+			var title = doc.DocumentNode.SelectSingleNode("//title");
+			// title is e.g. "Release UEVR Nightly 01036 (f97cc4ad910351521e8e2031f63bebc754673e26)"
+			// Parse and convert to to link: https://github.com/praydog/UEVR-nightly/releases/download/nightly-01036-f97cc4ad910351521e8e2031f63bebc754673e26/uevr.zip
+
+			var match = Regex.Match(title.InnerText, @"Release UEVR Nightly (\d+) \(([\da-f]+)\)");
+			if (!match.Success) throw new Exception("Invalid release title format: {title}");
+
+			string nightlyNumber = match.Groups[1].Value;
+			string commitHash = match.Groups[2].Value;
+
+			string zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip";
+
+			zipData = await client.GetByteArrayAsync(zipUrl);
+		}
+
+		using (var zipStream = new MemoryStream(zipData))
+		using (var archive = new ZipArchive(zipStream)) {
+			foreach (var entry in archive.Entries) {
+				if (entry.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) {
+					string destinationPath = Path.Combine(UEVRBaseDir, entry.Name);
+					entry.ExtractToFile(destinationPath, true);
+
+					File.SetLastAccessTimeUtc(destinationPath, entry.LastWriteTime.UtcDateTime);
+				}
+			}
+		}
+	}
+
+	static string UEVRBaseDir => Path.Combine(AppContext.BaseDirectory, "UEVR");
 }

@@ -163,15 +163,13 @@ public sealed partial class GamePage : Page {
 			} else VM.StatusMessage = "Game already running, injecting...";
 			#endregion
 
-			const string SUBFOLDER = "UEVR\\";
-
 			#region Nullify plugins
 			if (VM.LocalProfile.Meta.NullifyPlugins) {
 				VM.StatusMessage = "Nullifying VR plugins...";
 
 				IntPtr nullifierBase;
-				if (Injector.InjectDll(gameProcess.Id, SUBFOLDER + "UEVRPluginNullifier.dll", out nullifierBase) && nullifierBase.ToInt64() > 0) {
-					if (!Injector.CallFunctionNoArgs(gameProcess.Id, SUBFOLDER + "UEVRPluginNullifier.dll", nullifierBase, "nullify", true)) {
+				if (Injector.InjectDll(gameProcess.Id, "UEVRPluginNullifier.dll", out nullifierBase) && nullifierBase.ToInt64() > 0) {
+					if (!Injector.CallFunctionNoArgs(gameProcess.Id, "UEVRPluginNullifier.dll", nullifierBase, "nullify", true)) {
 						Logger.Log.LogError("Failed to nullify VR plugins.");
 					}
 				} else {
@@ -181,10 +179,10 @@ public sealed partial class GamePage : Page {
 			#endregion
 
 			VM.StatusMessage = "Injecting protocol DLL...";
-			Injector.InjectDll(gameProcess.Id, SUBFOLDER + (VM.LinkProtocol_XR ? "openxr_loader.dll" : "openvr_api.dll"));
+			Injector.InjectDll(gameProcess.Id, (VM.LinkProtocol_XR ? "openxr_loader.dll" : "openvr_api.dll"));
 
 			VM.StatusMessage = "Injecting backend DLL...";
-			Injector.InjectDll(gameProcess.Id, SUBFOLDER + "UEVRBackend.dll");
+			Injector.InjectDll(gameProcess.Id, "UEVRBackend.dll");
 
 			VM.StatusMessage = "Focussing game window...";
 			Win32.SwitchToThisWindow(gameProcess.MainWindowHandle, true);

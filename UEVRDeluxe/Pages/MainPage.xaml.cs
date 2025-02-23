@@ -51,8 +51,6 @@ public sealed partial class MainPage : Page {
 
 			await CheckVersionAsync();
 
-			//if (!Win32.IsUserAnAdmin()) throw new Exception("Please run UEVR Deluxe as an Administrator");
-
 			InitSort();
 			VM.Games = new System.Collections.ObjectModel.ObservableCollection<GameInstallation>(
 				await GameStoreManager.FindAllUEVRGamesAsync(false));
@@ -236,6 +234,22 @@ public sealed partial class MainPage : Page {
 			MainWindow.HotkeyEvent.Set();  // so the next page will pick it up
 			Frame.Navigate(typeof(GamePage), foundGames.First(), new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
 		}
+	}
+	#endregion
+
+	#region UpdateUEVR
+	async void UpdateUEVR_Click(object sender, RoutedEventArgs e) {
+		try {
+			VM.IsLoading = true;
+
+			Logger.Log.LogInformation("Starting UEVR Nightly update");
+			await Injector.UpdateBackendAsync();
+			Logger.Log.LogInformation("Nightly update successful");
+		} catch (Exception ex) {
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Download UEVR Nightly");
+		}
+
+		VM.IsLoading = false;
 	}
 	#endregion
 }

@@ -57,13 +57,22 @@
 			</GridView.ItemContainerStyle>
 		</GridView>
 
-		<Button Grid.Row="2" Click="Rescan_Click" Style="{StaticResource styButton}"
+		<StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12">
+			<Button Click="UpdateUEVR_Click" Style="{StaticResource styButton}"
+				ToolTipService.ToolTip="Download and install latest UEVR nightly backend version. Antivirus might block this.">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Update UEVR Backend to latest Nightly</TextBlock>
+				</Grid>
+			</Button>
+			<Button Click="Rescan_Click" Style="{StaticResource styButton}"
 			ToolTipService.ToolTip="If your games is not shown, try to rescan the library. This may take a while, if you have many games installed.">
-			<Grid>
-				<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE72C;" />
-				<TextBlock Style="{StaticResource styButtonIconText}">Rescan game library</TextBlock>
-			</Grid>
-		</Button>
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE72C;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Rescan game library</TextBlock>
+				</Grid>
+			</Button>
+		</StackPanel>
 		<TextBlock Grid.Row="2" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
 			( While in game, hit Ctrl+Alt+U to inject directly )
 		</TextBlock>
