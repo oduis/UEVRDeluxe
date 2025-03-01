@@ -243,13 +243,19 @@ public sealed partial class MainPage : Page {
 			VM.IsLoading = true;
 
 			Logger.Log.LogInformation("Starting UEVR Nightly update");
-			await Injector.UpdateBackendAsync();
-			Logger.Log.LogInformation("Nightly update successful");
+			bool updated = await Injector.UpdateBackendAsync();
+			Logger.Log.LogInformation($"Nightly updated: {updated}");
+
+			VM.IsLoading = false;
+
+			await new ContentDialog {
+				Title = "UEVR Nightly", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+				Content = updated ? "Updated successfully" : "You version is up to date"
+			}.ShowAsync();
 		} catch (Exception ex) {
+			VM.IsLoading = false;
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Download UEVR Nightly");
 		}
-
-		VM.IsLoading = false;
 	}
 	#endregion
 }

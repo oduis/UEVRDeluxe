@@ -11,7 +11,7 @@
     <UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<Nullable>disable</Nullable>
-		<VersionPrefix>1.5.0.0</VersionPrefix>
+		<VersionPrefix>1.6.0.0</VersionPrefix>
 		<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 		<FileVersion>$(VersionPrefix)</FileVersion>
 		<WindowsPackageType>None</WindowsPackageType>
@@ -174,6 +174,7 @@
     <ApplicationIcon>Assets\uevr.ico</ApplicationIcon>
     <PackageIcon>UEVR2.png</PackageIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Title>UEVR Easy Injector</Title>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>False</Optimize>

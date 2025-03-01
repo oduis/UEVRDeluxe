@@ -16,6 +16,9 @@ namespace UEVRDeluxe.Code;
 class Injector {
 	const string UEVR_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases/latest";
 
+	/// <summary>Contains the URL of the version successfully downloaded</summary>
+	const string UEVR_VERSION_FILENAME = "UEVRLink.txt";
+
 	/// <summary>Inject the DLL into the target process</summary>
 	/// <param name="dllName">local filename</param>
 	public static bool InjectDll(int processID, string dllName, out nint dllBase) {
@@ -113,8 +116,12 @@ class Injector {
 	}
 
 	/// <summary>Download latest UEVR nightly and install locally</summary>
-	public static async Task UpdateBackendAsync() {
+	/// <returns>True if update was required, false if not.</returns>
+	public static async Task<bool> UpdateBackendAsync() {
 		if (!Win32.IsUserAnAdmin()) throw new Exception("Please run UEVR Easy Injector as an Administrator");
+
+		string zipUrl;
+		string versionFilePath = Path.Combine(UEVRBaseDir, UEVR_VERSION_FILENAME);
 
 		byte[] zipData;
 		using (var client = new HttpClient()) {
@@ -131,7 +138,11 @@ class Injector {
 			string nightlyNumber = match.Groups[1].Value;
 			string commitHash = match.Groups[2].Value;
 
-			string zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip";
+			zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip";
+
+			if (File.Exists(versionFilePath) && string.Equals(File.ReadAllText(versionFilePath).Trim(), zipUrl)) {
+				return false;
+			}
 
 			zipData = await client.GetByteArrayAsync(zipUrl);
 		}
@@ -147,6 +158,9 @@ class Injector {
 				}
 			}
 		}
+
+		File.WriteAllText(versionFilePath, zipUrl);
+		return true;
 	}
 
 	static string UEVRBaseDir => Path.Combine(AppContext.BaseDirectory, "UEVR");
