@@ -240,7 +240,9 @@ public static class GameStoreManager {
 				return allGames;
 			}
 
-			string vdfPath = Path.Join(steamInstallDir, "steamapps", "libraryfolders.vdf");
+			// there are two libraryfolders.vdf files. The one in \steamapps\ seems to be transient and only one drive,
+			// while the global master sees to be \config\
+			string vdfPath = Path.Join(steamInstallDir, "config", "libraryfolders.vdf");
 			if (!File.Exists(vdfPath)) throw new Exception("Steam Library Definition file not found");
 
 			Logger.Log.LogTrace($"Reading Steam Library Definition {vdfPath}");
