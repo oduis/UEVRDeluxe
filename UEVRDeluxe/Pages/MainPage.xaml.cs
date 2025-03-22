@@ -153,6 +153,11 @@ public sealed partial class MainPage : Page {
 			var games = await GameStoreManager.FindAllUEVRGamesAsync(true);
 			foreach (var game in games) VM.Games.Add(game);
 			SortGames();
+
+			await new ContentDialog {
+				Title = "Rescan finsihed", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+				Content = "Newly installed Steam game missing? Shut down Steam, restart it, and rescan. Alternatively, you can reboot your system, start Steam, and then start UEVR Easy."
+			}.ShowAsync();
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Rescan");
 		}
