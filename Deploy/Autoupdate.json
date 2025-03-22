@@ -1,6 +1,6 @@
 {
   "app": "UEVR Easy Injector",
-  "version": "1.6.0.0",
-  "releaseNotes": "Fix Steam apps not showing on some machines; Optimized UEVR nightly update",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1600"
+  "version": "1.7.0.0",
+  "releaseNotes": "Added XBox Gamepass games",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1700"
 }
