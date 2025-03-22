@@ -44,6 +44,7 @@ public static class GameStoreManager {
 		var allGames = new List<GameInstallation>();
 
 		// This pretty quick, but catalogs in EPIC take a while. So try to augment with previous
+		allGames.AddRange(FindAllXBoxGames());
 		allGames.AddRange(FindAllSteamGames());
 		allGames.AddRange(FindAllEPICGames(cache?.AllInstallations));
 		allGames.AddRange(FindAllGOGGames());
@@ -355,6 +356,66 @@ public static class GameStoreManager {
 	}
 	#endregion
 
+	#region FindAllXBoxGames
+	static List<GameInstallation> FindAllXBoxGames() {
+		var allGames = new List<GameInstallation>();
+
+		try {
+			using var packageRootsKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\GamingServices\PackageRepository\Root");
+			if (packageRootsKey == null) {
+				// Normal if no games are installed
+				Logger.Log.LogTrace("GamingServices PckageRoot not found");
+				return allGames;
+			}
+
+			using var userPackagesKey = Registry.CurrentUser.OpenSubKey(
+				@"Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages");
+
+			foreach (string packageKey in packageRootsKey.GetSubKeyNames()) {
+				using var packageSubKey = packageRootsKey.OpenSubKey(packageKey);
+				if (packageSubKey == null) continue;
+
+				var childSubKeys = packageSubKey.GetSubKeyNames();
+				if (childSubKeys.Length == 0) continue;
+
+				using (var subChildKey = packageSubKey.OpenSubKey(childSubKeys[0])) {
+					if (subChildKey == null) continue;
+					string packageId = subChildKey.GetValue("Package") as string;
+					string rootPath = subChildKey.GetValue("Root") as string;
+
+					if (string.IsNullOrEmpty(packageId) || string.IsNullOrEmpty(rootPath))
+						continue;
+
+					var game = new GameInstallation {
+						XBoxID = packageId,
+						FolderPath = Path.GetDirectoryName(rootPath),
+						StoreType = GameStoreType.XBox
+					};
+
+					/* Often not a real logo of the game
+					game.IconURL=Path.Combine(game.FolderPath, "GraphicsLogo.png");
+					if (!File.Exists(game.IconURL)) Path.Combine(game.FolderPath, "StoreLogo.png");
+					if (!File.Exists(game.IconURL)) */
+					game.IconURL = "/Assets/XBoxLogo.png";
+
+					// Get display name from packages key
+					using (var pkgKey = userPackagesKey?.OpenSubKey(packageId)) {
+						game.Name = (pkgKey?.GetValue("DisplayName") as string)
+							?? game.EXEName;
+					}
+
+					allGames.Add(game);
+					Logger.Log.LogTrace($"Found Xbox game: {game.Name} at {game.FolderPath}");
+				}
+			}
+		} catch (Exception ex) {
+			Logger.Log.LogCritical(ex, "Failed to scan Xbox games");
+		}
+
+		return allGames;
+	}
+	#endregion
+
 	#region * Helpers
 	static string ReadWin32RegistryValue(string keyPath, string valueName) {
 		using (var regRoot = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
@@ -378,6 +439,7 @@ public class GameInstallation {
 		GameStoreType.Steam => $"S{SteamID}",
 		GameStoreType.Epic => $"E{EpicNamespace}|{EpicID}",
 		GameStoreType.GOG => $"G{GOGID}",
+		GameStoreType.XBox => $"X{XBoxID}",
 		_ => throw new NotImplementedException()
 	};
 
@@ -387,6 +449,8 @@ public class GameInstallation {
 
 	public string EpicID { get; set; }
 	public string EpicNamespace { get; set; }
+
+	public string XBoxID { get; set; }
 
 	public string Name { get; set; }
 
@@ -407,7 +471,8 @@ public class GameInstallation {
 public enum GameStoreType {
 	Steam,
 	Epic,
-	GOG
+	GOG,
+	XBox
 }
 
 /// <summary>Disk representation.</summary>
