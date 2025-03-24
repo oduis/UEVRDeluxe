@@ -1,6 +1,6 @@
 {
   "app": "UEVR Easy Injector",
-  "version": "1.7.0.0",
-  "releaseNotes": "Added XBox Gamepass games",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1700"
+  "version": "1.7.1.0",
+  "releaseNotes": "Fixed some bugs",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1710"
 }
