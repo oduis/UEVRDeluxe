@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Windows.Management.Deployment;
 #endregion
 
 namespace UEVRDeluxe.Code;
@@ -371,6 +372,8 @@ public static class GameStoreManager {
 			using var userPackagesKey = Registry.CurrentUser.OpenSubKey(
 				@"Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages");
 
+			var packageManager = new PackageManager();
+
 			foreach (string packageKey in packageRootsKey.GetSubKeyNames()) {
 				using var packageSubKey = packageRootsKey.OpenSubKey(packageKey);
 				if (packageSubKey == null) continue;
@@ -391,6 +394,12 @@ public static class GameStoreManager {
 						FolderPath = Path.GetDirectoryName(rootPath),
 						StoreType = GameStoreType.XBox
 					};
+
+					// Get the AppID from the PackageID (no versions)
+					var package = packageManager.FindPackageForUser(string.Empty, packageId);
+					if (package != null) {
+						game.ShellLaunchPath = $"shell:AppsFolder\\{package.Id.FamilyName}!Game";
+					}
 
 					/* Often not a real logo of the game
 					game.IconURL=Path.Combine(game.FolderPath, "GraphicsLogo.png");
@@ -511,7 +520,6 @@ class EpicManifest {
 
 	public string AppName { get; set; }
 }
-
 
 class EpicCatalogCategory {
 	public string Path { get; set; }
