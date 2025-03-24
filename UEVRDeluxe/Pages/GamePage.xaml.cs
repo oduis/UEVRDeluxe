@@ -24,7 +24,6 @@ public sealed partial class GamePage : Page {
 	readonly GamePageVM VM = new();
 	VoiceCommandRecognizer speechRecognizer = new();
 
-
 	#region * Init
 	public GamePage() {
 		this.InitializeComponent();
@@ -91,7 +90,6 @@ public sealed partial class GamePage : Page {
 	}
 	#endregion
 
-
 	#region Search
 	async void Search_Click(object sender, RoutedEventArgs e) {
 		try {
@@ -120,7 +118,7 @@ public sealed partial class GamePage : Page {
 	async void Launch_Click(object sender, RoutedEventArgs e) {
 		try {
 			shouldStop = false;
-			VM.IsRunning = true;
+			VM.IsRunning = true; hotKeyCheckTimer?.Stop();
 			VM.VisibleInjectManually = Visibility.Collapsed; hideInjectManuallyTimer.Stop();
 
 			#region Launch process and wait
@@ -163,18 +161,18 @@ public sealed partial class GamePage : Page {
 			} else VM.StatusMessage = "Game already running, injecting...";
 			#endregion
 
+			VM.StatusMessage = "Focussing game window...";
+			Win32.SwitchToThisWindow(gameProcess.MainWindowHandle, true);
+			gameProcess.WaitForInputIdle(100);
+
 			#region Nullify plugins
 			if (VM.LocalProfile.Meta.NullifyPlugins) {
 				VM.StatusMessage = "Nullifying VR plugins...";
 
-				IntPtr nullifierBase;
-				if (Injector.InjectDll(gameProcess.Id, "UEVRPluginNullifier.dll", out nullifierBase) && nullifierBase.ToInt64() > 0) {
-					if (!Injector.CallFunctionNoArgs(gameProcess.Id, "UEVRPluginNullifier.dll", nullifierBase, "nullify", true)) {
-						Logger.Log.LogError("Failed to nullify VR plugins.");
-					}
-				} else {
-					Logger.Log.LogError("Failed to nullify VR plugins.");
-				}
+				IntPtr nullifierBase = Injector.InjectDllFindBase(gameProcess.Id, "UEVRPluginNullifier.dll");
+				if (nullifierBase.ToInt64() < 0) throw new Exception("Failed to inject nullifier DLL");
+
+				Injector.CallFunctionNoArgs(gameProcess.Id, "UEVRPluginNullifier.dll", nullifierBase, "nullify");
 			}
 			#endregion
 
@@ -184,9 +182,6 @@ public sealed partial class GamePage : Page {
 			VM.StatusMessage = "Injecting backend DLL...";
 			Injector.InjectDll(gameProcess.Id, "UEVRBackend.dll");
 
-			VM.StatusMessage = "Focussing game window...";
-			Win32.SwitchToThisWindow(gameProcess.MainWindowHandle, true);
-
 			if (VM.EnableVoiceCommands) {
 				VM.StatusMessage = "Starting voice recognition...";
 				speechRecognizer.Start(VM.GameInstallation.EXEName);
@@ -195,7 +190,7 @@ public sealed partial class GamePage : Page {
 			VM.StatusMessage = "Game is running! You may see a black screen while the intro movies are playing. The UEVR in-game window will open. Press 'Ins' on keyboard or both controller joysticks to close it.";
 
 			while (!shouldStop) {
-				await Task.Delay(1000);
+				await Task.Delay(800);
 
 				var data = SharedMemory.GetData();
 
@@ -228,7 +223,7 @@ public sealed partial class GamePage : Page {
 				Title = "UEVR", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 		} finally {
-			speechRecognizer?.Stop();
+			speechRecognizer?.Stop(); hotKeyCheckTimer?.Start();
 			VM.IsRunning = false;
 		}
 

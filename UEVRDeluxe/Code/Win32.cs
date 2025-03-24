@@ -23,6 +23,9 @@ public static partial class Win32 {
 	internal static partial nint VirtualAllocEx(nint hProcess, nint lpAddress, uint dwSize, uint flAllocationType, uint flProtect);
 
 	[LibraryImport("kernel32.dll", SetLastError = true)]
+	internal static partial nint VirtualFreeEx(nint hProcess, nint lpAddress, uint dwSize, uint dwFreeType);
+
+	[LibraryImport("kernel32.dll", SetLastError = true)]
 	[return: MarshalAs(UnmanagedType.Bool)]
 	internal static partial bool WriteProcessMemory(nint hProcess, nint lpBaseAddress, byte[] lpBuffer, uint nSize, out int lpNumberOfBytesWritten);
 
