@@ -14,11 +14,11 @@ public class GamePageVM : VMBase {
 	public LocalProfile LocalProfile {
 		get => localProfile;
 		set => Set(ref localProfile, value, [nameof(VisibleIfProfile), nameof(VisibleIfNoProfile),
-			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning)]);
+			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning), nameof(VisibleLateInjectWarning)]);
 	}
 
 	string currentOpenXRRuntime;
-	public string CurrentOpenXRRuntime { get=>currentOpenXRRuntime; set => Set(ref currentOpenXRRuntime, value); }
+	public string CurrentOpenXRRuntime { get => currentOpenXRRuntime; set => Set(ref currentOpenXRRuntime, value); }
 
 	public Visibility ProfileMetaVisible => Warning == null && !string.IsNullOrEmpty(LocalProfile?.Meta?.EXEName) ? Visibility.Visible : Visibility.Collapsed;
 
@@ -32,7 +32,7 @@ public class GamePageVM : VMBase {
 				return "You have no UEVR Profile locally installed for this game\r\n- Try \"Search profile\" (recommended) or\r\n- add a new profile yourself";
 
 			if (string.IsNullOrEmpty(localProfile.Meta.EXEName))
-				return "You have a local profile for this game, but it contains no publishing description\r\nTry \"Search profile\" if there is an official one in the database";
+				return "You have a local profile for this game, but it contains no publishing description";
 
 			return null;
 		}
@@ -45,12 +45,15 @@ public class GamePageVM : VMBase {
 	bool isRunning = false;
 	public bool IsRunning {
 		get => isRunning;
-		set => Set(ref isRunning, value, [nameof(VisibleIfRunning), nameof(VisibleIfNotRunning)]);
+		set => Set(ref isRunning, value,
+			[nameof(VisibleIfRunning), nameof(VisibleIfNotRunning), nameof(VisibleLateInjectWarning)]);
 	}
 
 	public Visibility VisibleIfRunning => isRunning ? Visibility.Visible : Visibility.Collapsed;
 	public Visibility VisibleIfNotRunning => !isRunning ? Visibility.Visible : Visibility.Collapsed;
 
+	public Visibility VisibleLateInjectWarning
+		=> (localProfile?.Meta?.LateInjection ?? false) && !isRunning ? Visibility.Visible : Visibility.Collapsed;
 
 	string statusMessage;
 	public string StatusMessage {
@@ -59,9 +62,6 @@ public class GamePageVM : VMBase {
 			if (!string.IsNullOrWhiteSpace(value)) Logger.Log.LogTrace(value);
 		}
 	}
-
-	Visibility injectManuallyVisible=Visibility.Collapsed;
-	public Visibility VisibleInjectManually { get=>injectManuallyVisible; set => Set(ref injectManuallyVisible, value); }
 
 	bool searchEnabled = true;
 	public bool SearchEnabled { get => searchEnabled; set => Set(ref searchEnabled, value); }

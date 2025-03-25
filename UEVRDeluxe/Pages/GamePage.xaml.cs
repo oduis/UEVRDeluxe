@@ -33,13 +33,6 @@ public sealed partial class GamePage : Page {
 		hotKeyCheckTimer = new();
 		hotKeyCheckTimer.Interval = TimeSpan.FromMilliseconds(400);
 		hotKeyCheckTimer.Tick += HotKeyCheckTimer_Tick;
-
-		hideInjectManuallyTimer = new();
-		hideInjectManuallyTimer.Interval = TimeSpan.FromSeconds(10);
-		hideInjectManuallyTimer.Tick += (s, args) => {
-			VM.VisibleInjectManually = Visibility.Collapsed;
-			hideInjectManuallyTimer.Stop();
-		};
 	}
 
 	protected override void OnNavigatedTo(NavigationEventArgs e) {
@@ -82,7 +75,7 @@ public sealed partial class GamePage : Page {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
 
-		// WInUI selects links otherwise
+		// WinUI selects links otherwise
 		if (VM.LocalProfile == null)
 			btnEdit.Focus(FocusState.Programmatic);
 		else
@@ -113,16 +106,14 @@ public sealed partial class GamePage : Page {
 	#region Launch
 	bool shouldStop;
 
-	DispatcherTimer hideInjectManuallyTimer;
-
 	async void Launch_Click(object sender, RoutedEventArgs e) {
 		try {
 			shouldStop = false;
 			VM.IsRunning = true; hotKeyCheckTimer?.Stop();
-			VM.VisibleInjectManually = Visibility.Collapsed; hideInjectManuallyTimer.Stop();
 
 			#region Launch process and wait
-			var gameProcess = Process.GetProcessesByName(VM.GameInstallation.EXEName.ToLowerInvariant()).FirstOrDefault();
+			var gameProcess = Injector.FindInjectableProcess(VM.GameInstallation.EXEName);
+
 			if (gameProcess == null) {
 				VM.StatusMessage = "Game not started yet. Launching via Steam...";
 
@@ -130,11 +121,6 @@ public sealed partial class GamePage : Page {
 
 				if (VM.LocalProfile?.Meta?.LateInjection == true) {
 					VM.StatusMessage = "Manual injection needed";
-					VM.VisibleInjectManually = Visibility.Visible;
-
-					// Start a timer to hide the manual injection message after 5 seconds
-					hideInjectManuallyTimer.Start();
-
 					return;
 				}
 
@@ -146,7 +132,7 @@ public sealed partial class GamePage : Page {
 
 				DateTime? runningSinceUtc = null;
 				do {
-					gameProcess = Process.GetProcessesByName(VM.GameInstallation.EXEName.ToLowerInvariant()).FirstOrDefault();
+					gameProcess = Injector.FindInjectableProcess(VM.GameInstallation.EXEName);
 					if (gameProcess != null) {
 						if (runningSinceUtc == null) {
 							VM.StatusMessage = $"Game started. Waiting {delayBeforeInjectionSec} seconds before injection.";
@@ -212,7 +198,10 @@ public sealed partial class GamePage : Page {
 
 				SharedMemory.SendCommand(SharedMemory.Command.Quit);
 
-				if (!gameProcess.WaitForExit(3000)) gameProcess.Kill();
+				if (!gameProcess.WaitForExit(3000)) {
+					VM.StatusMessage = "Game did not close properly. Killing it...";
+					gameProcess.Kill();
+				}
 			}
 
 			VM.StatusMessage = "Game stopped";
@@ -235,7 +224,7 @@ public sealed partial class GamePage : Page {
 	#region Stop
 	void Stop_Click(object sender, RoutedEventArgs e) {
 		VM.StatusMessage = "Stopping game...";
-		shouldStop = true; VM.VisibleInjectManually = Visibility.Collapsed;
+		shouldStop = true;
 	}
 	#endregion
 

@@ -20,8 +20,8 @@ public partial class App : Application {
 
 		uint dpi = Win32.GetDpiForWindow(hWnd);
 		float scalingFactor = (float)dpi / 96;
-        int width = (int)(1024 * scalingFactor);
-        int height = (int)(768 * scalingFactor);
+        int width = (int)(1080 * scalingFactor);
+        int height = (int)(780 * scalingFactor);
 
         m_window.AppWindow.Resize(new() { Width = width, Height = height });
 

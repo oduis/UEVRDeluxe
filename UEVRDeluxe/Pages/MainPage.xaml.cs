@@ -33,7 +33,7 @@ public sealed partial class MainPage : Page {
 		this.InitializeComponent();
 
 		// Initialize the DispatcherTimer
-		hotKeyCheckTimer = new DispatcherTimer();
+		hotKeyCheckTimer = new();
 		hotKeyCheckTimer.Interval = TimeSpan.FromMilliseconds(300); // Adjust the interval as needed
 		hotKeyCheckTimer.Tick += HotKeyCheckTimer_Tick;
 	}

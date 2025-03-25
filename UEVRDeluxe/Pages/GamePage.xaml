@@ -20,7 +20,7 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
-			<!-- New row definition -->
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
 		<Image Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="72" Margin="4" Source="{x:Bind VM.GameInstallation.IconURL, Mode=OneWay}" />
@@ -33,7 +33,7 @@
 		</StackPanel>
 
 		<Border Grid.Row="1" Grid.RowSpan="2" Margin="48" Visibility="{x:Bind VM.WarningVisible, Mode=OneWay}" 
-                VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource styWarning}">
+                VerticalAlignment="Center" HorizontalAlignment="Center">
 			<TextBlock FontSize="18" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" />
 		</Border>
 
@@ -123,12 +123,8 @@
 			</Button>
 		</Grid>
 
-		<Border Grid.Row="6" Visibility="{x:Bind VM.VisibleInjectManually, Mode=OneWay}"
-                Background="#ffF0a0" Padding="16" Margin="0,0,0,8">
-			<TextBlock>
-                Game launched, but this game needs you to start your session manually before injecting.<LineBreak/>
-                When in 3D game view, hit 'Start game' again or press Strg+Alt+U to inject.
-			</TextBlock>
+		<Border Grid.Row="6" Visibility="{x:Bind VM.VisibleLateInjectWarning, Mode=OneWay}" Background="#ffF0a0" Padding="10" Margin="1,0,1,8">
+			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords">Inject into this game while it is already started</TextBlock>
 		</Border>
 
 		<Grid Grid.Row="7"

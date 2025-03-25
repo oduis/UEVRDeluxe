@@ -14,6 +14,27 @@ namespace UEVRDeluxe.Code;
 
 class Injector {
 	#region * Injection
+	public static Process FindInjectableProcess(string exeName) {
+		var allProcesses = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(exeName).ToLowerInvariant());
+
+		foreach (var process in allProcesses) {
+			try {
+				if (process.MainWindowTitle.Length == 0) continue;
+
+				if (Environment.Is64BitOperatingSystem
+					&& Win32.IsWow64Process(process.Handle, out bool isWow64) && isWow64)
+					continue;
+
+				foreach (ProcessModule module in process.Modules) {
+					string moduleLow = module.ModuleName?.ToLower();
+					if (moduleLow == "d3d11.dll" || moduleLow == "d3d12.dll") return process;
+				}
+			} catch { }
+		}
+
+		return null;
+	}
+
 	/// <summary>Inject the DLL into the target process</summary>
 	/// <param name="dllName">local filename</param>
 	public static void InjectDll(int processID, string dllName) {
