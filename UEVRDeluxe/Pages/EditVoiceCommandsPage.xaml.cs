@@ -28,7 +28,7 @@ public sealed partial class EditVoiceCommandsPage : Page {
 		{ "Enter", 0x0D }, { "Escape", 0x1B }, { "Space", 0x20 }, { "Tab", 0x09 },
 		{ "Left", 0x25 }, { "Up", 0x26 }, { "Right", 0x27 }, { "Down", 0x28 },
 		{ "PgUp", 0x21 }, { "PgDown", 0x22 }, { "Ins", 0x2D }, { "Del", 0x2E },
-		{ "Home", 0x24 }, { "End", 0x23 }
+		{ "Home", 0x24 }, { "End", 0x23 }, { "Ctrl", 0x11 }, { "Shift", 0x10 }
 	};
 
 	IntPtr keyboardLayout;
