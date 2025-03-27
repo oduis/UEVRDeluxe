@@ -190,7 +190,7 @@ public class LocalProfile {
 	async public Task<byte[]> PrepareForSubmitAsync(GameInstallation installation = null) {
 		bool metasMissing = false;
 
-		if (!File.Exists(Path.Combine(FolderPath, "config.txt")))
+		if (!File.Exists(Path.Combine(FolderPath, "config.txt")) && !Directory.Exists(Path.Combine(FolderPath,"scripts")))
 			throw new Exception("This is not a UEVR profile folder");
 
 		// Delete temporary files

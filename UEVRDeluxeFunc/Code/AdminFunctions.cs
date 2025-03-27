@@ -40,7 +40,9 @@ public class AdminFunctions : FunctionsBase {
 			// Unpack the zip file and get Profile.json
 			ProfileMeta profileMeta;
 			using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true)) {
-				if (archive.GetEntry("config.txt") == null) throw new ApplicationException("config.txt not found in the zip file.");
+				/*if (archive.GetEntry("config.txt") == null && archive.GetEntry("scripts") == null)
+					throw new ApplicationException("config.txt not found in the zip file.");*/
+
 				if (archive.GetEntry("log.txt") != null) throw new ApplicationException("Zip file may not contain logs.");
 
 				var profileEntry = archive.GetEntry(ProfileMeta.FILENAME);
