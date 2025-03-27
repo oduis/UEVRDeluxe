@@ -1,6 +1,6 @@
 {
   "app": "UEVR Easy Injector",
-  "version": "1.7.2.0",
-  "releaseNotes": "Fixed some bugs",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1720"
+  "version": "1.7.3.0",
+  "releaseNotes": "Gracefully skip corrupted game installations; Allow profiles without config.txt filename",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1730"
 }

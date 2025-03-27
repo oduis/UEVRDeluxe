@@ -48,6 +48,7 @@ public sealed partial class MainPage : Page {
 	async void Page_Loaded(object sender, RoutedEventArgs e) {
 		try {
 			VM.IsLoading = true;
+			await Task.Delay(60);  // Give the UI a chance to update
 
 			await CheckVersionAsync();
 
@@ -147,6 +148,7 @@ public sealed partial class MainPage : Page {
 	async void Rescan_Click(object sender, RoutedEventArgs e) {
 		try {
 			VM.IsLoading = true;
+			await Task.Delay(60);  // Give the UI a chance to update
 
 			InitSort();
 			VM.Games.Clear();

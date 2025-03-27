@@ -67,75 +67,79 @@ public static class GameStoreManager {
 
 		// Find UE-Executable. This is more an art than a science and takes longer ;-)
 		foreach (var game in allGames) {
-			// First check if directories contain the magic directories that are specific to Unreal
-			string[] alldirs = Directory.GetDirectories(game.FolderPath, "*", SearchOption.AllDirectories);
+			try {
+				// First check if directories contain the magic directories that are specific to Unreal
+				string[] alldirs = Directory.GetDirectories(game.FolderPath, "*", SearchOption.AllDirectories);
 
-			if (!alldirs.Any(d => d.Contains("Engine\\Binaries\\Win64", StringComparison.OrdinalIgnoreCase)
-				|| d.Contains("Engine\\Binaries\\ThirdParty", StringComparison.OrdinalIgnoreCase))) {
-				Logger.Log.LogTrace($"No UE directories found for {game.Name}");
-				continue;
-			}
-
-			// The find the EXE
-			string[] exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", SearchOption.AllDirectories);
-
-			// the name of the game directory often partly occurs in the correct exe name
-			// e.g folder (=game) \ReadyOrNot\, exe like ReadyOrNot.exe
-			string folderShortName = Path.GetFileName(game.FolderPath.TrimEnd(Path.DirectorySeparatorChar)).Replace(" ", "");
-
-			var exeProps = new List<ExecutableProp>();
-			foreach (string exePath in exesPaths) {
-				string exeFileName = Path.GetFileName(exePath);
-
-				// Sometimes Crashreporters are sitting in prominent positions
-				if (IGNORE_EXE_NAME_PARTS.Any(f => exeFileName.Contains(f, StringComparison.OrdinalIgnoreCase)))
+				if (!alldirs.Any(d => d.Contains("Engine\\Binaries\\Win64", StringComparison.OrdinalIgnoreCase)
+					|| d.Contains("Engine\\Binaries\\ThirdParty", StringComparison.OrdinalIgnoreCase))) {
+					Logger.Log.LogTrace($"No UE directories found for {game.Name}");
 					continue;
-
-				var exe = new ExecutableProp { filePath = exePath };
-
-				exe.isShipping = exeFileName.EndsWith("-Shipping.exe", StringComparison.OrdinalIgnoreCase);
-
-				if (exeFileName.Length > 3 && folderShortName.Length > 3)
-					exe.isSimilarName = folderShortName.Substring(0, 4).Equals(exeFileName.Substring(0, 4), StringComparison.OrdinalIgnoreCase);
-
-				string[] pathParts = Path.GetDirectoryName(exePath).Split(Path.DirectorySeparatorChar);
-				exe.directoryCount = pathParts.Length;
-
-				string folder = pathParts.Last().ToLowerInvariant();
-				exe.isInWinFolder = folder == "win32" || folder == "win64" || folder == "wingdk";
-				exe.isInBinariesFolder = folder == "binaries";  // Not as good, but...
-
-				exeProps.Add(exe);
-			}
-
-			var bestProps =
-				exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInWinFolder)
-				?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInBinariesFolder)
-				?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping)
-				?? exeProps.FirstOrDefault(g => g.isShipping && g.isInWinFolder)
-				?? exeProps.FirstOrDefault(g => g.isShipping && g.isInBinariesFolder)
-				?? exeProps.FirstOrDefault(g => g.isShipping)
-				?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInWinFolder)
-				?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInBinariesFolder)
-				?? exeProps.FirstOrDefault(g => g.isInWinFolder)
-				?? exeProps.FirstOrDefault(g => g.isInBinariesFolder)
-				?? exeProps.OrderBy(g => g.directoryCount).FirstOrDefault();
-
-			if (bestProps != null) {
-				// in Steam there are sometimes exes next to the shipping exe, like in Star Wars fallen order.
-				// So we need to check if the exe is in the same folder as the shipping exe
-				if (bestProps.isShipping) {
-					string folder = Path.GetDirectoryName(bestProps.filePath);
-					if (exeProps.Any(e => e.filePath != bestProps.filePath && Path.GetDirectoryName(e.filePath) == folder)) {
-						bestProps = exeProps.First(e => e.filePath != bestProps.filePath && Path.GetDirectoryName(e.filePath) == folder);
-					}
 				}
 
-				game.EXEName = Path.GetFileNameWithoutExtension(bestProps.filePath);
+				// The find the EXE
+				string[] exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", SearchOption.AllDirectories);
 
-				Logger.Log.LogTrace($"{game.Name} executable: {bestProps.filePath}");
-			} else {
-				Logger.Log.LogTrace($"No executable found for {game.Name}");
+				// the name of the game directory often partly occurs in the correct exe name
+				// e.g folder (=game) \ReadyOrNot\, exe like ReadyOrNot.exe
+				string folderShortName = Path.GetFileName(game.FolderPath.TrimEnd(Path.DirectorySeparatorChar)).Replace(" ", "");
+
+				var exeProps = new List<ExecutableProp>();
+				foreach (string exePath in exesPaths) {
+					string exeFileName = Path.GetFileName(exePath);
+
+					// Sometimes Crashreporters are sitting in prominent positions
+					if (IGNORE_EXE_NAME_PARTS.Any(f => exeFileName.Contains(f, StringComparison.OrdinalIgnoreCase)))
+						continue;
+
+					var exe = new ExecutableProp { filePath = exePath };
+
+					exe.isShipping = exeFileName.EndsWith("-Shipping.exe", StringComparison.OrdinalIgnoreCase);
+
+					if (exeFileName.Length > 3 && folderShortName.Length > 3)
+						exe.isSimilarName = folderShortName.Substring(0, 4).Equals(exeFileName.Substring(0, 4), StringComparison.OrdinalIgnoreCase);
+
+					string[] pathParts = Path.GetDirectoryName(exePath).Split(Path.DirectorySeparatorChar);
+					exe.directoryCount = pathParts.Length;
+
+					string folder = pathParts.Last().ToLowerInvariant();
+					exe.isInWinFolder = folder == "win32" || folder == "win64" || folder == "wingdk";
+					exe.isInBinariesFolder = folder == "binaries";  // Not as good, but...
+
+					exeProps.Add(exe);
+				}
+
+				var bestProps =
+					exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInWinFolder)
+					?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInBinariesFolder)
+					?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping)
+					?? exeProps.FirstOrDefault(g => g.isShipping && g.isInWinFolder)
+					?? exeProps.FirstOrDefault(g => g.isShipping && g.isInBinariesFolder)
+					?? exeProps.FirstOrDefault(g => g.isShipping)
+					?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInWinFolder)
+					?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInBinariesFolder)
+					?? exeProps.FirstOrDefault(g => g.isInWinFolder)
+					?? exeProps.FirstOrDefault(g => g.isInBinariesFolder)
+					?? exeProps.OrderBy(g => g.directoryCount).FirstOrDefault();
+
+				if (bestProps != null) {
+					// in Steam there are sometimes exes next to the shipping exe, like in Star Wars fallen order.
+					// So we need to check if the exe is in the same folder as the shipping exe
+					if (bestProps.isShipping) {
+						string folder = Path.GetDirectoryName(bestProps.filePath);
+						if (exeProps.Any(e => e.filePath != bestProps.filePath && Path.GetDirectoryName(e.filePath) == folder)) {
+							bestProps = exeProps.First(e => e.filePath != bestProps.filePath && Path.GetDirectoryName(e.filePath) == folder);
+						}
+					}
+
+					game.EXEName = Path.GetFileNameWithoutExtension(bestProps.filePath);
+
+					Logger.Log.LogTrace($"{game.Name} executable: {bestProps.filePath}");
+				} else {
+					Logger.Log.LogTrace($"No executable found for {game.Name}");
+				}
+			} catch (Exception ex) {
+				Logger.Log.LogError(ex, $"Failed to find executable for {game.Name}");
 			}
 		}
 
@@ -394,6 +398,10 @@ public static class GameStoreManager {
 						FolderPath = Path.GetDirectoryName(rootPath),
 						StoreType = GameStoreType.XBox
 					};
+
+					// DOS style folder name sometime disturb in other function
+					/* if (game.FolderPath.StartsWith(@"\\.\") || game.FolderPath.StartsWith(@"\\?\"))
+						game.FolderPath = game.FolderPath[4..]; */
 
 					// Get the AppID from the PackageID (no versions)
 					var package = packageManager.FindPackageForUser(string.Empty, packageId);
