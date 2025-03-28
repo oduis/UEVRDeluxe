@@ -10,7 +10,7 @@
 				<ControlTemplate TargetType="ContentControl">
 					<Border>
 						<Border.Background>
-							<SolidColorBrush Color="White" Opacity="0.5" />
+							<SolidColorBrush Color="{ThemeResource SmokeFillColorDefaultBrush}" Opacity="0.5" />
 						</Border.Background>
 						
 						<ProgressRing IsActive="True" Height="96" Width="96" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -33,12 +33,8 @@
 	</Style>
 
 	<Style x:Key="styButton" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-		<Setter Property="Foreground" Value="White"/>
-		<Setter Property="Background">
-			<Setter.Value>
-				<SolidColorBrush Color="#0F6DBC" />
-			</Setter.Value>
-		</Setter>
+		<Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+		<Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}"/>
 		<Setter Property="CornerRadius" Value="6" />
 		<Setter Property="MinHeight" Value="38" />
 		<Setter Property="MinWidth" Value="120" />
@@ -73,31 +69,31 @@
 
 	<Style x:Key="styWarning" TargetType="Border">
 		<Setter Property="Padding" Value="20,12,20,14" />
-		<Setter Property="Background" Value="#FFF9F4" />
-		<Setter Property="BorderBrush" Value="#FFC107" />
+		<Setter Property="Background" Value="{ThemeResource ControlFillColorSecondaryBrush}" />
+		<Setter Property="BorderBrush" Value="{ThemeResource SystemFillColorCautionBrush}" />
 		<Setter Property="BorderThickness" Value="1" />
 		<Setter Property="CornerRadius" Value="4" />
 	</Style>
 	
 	<Style x:Key="styHelpText" TargetType="TextBlock">
-		<Setter Property="Foreground" Value="#606060" />
+		<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
 		<Setter Property="FontSize" Value="12" />
 		<Setter Property="VerticalAlignment" Value="Center" />
 		<Setter Property="TextWrapping" Value="WrapWholeWords" />
 	</Style>
 	
 	<DataTemplate x:Key="styProfileMetaDataTemplate">
-		<Border CornerRadius="4" Background="White" BorderBrush="LightGray" BorderThickness="1" Margin="0,4">
+		<Border CornerRadius="4" BorderBrush="LightGray" BorderThickness="1" Margin="0,4">
 			<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition />
 					<RowDefinition />
 				</Grid.RowDefinitions>
 				<Border Grid.ColumnSpan="2" Background="LightGray">
-					<TextBlock Text="{Binding GameName}" FontSize="18" Margin="8,4,8,8" />
+					<TextBlock Foreground="Black" Text="{Binding GameName}" FontSize="18" Margin="8,4,8,8" />
 				</Border>
 
-				<Grid Grid.Row="1" Margin="8,6,8,6">
+				<Grid Grid.Row="1" Margin="10,8,10,10">
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
 						<RowDefinition Height="Auto"/>

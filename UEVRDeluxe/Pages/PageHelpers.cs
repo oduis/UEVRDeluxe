@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace UEVRDeluxe.Pages;
 
 static class PageHelpers {
-	public static async Task RefreshDescriptionAsync(WebView2 webViewDescription, string descriptionMD) {
+	public static async Task RefreshDescriptionAsync(WebView2 webViewDescription, string descriptionMD, bool darkMode) {
 		if (webViewDescription.CoreWebView2 == null) await webViewDescription.EnsureCoreWebView2Async(MainWindow.WebViewEnv);
 
 		string html;
@@ -14,6 +14,9 @@ static class PageHelpers {
 		else
 			html = "<p>( no profile description found )</p>";
 
+		string bodyStyle = darkMode ? "background-color: black; color: white;" : "background-color: white; color: black;";
+		string linkColor = darkMode ? "lightblue" : "blue";
+
 		html = """
 			<html><head><style>
 			h1 { margin-bottom: 4px; font-size: 22px; font-weight: bold; }
@@ -21,8 +24,10 @@ static class PageHelpers {
 			h3 { margin-bottom: 0px; font-size: 16px; font-weight: normal; }
 			ul, ol { margin-block-start: 0.5rem; margin-block-end: 0.5rem; padding-inline-start: 24px; }
 			p { margin: 0 0 2px 0; }
-			</style></head><body style="font-family: 'Segoe UI'; font-size: 12pt; margin:0; padding:0;">
-			""" + html + "</body></html>";
+			a { color: 
+			""" + linkColor
+			+ "; }</style></head><body style=\"font-family: 'Segoe UI'; font-size: 12pt; margin:0; padding:0;"
+			+ bodyStyle + "\">" + html + "</body></html>";
 
 		webViewDescription.NavigateToString(html);
 	}

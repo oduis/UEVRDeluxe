@@ -60,7 +60,7 @@ public sealed partial class GamePage : Page {
 
 			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName);
 
-			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD);
+			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD, ActualTheme == ElementTheme.Dark);
 
 			VM.CurrentOpenXRRuntime = OpenXRManager.GetAllRuntimes()?.FirstOrDefault(r => r.IsDefault)?.Name ?? "( undefined )";
 

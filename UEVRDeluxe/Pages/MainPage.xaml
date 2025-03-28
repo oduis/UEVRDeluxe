@@ -13,7 +13,7 @@
 
 	<Page.Resources>
 		<DataTemplate x:Key="GameDataTemplate" x:DataType="code:GameInstallation">
-			<Grid Width="420">
+			<Grid Width="420" Background="{ThemeResource ControlFillColorDefaultBrush}">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="*" />
@@ -77,11 +77,11 @@
 			( While in game, hit Ctrl+Alt+U to inject directly )
 		</TextBlock>
 
-		<Border Grid.Row="3" Visibility="{x:Bind VM.WarningVisible, Mode=OneWay}" Style="{StaticResource styWarning}" Margin="0,8,0,20">
+		<Border Grid.Row="3" Visibility="{x:Bind VM.WarningVisible, Mode=OneWay}" Style="{StaticResource styWarning}" Margin="0,8,0,0">
 			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" />
 		</Border>
 
-		<StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="52">
+		<StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="52" Margin="0,20,0,0">
 			<HyperlinkButton NavigateUri="https://uevrdeluxe.org" Padding="0">
 				<StackPanel Orientation="Horizontal">
 					<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xE80f;" />

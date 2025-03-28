@@ -3,7 +3,7 @@
     x:Class="UEVRDeluxe.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:UEVRDeluxe" RequestedTheme="Light">
+    xmlns:local="using:UEVRDeluxe">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

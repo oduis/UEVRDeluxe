@@ -10,14 +10,8 @@ public sealed partial class ProfileDescrPage : Page {
 		this.InitializeComponent();
 		this.Loaded += ProfileDescrPage_Loaded;
 	}
-	/*
-	protected override void OnNavigatedTo(NavigationEventArgs e) {
-		base.OnNavigatedTo(e);
 
-		this.descriptionMD = e.Parameter as string;
-	}
-	*/
 	async void ProfileDescrPage_Loaded(object sender, RoutedEventArgs e) {
-		await PageHelpers.RefreshDescriptionAsync(webViewDescription, descriptionMD);
+		await PageHelpers.RefreshDescriptionAsync(webViewDescription, descriptionMD, ActualTheme == ElementTheme.Dark);
 	}
 }

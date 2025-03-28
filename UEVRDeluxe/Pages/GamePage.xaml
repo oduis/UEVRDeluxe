@@ -123,7 +123,7 @@
 			</Button>
 		</Grid>
 
-		<Border Grid.Row="6" Visibility="{x:Bind VM.VisibleLateInjectWarning, Mode=OneWay}" Background="#ffF0a0" Padding="10" Margin="1,0,1,8">
+		<Border Grid.Row="6" Visibility="{x:Bind VM.VisibleLateInjectWarning, Mode=OneWay}" Background="{ThemeResource SystemFillColorCautionBackgroundBrush}" Padding="10" Margin="1,0,1,8">
 			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords">Inject into this game while it is already started</TextBlock>
 		</Border>
 
@@ -169,14 +169,14 @@
 		</Grid>
 
 		<Border Grid.Row="3" Grid.RowSpan="3" Visibility="{x:Bind VM.VisibleIfRunning, Mode=OneWay}"
-                Background="#ffF0a0" Padding="16" Margin="0,16,0,0">
+                Background="{ThemeResource SystemFillColorCautionBackgroundBrush}" Padding="16" Margin="0,16,0,0">
 			<Grid>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
 
-				<TextBlock Text="{x:Bind VM.StatusMessage, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center"
+				<TextBlock Text="{x:Bind VM.StatusMessage, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black"
                            FontSize="18" Margin="0,0,24,2" TextWrapping="Wrap" />
 				<Button Grid.Column="1" Click="Stop_Click" Style="{StaticResource styButton}" MinWidth="160" VerticalAlignment="Center">
 					<Grid>

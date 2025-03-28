@@ -16,6 +16,6 @@
 		<Border Height="36" VerticalAlignment="Top">
 			<TextBlock x:Name="tbCaption" Foreground="Gray" VerticalAlignment="Center" Margin="10,8,0,0"/>
 		</Border>
-		<Frame x:Name="mainFrame" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="White"/>
+		<Frame x:Name="mainFrame" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 	</Grid>
 </Window>
