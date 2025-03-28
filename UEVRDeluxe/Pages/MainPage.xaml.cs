@@ -157,7 +157,7 @@ public sealed partial class MainPage : Page {
 			SortGames();
 
 			await new ContentDialog {
-				Title = "Rescan finsihed", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+				Title = "Rescan finished", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
 				Content = "Newly installed Steam game missing? Shut down Steam, restart it, and rescan. Alternatively, you can reboot your system, start Steam, and then start UEVR Easy."
 			}.ShowAsync();
 		} catch (Exception ex) {

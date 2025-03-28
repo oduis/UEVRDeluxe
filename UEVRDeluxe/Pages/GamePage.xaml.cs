@@ -91,7 +91,7 @@ public sealed partial class GamePage : Page {
 			var profileMetas = new ObservableCollection<ProfileMeta>(await AzureManager.SearchProfilesAsync(VM.GameInstallation.EXEName));
 			if (profileMetas.Count == 0) {
 				VM.SearchEnabled = false;  // So he does not hit again, causing costs
-				throw new Exception("No profiles found in our database. You may try to build one yourself.");
+				throw new Exception("No profiles found in our database, or profile is not compatible with the store provider. You may try to build one yourself.");
 			}
 
 			Frame.Navigate(typeof(DownloadProfilePage), profileMetas, new DrillInNavigationTransitionInfo());
