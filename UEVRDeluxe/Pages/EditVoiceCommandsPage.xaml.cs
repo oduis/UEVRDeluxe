@@ -44,6 +44,11 @@ public sealed partial class EditVoiceCommandsPage : Page {
 		VM.EXEName = e.Parameter as string;
 	}
 
+	protected override void OnNavigatedFrom(NavigationEventArgs e) {
+		base.OnNavigatedFrom(e);
+		StopTestRecognizer();
+	}
+
 	async void Page_Loaded(object sender, RoutedEventArgs e) {
 		try {
 			Logger.Log.LogTrace($"Opening voice command page {VM.EXEName}");
@@ -80,7 +85,7 @@ public sealed partial class EditVoiceCommandsPage : Page {
 					}
 				}
 			} else {
-				slMinConfidence.Value = 40;
+				slMinConfidence.Value = 75;
 				VM.SelectedLanguage = VM.Languages[0];
 				VM.VoiceCommands = [];
 			}
@@ -90,9 +95,8 @@ public sealed partial class EditVoiceCommandsPage : Page {
 	}
 
 	/// <summary>Open the settings page to install a Speech Recognition language
-	async void OpenWinLanguages_Click(object sender, RoutedEventArgs e) {
-		await Launcher.LaunchUriAsync(new Uri("ms-settings:regionlanguage"));
-	}
+	async void OpenWinLanguages_Click(object sender, RoutedEventArgs e)
+		=> await Launcher.LaunchUriAsync(new Uri("ms-settings:regionlanguage"));
 
 	async void AddCommand_Click(object sender, RoutedEventArgs e) {
 		try {
@@ -138,15 +142,7 @@ public sealed partial class EditVoiceCommandsPage : Page {
 		try {
 			VM.IsLoading = true;
 
-			if (VM.SelectedLanguage == null) throw new Exception("Please select a language");
-			if (VM.VoiceCommands.Count == 0) throw new Exception("Please add at least one voice command");
-
-			var profile = new VoiceCommandProfile {
-				EXEName = VM.EXEName,
-				MinConfidence = (float)(slMinConfidence.Value / 100f),
-				LanguageTag = VM.SelectedLanguage.LanguageTag,
-				Commands = [.. VM.VoiceCommands.Select(c => new VoiceCommand { Text = c.Text, VKKeyCode = c.VKKeyCode })]
-			};
+			VoiceCommandProfile profile = CreateProfile();
 
 			File.WriteAllText(VoiceCommandProfile.GetFilePath(VM.EXEName),
 				JsonSerializer.Serialize(profile, new JsonSerializerOptions { WriteIndented = true }));
@@ -159,5 +155,77 @@ public sealed partial class EditVoiceCommandsPage : Page {
 		}
 	}
 
-	void Back_Click(object sender, RoutedEventArgs e) { Frame.GoBack(); }
+	VoiceCommandProfile CreateProfile() {
+		if (VM.SelectedLanguage == null) throw new Exception("Please select a language");
+		if (VM.VoiceCommands.Count == 0) throw new Exception("Please add at least one voice command");
+
+		var profile = new VoiceCommandProfile {
+			EXEName = VM.EXEName,
+			MinConfidence = (float)(slMinConfidence.Value / 100f),
+			LanguageTag = VM.SelectedLanguage.LanguageTag,
+			Commands = [.. VM.VoiceCommands.Select(c => new VoiceCommand { Text = c.Text, VKKeyCode = c.VKKeyCode })]
+		};
+		return profile;
+	}
+
+	#region * Test
+	VoiceCommandRecognizer testRecognizer;
+	DispatcherTimer overlayTimer;
+
+	/// <summary>Opens the test overlay and starts the voice command recognizer for testing</summary>
+	async void Test_Click(object sender, RoutedEventArgs e) {
+		const string IDLE_TEXT = "( Listening... )";
+
+		try {
+			var profile = CreateProfile();
+
+			// Overlay timer to hide the text after 
+			if (overlayTimer == null) {
+				overlayTimer = new() { Interval = TimeSpan.FromSeconds(2) };
+				overlayTimer.Tick += (s, args) => {
+					overlayTimer.Stop();
+					tbRecognizedText.Text = IDLE_TEXT;
+				};
+			}
+
+			// Show the overlay
+			borTestOverlay.Visibility = Visibility.Visible;
+			tbRecognizedText.Text = IDLE_TEXT;
+
+			// Create and start the test recognizer
+			testRecognizer = new VoiceCommandRecognizer();
+			testRecognizer.SpeechRecognized += TestRecognizer_SpeechRecognized;
+			testRecognizer.Start(profile);
+		} catch (Exception ex) {
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Test Voice Commands Error");
+		}
+	}
+
+	/// <summary>Handles speech recognition events during testing</summary>
+	void TestRecognizer_SpeechRecognized(object sender, string recognizedText, float confidence)
+		=> DispatcherQueue.TryEnqueue(() => {
+			tbRecognizedText.Text = $"{recognizedText} [{confidence:P0}]";
+			overlayTimer.Stop();
+			overlayTimer.Start();
+		});
+
+	/// <summary>Closes the test overlay and stops the recognizer</summary>
+	void CloseTestOverlay_Click(object sender, RoutedEventArgs e) {
+		StopTestRecognizer();
+		borTestOverlay.Visibility = Visibility.Collapsed;
+	}
+
+	/// <summary>Stops the test recognizer and cleans up resources</summary>
+	void StopTestRecognizer() {
+		if (testRecognizer != null) {
+			testRecognizer.SpeechRecognized -= TestRecognizer_SpeechRecognized;
+			testRecognizer.Stop();
+			testRecognizer = null;
+		}
+
+		overlayTimer?.Stop(); overlayTimer = null;
+	}
+	#endregion
+
+	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
 }

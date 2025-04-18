@@ -99,6 +99,13 @@
 				</Grid>
 			</Button>
 
+			<Button Click="Test_Click" Style="{StaticResource styButton}">
+				<Grid>
+					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE720;" />
+					<TextBlock Style="{StaticResource styButtonIconText}">Test</TextBlock>
+				</Grid>
+			</Button>
+
 			<Button Click="Back_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
@@ -107,6 +114,42 @@
 			</Button>
 		</StackPanel>
 
-		<ContentControl Grid.RowSpan="7" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+		<ContentControl Grid.RowSpan="8" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+
+		<!-- Voice Command Test Overlay -->
+		<Border x:Name="borTestOverlay" Grid.RowSpan="8" Visibility="Collapsed" 
+                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                CornerRadius="8" MaxWidth="500" MaxHeight="300" Padding="16"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="2">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="*" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+
+				<TextBlock Grid.Row="1" x:Name="tbRecognizedText" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           FontSize="20" TextWrapping="Wrap" TextAlignment="Center"
+                           Margin="0,16,0,20" />
+
+				<TextBlock Grid.Row="2" 
+                           Style="{StaticResource styHelpText}"
+                           HorizontalAlignment="Center" Margin="0,0,0,16">
+					Try saying some commands now. Speak clearly and without an accent to enhance recognition. Adjust confidence level or change text commands to improve reliability.
+				</TextBlock>
+
+				<Button Grid.Row="3" HorizontalAlignment="Center" 
+						Click="CloseTestOverlay_Click" 
+                        Style="{StaticResource styButton}">
+					<Grid>
+						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
+						<TextBlock Style="{StaticResource styButtonIconText}">Close</TextBlock>
+					</Grid>
+				</Button>
+			</Grid>
+		</Border>
 	</Grid>
 </Page>

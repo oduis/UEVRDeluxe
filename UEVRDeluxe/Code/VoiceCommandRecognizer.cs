@@ -19,6 +19,16 @@ public class VoiceCommandRecognizer {
 	Dictionary<string, int> mapCommand2KeyCode;
 	float minConfidence;
 
+	/// <summary>For Testing</summary>
+	public event Action<object, string, float> SpeechRecognized;
+
+	/// <summary>Start without file/exe integrtation</summary>
+	public void Start(VoiceCommandProfile profile) {
+		Stop();
+		if (SpeechRecognized == null) throw new Exception("No event handler for SpeechRecognized");
+		StartWorker(profile);
+	}
+
 	public void Start(string exeName) {
 		this.exeName = exeName;
 
@@ -33,6 +43,10 @@ public class VoiceCommandRecognizer {
 		var profile = JsonSerializer.Deserialize<VoiceCommandProfile>(File.ReadAllText(profilePath),
 			new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
+		StartWorker(profile);
+	}
+
+	void StartWorker(VoiceCommandProfile profile) {
 		minConfidence = profile.MinConfidence;
 
 		// Build a list of expected phrases (they must start with the keyword)
@@ -83,7 +97,10 @@ public class VoiceCommandRecognizer {
 
 		if (args.Result.Confidence < minConfidence) return;
 
-		if (mapCommand2KeyCode.TryGetValue(recognizedText, out int vk)) {
+		// Fire event for any listeners (used by test feature)
+		SpeechRecognized?.Invoke(this, recognizedText, args.Result.Confidence);
+
+		if (!string.IsNullOrEmpty(exeName) && mapCommand2KeyCode.TryGetValue(recognizedText, out int vk)) {
 			// Check if the foreground window belongs to the game process
 			IntPtr foregroundWindow = Win32.GetForegroundWindow();
 			Win32.GetWindowThreadProcessId(foregroundWindow, out uint foregroundProcessId);
@@ -114,7 +131,6 @@ public class VoiceCommandRecognizer {
 				Win32.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
 			}
 		}
-
 	}
 }
 

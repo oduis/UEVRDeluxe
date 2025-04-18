@@ -22,7 +22,7 @@ namespace UEVRDeluxe.Pages;
 
 public sealed partial class GamePage : Page {
 	readonly GamePageVM VM = new();
-	VoiceCommandRecognizer speechRecognizer = new();
+	VoiceCommandRecognizer speechRecognizer;
 
 	#region * Init
 	public GamePage() {
@@ -48,6 +48,7 @@ public sealed partial class GamePage : Page {
 		hotKeyCheckTimer?.Stop();
 
 		speechRecognizer?.Stop();
+		speechRecognizer = null;
 
 		MediaDevice.DefaultAudioCaptureDeviceChanged -= MediaDevice_DefaultAudioCaptureDeviceChanged;
 	}
@@ -170,6 +171,7 @@ public sealed partial class GamePage : Page {
 
 			if (VM.EnableVoiceCommands) {
 				VM.StatusMessage = "Starting voice recognition...";
+				speechRecognizer = new();
 				speechRecognizer.Start(VM.GameInstallation.EXEName);
 			}
 
@@ -212,7 +214,8 @@ public sealed partial class GamePage : Page {
 				Title = "UEVR", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 		} finally {
-			speechRecognizer?.Stop(); hotKeyCheckTimer?.Start();
+			speechRecognizer?.Stop(); speechRecognizer = null;
+			hotKeyCheckTimer?.Start();
 			VM.IsRunning = false;
 		}
 
