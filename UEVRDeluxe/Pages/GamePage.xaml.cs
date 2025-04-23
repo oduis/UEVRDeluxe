@@ -109,6 +109,9 @@ public sealed partial class GamePage : Page {
 
 	async void Launch_Click(object sender, RoutedEventArgs e) {
 		try {
+			if (VM.EnableVoiceCommands && Win32.IsUserAnAdmin())
+				throw new Exception("Start UEVR Easy without administrator privileges to use voice commands");
+
 			shouldStop = false;
 			VM.IsRunning = true; hotKeyCheckTimer?.Stop();
 
@@ -252,9 +255,17 @@ public sealed partial class GamePage : Page {
 	#endregion
 
 	#region * Voice commands
-	void NavigateVoiceCommandsPage(object sender, RoutedEventArgs e)
-		=> Frame.Navigate(typeof(EditVoiceCommandsPage), VM.GameInstallation.EXEName, new DrillInNavigationTransitionInfo());
+	async void NavigateVoiceCommandsPage(object sender, RoutedEventArgs e) {
+		if (Win32.IsUserAnAdmin()) {
+			await new ContentDialog {
+				Title = "UEVR", Content = "Start UEVR Easy without administrator privileges to use voice commands",
+				CloseButtonText = "OK", XamlRoot = this.XamlRoot
+			}.ShowAsync();
+			return;
+		}
 
+		Frame.Navigate(typeof(EditVoiceCommandsPage), VM.GameInstallation.EXEName, new DrillInNavigationTransitionInfo());
+	}
 	async void OpenWinAudio_Click(object sender, RoutedEventArgs e) {
 		await Launcher.LaunchUriAsync(new Uri("ms-settings:sound"));
 	}
