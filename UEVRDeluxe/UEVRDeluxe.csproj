@@ -18,6 +18,9 @@
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="Assets\EALogo.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Pages\AdminPage.xaml" />
     <None Remove="Pages\AllProfilesPage.xaml" />
     <None Remove="Pages\EditProfilePage.xaml" />
@@ -64,23 +67,26 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.0" />
-    <PackageReference Include="ini-parser-netstandard" Version="2.5.2" />
-    <PackageReference Include="Markdig" Version="0.40.0" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.13" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
+    <PackageReference Include="ini-parser-netstandard" Version="2.5.3" />
+    <PackageReference Include="Markdig" Version="0.41.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.4" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250401001" />
     <PackageReference Include="MimeMapping" Version="3.1.0" />
     <PackageReference Include="NReco.Logging.File" Version="1.2.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
-    <PackageReference Include="System.Speech" Version="8.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.Speech" Version="9.0.4" />
+    <PackageReference Include="System.Text.Json" Version="9.0.4" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="WinUI.TableView" Version="1.2.2" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="Assets\DiscordLogo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\EALogo.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="Assets\GenericGameLogo.jpg">

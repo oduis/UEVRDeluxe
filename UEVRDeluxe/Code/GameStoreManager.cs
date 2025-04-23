@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Windows.Management.Deployment;
 #endregion
 
@@ -49,6 +50,7 @@ public static class GameStoreManager {
 		allGames.AddRange(FindAllSteamGames());
 		allGames.AddRange(FindAllEPICGames(cache?.AllInstallations));
 		allGames.AddRange(FindAllGOGGames());
+		allGames.AddRange(FindAllEAGames()); // Add EA games here
 
 		// Check if cache is still valid
 		if (cache != null && cache.AllInstallations.Count == allGames.Count
@@ -67,6 +69,10 @@ public static class GameStoreManager {
 
 		// Find UE-Executable. This is more an art than a science and takes longer ;-)
 		foreach (var game in allGames) {
+#if DEBUG
+			// Force visibility if you don't want to buy a UE game just to test
+			//if (game.EAContentIDs != null) { game.EXEName = "Test"; continue; }
+#endif
 			try {
 				// First check if directories contain the magic directories that are specific to Unreal
 				string[] alldirs = Directory.GetDirectories(game.FolderPath, "*", SearchOption.AllDirectories);
@@ -406,7 +412,15 @@ public static class GameStoreManager {
 					// Get the AppID from the PackageID (no versions)
 					var package = packageManager.FindPackageForUser(string.Empty, packageId);
 					if (package != null) {
-						game.ShellLaunchPath = $"shell:AppsFolder\\{package.Id.FamilyName}!Game";
+						string manifestPath = Path.Combine(package.InstalledLocation.Path, "AppxManifest.xml");
+						var manifest = XDocument.Parse(File.ReadAllText(manifestPath));
+
+						string applicationId = manifest.Descendants()
+											   .Where(e => e.Name.LocalName == "Application")
+											   .Select(app => app.Attribute("Id")?.Value)
+											   .FirstOrDefault() ?? "App";
+
+						game.ShellLaunchPath = $"shell:AppsFolder\\{package.Id.FamilyName}!{applicationId}";
 					}
 
 					/* Often not a real logo of the game
@@ -430,6 +444,51 @@ public static class GameStoreManager {
 		}
 
 		return allGames;
+	}
+	#endregion
+
+	#region FindAllEAGames
+	static List<GameInstallation> FindAllEAGames() {
+		var allGames = new List<GameInstallation>();
+
+		try {
+			// Not way to find the root installation dir. Simple search all drivers for the common name.
+			var drives = DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Fixed);
+
+			foreach (var drive in drives) {
+				string programDir = Path.Combine(drive.RootDirectory.FullName, "Program Files\\EA Games");
+				if (!Directory.Exists(programDir)) continue;
+
+				foreach (string gameDir in Directory.GetDirectories(programDir, "*", SearchOption.TopDirectoryOnly)) {
+					string installerPath = Path.Combine(gameDir, "__Installer\\installerdata.xml");
+					if (!File.Exists(installerPath)) continue;
+
+					Logger.Log.LogTrace($"EA App installed in {gameDir}");
+
+					var installerData = XDocument.Parse(File.ReadAllText(installerPath));
+					var game = new GameInstallation {
+						StoreType = GameStoreType.EA,
+						Name = installerData.Descendants()
+							.Where(e => e.Name.LocalName == "gameTitle").First().Value.Trim(),  // typically US
+						FolderPath = gameDir,
+						IconURL = "/Assets/EALogo.jpg"
+					};
+
+					game.EAContentIDs = installerData.Descendants()
+						.Where(e => e.Name.LocalName == "contentIDs").First().Elements().Select(e => e.Value.Trim()).Order().ToArray();
+
+					game.ShellLaunchPath = "origin2://game/launch/?offerIds=" + string.Join(',', game.EAContentIDs);
+
+					allGames.Add(game);
+				}
+			}
+
+			Logger.Log.LogTrace($"Found {allGames.Count} installed EA games");
+		} catch (Exception ex) {
+			Logger.Log.LogCritical(ex, "Failed to scan EA games");
+		}
+
+		return allGames.OrderBy(g => g.Name).ToList();
 	}
 	#endregion
 
@@ -457,6 +516,7 @@ public class GameInstallation {
 		GameStoreType.Epic => $"E{EpicNamespace}|{EpicID}",
 		GameStoreType.GOG => $"G{GOGID}",
 		GameStoreType.XBox => $"X{XBoxID}",
+		GameStoreType.EA => $"EA{string.Join('|', EAContentIDs)}",
 		_ => throw new NotImplementedException()
 	};
 
@@ -468,6 +528,8 @@ public class GameInstallation {
 	public string EpicNamespace { get; set; }
 
 	public string XBoxID { get; set; }
+
+	public string[] EAContentIDs { get; set; }
 
 	public string Name { get; set; }
 
@@ -489,7 +551,8 @@ public enum GameStoreType {
 	Steam,
 	Epic,
 	GOG,
-	XBox
+	XBox,
+	EA // Add EA to the GameStoreType enum
 }
 
 /// <summary>Disk representation.</summary>
