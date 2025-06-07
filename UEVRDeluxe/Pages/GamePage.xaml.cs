@@ -89,13 +89,16 @@ public sealed partial class GamePage : Page {
 		try {
 			VM.IsLoading = true;
 
-			var profileMetas = new ObservableCollection<ProfileMeta>(await AzureManager.SearchProfilesAsync(VM.GameInstallation.EXEName));
+			var profileMetas = new ObservableCollection<ProfileMeta>(await AzureManager.SearchProfilesAsync(VM.GameInstallation.EXEName, true));
 			if (profileMetas.Count == 0) {
 				VM.SearchEnabled = false;  // So he does not hit again, causing costs
-				throw new Exception("No profiles found in our database, or profile is not compatible with the store provider. You may try to build one yourself.");
+				throw new Exception("No compatible profiles found in our database. "
+					+ "Just press 'Create Profile' to build one yourself.");
 			}
 
-			Frame.Navigate(typeof(DownloadProfilePage), profileMetas, new DrillInNavigationTransitionInfo());
+			Frame.Navigate(typeof(DownloadProfilePage), new DownloadProfilePageArgs {
+				OriginalEXEName = VM.GameInstallation.EXEName, ProfileMetas = profileMetas
+			}, new DrillInNavigationTransitionInfo());
 
 			VM.IsLoading = false;
 		} catch (Exception ex) {

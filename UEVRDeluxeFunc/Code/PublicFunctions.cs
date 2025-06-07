@@ -14,7 +14,9 @@ public class PublicFunctions : FunctionsBase {
 	public PublicFunctions(ILoggerFactory log, IConfiguration config) : base(log, config) { }
 
 	[Function("SearchProfile")]
-	public async Task<HttpResponseData> RunSearchProfileAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "profiles/{exeName}")] HttpRequestData req, string exeName) {
+
+	public async Task<HttpResponseData> RunSearchProfileAsync(
+		[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "profiles/{exeName}")] HttpRequestData req, string exeName) {
 		HttpResponseData resp;
 
 		try {
@@ -27,6 +29,26 @@ public class PublicFunctions : FunctionsBase {
 			var tableClient = await CreateOpenTableAsync();
 			var result = await ReadProfilesAsync(tableClient, exeName);
 
+			// Parse optional query string parameter: includeEnvironments
+			bool includeEnvironments = false;
+			var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
+			if (bool.TryParse(query.Get(AzConstants.QUERYSTRING_INCLUDEENVIRONMENTS), out bool parsedIncludeEnvironments)) {
+				includeEnvironments = parsedIncludeEnvironments;
+			}
+
+			// Add profiles for all environments if requested
+			if (includeEnvironments) {
+				string originalEnv = UnrealConstants.FILENAME_ENVIRONMENTS.FirstOrDefault(e => exeName.Contains(e));
+
+				if (originalEnv != null) {
+					foreach (string otherEnv in UnrealConstants.FILENAME_ENVIRONMENTS) {
+						if (otherEnv == originalEnv) continue;
+						result.AddRange(
+							await ReadProfilesAsync(tableClient, exeName.Replace(originalEnv, otherEnv)));
+					}
+				}
+			}
+
 			resp = await HttpDataHelpers.CreateOKJsonResponseAsync(req, result, req.Query.AllKeys.Contains(AzConstants.QUERYSTRING_NOCACHE) ? 0 : 15);
 		} catch (Exception ex) {
 			resp = await HttpDataHelpers.CreateLogExceptionResponseAsync(logger, req, ex);
@@ -36,7 +58,8 @@ public class PublicFunctions : FunctionsBase {
 	}
 
 	[Function("DownloadProfile")]
-	public async Task<HttpResponseData> RunDownloadProfileAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "profiles/{exeName}/{id}")] HttpRequestData req, string exeName, Guid id) {
+	public async Task<HttpResponseData> RunDownloadProfileAsync(
+		[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "profiles/{exeName}/{id}")] HttpRequestData req, string exeName, Guid id) {
 		HttpResponseData resp;
 
 		try {
@@ -61,7 +84,8 @@ public class PublicFunctions : FunctionsBase {
 	}
 
 	[Function("DownloadProfileDescription")]
-	public async Task<HttpResponseData> RunDownloadProfileDescriptionAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "profiles/{exeName}/{id}/description")] HttpRequestData req, string exeName, Guid id) {
+	public async Task<HttpResponseData> RunDownloadProfileDescriptionAsync(
+		[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "profiles/{exeName}/{id}/description")] HttpRequestData req, string exeName, Guid id) {
 		HttpResponseData resp;
 
 		try {
@@ -104,7 +128,8 @@ public class PublicFunctions : FunctionsBase {
 	}
 
 	[Function("DownloadAllProfileNames")]
-	public async Task<HttpResponseData> RunDownloadAllProfileNamesAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "allprofilenames")] HttpRequestData req) {
+	public async Task<HttpResponseData> RunDownloadAllProfileNamesAsync(
+		[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "allprofilenames")] HttpRequestData req) {
 		HttpResponseData resp;
 
 		try {

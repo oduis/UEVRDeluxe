@@ -57,7 +57,7 @@ public sealed partial class AdminPage : Page {
 
 			VM.IsLoading = true;
 
-			VM.ProfileMetas = new ObservableCollection<ProfileMeta>(await AzureManager.SearchProfilesAsync(VM.SearchEXEName, true));
+			VM.ProfileMetas = new ObservableCollection<ProfileMeta>(await AzureManager.SearchProfilesAsync(VM.SearchEXEName, false, true));
 
 			VM.IsLoading = false;
 		} catch (Exception ex) {

@@ -1,6 +1,6 @@
 {
-  "app": "UEVR Easy Injector",
-  "version": "2.0.0.0",
-  "releaseNotes": "Update to specific version",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2000"
+	"app": "UEVR Easy Injector",
+	"version": "2.0.0.0",
+	"releaseNotes": "Update to specific UEVR backend version; Automatically convert profile between GamePass and Steam",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2000"
 }

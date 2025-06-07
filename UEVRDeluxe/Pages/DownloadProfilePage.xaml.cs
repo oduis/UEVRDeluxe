@@ -20,7 +20,9 @@ public sealed partial class DownloadProfilePage : Page {
 	protected override void OnNavigatedTo(NavigationEventArgs e) {
 		base.OnNavigatedTo(e);
 
-		VM.ProfileMetas = e.Parameter as ObservableCollection<ProfileMeta>;
+		var para= e.Parameter as DownloadProfilePageArgs;
+		VM.OriginalEXEName = para.OriginalEXEName;
+		VM.ProfileMetas = para.ProfileMetas;
 		if (VM.ProfileMetas.Count == 1) VM.SelectedProfileMeta = VM.ProfileMetas[0];
 	}
 
@@ -30,7 +32,7 @@ public sealed partial class DownloadProfilePage : Page {
 
 			byte[] profileZip = await AzureManager.DownloadProfileZipAsync(VM.SelectedProfileMeta.EXEName, VM.SelectedProfileMeta.ID);
 
-			LocalProfile.ReplaceFromZip(VM.SelectedProfileMeta.EXEName, profileZip);
+			LocalProfile.ReplaceFromZip(VM.OriginalEXEName, profileZip);
 
 			VM.IsLoading = false;
 			Frame.GoBack();
@@ -66,4 +68,10 @@ public sealed partial class DownloadProfilePage : Page {
 	}
 
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
+}
+
+
+public class DownloadProfilePageArgs {
+	public string OriginalEXEName;
+	public ObservableCollection<ProfileMeta> ProfileMetas;
 }

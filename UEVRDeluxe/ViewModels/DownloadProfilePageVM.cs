@@ -6,6 +6,9 @@ using UEVRDeluxe.Common;
 namespace UEVRDeluxe.ViewModels;
 
 public class DownloadProfilePageVM : VMBase {
+	/// <summary>Since search does also returns profiles for other platforms</summary>
+	public string OriginalEXEName { get; set; }
+
 	ObservableCollection<ProfileMeta> profileMetas;
 	public ObservableCollection<ProfileMeta> ProfileMetas { get => profileMetas; set => Set(ref profileMetas, value); }
 
@@ -14,4 +17,3 @@ public class DownloadProfilePageVM : VMBase {
 
 	public bool IsProfileSelected => SelectedProfileMeta != null;
 }
-

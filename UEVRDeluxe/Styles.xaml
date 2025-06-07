@@ -12,7 +12,7 @@
 						<Border.Background>
 							<SolidColorBrush Color="{ThemeResource SmokeFillColorDefaultBrush}" Opacity="0.5" />
 						</Border.Background>
-						
+
 						<ProgressRing IsActive="True" Height="96" Width="96" HorizontalAlignment="Center" VerticalAlignment="Center" />
 					</Border>
 				</ControlTemplate>
@@ -74,14 +74,14 @@
 		<Setter Property="BorderThickness" Value="1" />
 		<Setter Property="CornerRadius" Value="4" />
 	</Style>
-	
+
 	<Style x:Key="styHelpText" TargetType="TextBlock">
 		<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
 		<Setter Property="FontSize" Value="12" />
 		<Setter Property="VerticalAlignment" Value="Center" />
 		<Setter Property="TextWrapping" Value="WrapWholeWords" />
 	</Style>
-	
+
 	<DataTemplate x:Key="styProfileMetaDataTemplate">
 		<Border CornerRadius="4" BorderBrush="LightGray" BorderThickness="1" Margin="0,4">
 			<Grid>
@@ -100,28 +100,27 @@
 					</Grid.RowDefinitions>
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="Auto"/>
-						<ColumnDefinition Width="Auto"/>
-						<ColumnDefinition Width="32"/>
-						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="240"/>
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
 					<TextBlock Text="Created:" Margin="0,0,12,0" />
+
 					<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
 						<TextBlock Text="{Binding ModifiedDateDisplay}" />
 						<TextBlock Text="by" />
 						<TextBlock Grid.Column="1" Text="{Binding AuthorName}" />
 					</StackPanel>
 
-					<TextBlock Grid.Column="3" Text="Versions:" Margin="0,0,8,0" />
-					<StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4">
-						<TextBlock Text="minimal UEVR" />
+					<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+						<TextBlock Text="Minimal UEVR version:" />
 						<TextBlock Text="{Binding MinUEVRVersionDateDisplay}" />
-						<TextBlock Text="/ Game" />
+						<TextBlock Text="/ Game version:" />
 						<TextBlock Text="{Binding GameVersion}" />
 					</StackPanel>
 
 					<TextBlock Grid.Row="1" Text="Remarks:"/>
-					<TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding Remarks}" TextWrapping="WrapWholeWords" />
+
+					<TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Remarks}" TextWrapping="WrapWholeWords" />
 				</Grid>
 			</Grid>
 		</Border>

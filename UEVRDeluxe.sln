@@ -76,4 +76,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B340579E-4CF8-4840-8198-070CFB243DE0}
+	EndGlobalSection
 EndGlobal

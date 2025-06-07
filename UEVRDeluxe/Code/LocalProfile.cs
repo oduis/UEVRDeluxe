@@ -19,9 +19,9 @@ public class LocalProfile {
 	const string CONFIG_FILENAME = "config.txt";
 	const string CVARS_STANDARD_FILENAME = "cvars_standard.txt";
 
-	/// <summary>Default settings if no file is found</summary>
+	/// <summary>Default settings if no file is found. More fail save synced sequential.</summary>
 	const string CONFIG_DEFAULT = """
-		VR_RenderingMethod=0
+		VR_RenderingMethod=1
 		VR_SyncedSequentialMethod=1
 		VR_UncapFramerate=true
 		VR_Compatibility_SkipPostInitProperties=false
@@ -103,6 +103,16 @@ public class LocalProfile {
 		using var stream = new MemoryStream(zipData);
 		using var archive = new ZipArchive(stream, ZipArchiveMode.Read);
 		archive.ExtractToDirectory(directoryName);
+
+		// check if the profile was for another platform and replace the EXEName
+		string profileMetaPath = Path.Combine(directoryName, ProfileMeta.FILENAME);
+		if (File.Exists(profileMetaPath)) {
+			var profileMeta = JsonSerializer.Deserialize<ProfileMeta>(File.ReadAllText(profileMetaPath));
+			if (string.IsNullOrWhiteSpace(profileMeta.EXEName) || profileMeta.EXEName != exeName) {
+				profileMeta.EXEName = exeName;
+				File.WriteAllText(profileMetaPath, JsonSerializer.Serialize(profileMeta, new JsonSerializerOptions { WriteIndented = true }));
+			}
+		}
 	}
 
 	public LocalProfile(string folderPath) {
@@ -190,7 +200,7 @@ public class LocalProfile {
 	async public Task<byte[]> PrepareForSubmitAsync(GameInstallation installation = null) {
 		bool metasMissing = false;
 
-		if (!File.Exists(Path.Combine(FolderPath, "config.txt")) && !Directory.Exists(Path.Combine(FolderPath,"scripts")))
+		if (!File.Exists(Path.Combine(FolderPath, "config.txt")) && !Directory.Exists(Path.Combine(FolderPath, "scripts")))
 			throw new Exception("This is not a UEVR profile folder");
 
 		// Delete temporary files
@@ -237,7 +247,7 @@ public class LocalProfile {
 			}
 
 			var parser = new FileIniDataParser();
-			foreach (var filePath in Directory.GetFiles(FolderPath, "*", SearchOption.AllDirectories)) {
+			foreach (string filePath in Directory.GetFiles(FolderPath, "*", SearchOption.AllDirectories)) {
 				var entry = archive.CreateEntry(Path.GetRelativePath(FolderPath, filePath), CompressionLevel.SmallestSize);
 				using var entryStream = entry.Open();
 

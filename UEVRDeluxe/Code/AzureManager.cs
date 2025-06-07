@@ -59,7 +59,7 @@ public static class AzureManager {
 		return await resp.Content.ReadFromJsonAsync<List<ProfileMeta>>();
 	}
 
-	public static async Task<IEnumerable<ProfileMeta>> SearchProfilesAsync(string exeName, bool nocache = false) {
+	public static async Task<IEnumerable<ProfileMeta>> SearchProfilesAsync(string exeName, bool includeEnvironments, bool nocache = false) {
 		string cacheKey = $"Search_{exeName}";
 
 		if (!nocache && memCache.TryGetValue(cacheKey, out object cached)) return (List<ProfileMeta>)cached;
@@ -67,6 +67,7 @@ public static class AzureManager {
 		var client = GetHttpClient();
 
 		var resp = await client.GetAsync($"profiles/{exeName}?code={GetCloudAdminPasskey()}"
+			+ (includeEnvironments ? $"&{AzConstants.QUERYSTRING_INCLUDEENVIRONMENTS}={includeEnvironments}" : "")
 			+ (nocache ? $"&{AzConstants.QUERYSTRING_NOCACHE}=1" : ""));
 		if (!resp.IsSuccessStatusCode) throw new Exception($"Failed to search profile ({(int)resp.StatusCode})");
 
