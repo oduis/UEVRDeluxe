@@ -111,33 +111,49 @@ class Injector {
 	#endregion
 
 	#region * UpdateBackend
-	const string UEVR_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases/latest";
+	const string UEVR_LATEST_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases/latest";
+
+	/// <summary>Version number must be 5 digits leading zeros</summary>
+	const string UEVR_SEARCH_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases?q=Nightly+{0}&expanded=true";
 
 	/// <summary>Contains the URL of the version successfully downloaded</summary>
 	const string UEVR_VERSION_FILENAME = "UEVRLink.txt";
 
-
 	/// <summary>Download latest UEVR nightly and install locally</summary>
+	/// <param name="oldNightlyNumber">Desired nightly number. If NULL just the latest.</param>
 	/// <returns>True if update was required, false if not.</returns>
-	public static async Task<bool> UpdateBackendAsync() {
+	public static async Task<bool> UpdateBackendAsync(int? oldNightlyNumber) {
 		if (!Win32.IsUserAnAdmin()) throw new Exception("Please run UEVR Easy Injector as an administrator for downloads");
 
-		string zipUrl;
+		string zipUrl, nightlyNumber, commitHash;
 
 		byte[] zipData;
 		using (var client = new HttpClient()) {
-			string html = await client.GetStringAsync(UEVR_NIGHTLY_URL);
-			var doc = new HtmlDocument();
-			doc.LoadHtml(html);
-			var title = doc.DocumentNode.SelectSingleNode("//title");
-			// title is e.g. "Release UEVR Nightly 01036 (f97cc4ad910351521e8e2031f63bebc754673e26)"
-			// Parse and convert to to link: https://github.com/praydog/UEVR-nightly/releases/download/nightly-01036-f97cc4ad910351521e8e2031f63bebc754673e26/uevr.zip
+			if (oldNightlyNumber.HasValue) {
+				// Search for the specific nightly version
+				nightlyNumber = oldNightlyNumber.Value.ToString("D5");
+				string searchUrl = string.Format(UEVR_SEARCH_NIGHTLY_URL, nightlyNumber);
 
-			var match = Regex.Match(title.InnerText, @"Release UEVR Nightly (\d+) \(([\da-f]+)\)");
-			if (!match.Success) throw new Exception("Invalid release title format: {title}");
+				string html = await client.GetStringAsync(searchUrl);
 
-			string nightlyNumber = match.Groups[1].Value;
-			string commitHash = match.Groups[2].Value;
+				// e.g. <a href="/praydog/UEVR-nightly/releases/tag/nightly-01095-69fd6801eec8f9ede3c6667302b1740268b89c50" data-view-component="true" class="Link--primary Link" ...
+				var match = Regex.Match(html, $"releases/tag/nightly-{nightlyNumber}-([0-9a-f]+)");
+				if (!match.Success) throw new Exception($"Could not find nightly version {oldNightlyNumber} on GitHub");
+				commitHash = match.Groups[1].Value;
+			} else {
+				string html = await client.GetStringAsync(UEVR_LATEST_NIGHTLY_URL);
+				var doc = new HtmlDocument();
+				doc.LoadHtml(html);
+				var title = doc.DocumentNode.SelectSingleNode("//title");
+				// title is e.g. "Release UEVR Nightly 01036 (f97cc4ad910351521e8e2031f63bebc754673e26)"
+				// Parse and convert to to link: https://github.com/praydog/UEVR-nightly/releases/download/nightly-01036-f97cc4ad910351521e8e2031f63bebc754673e26/uevr.zip
+
+				var match = Regex.Match(title.InnerText, @"Release UEVR Nightly (\d+) \(([\da-f]+)\)");
+				if (!match.Success) throw new Exception("Invalid release title format: {title}");
+
+				nightlyNumber = match.Groups[1].Value;
+				commitHash = match.Groups[2].Value;
+			}
 
 			zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip";
 
@@ -166,15 +182,15 @@ class Injector {
 
 	/// <summary>Currently installed nightly UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
-	public static string GetUEVRVersion() {
+	public static int? GetUEVRNightlyNumber() {
 		if (!File.Exists(VersionFilePath)) return null;
 		string version = File.ReadAllText(VersionFilePath).Trim();
 
 		// Parse the nighly number from a URL like https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip
-		var match = Regex.Match(version, @"nightly-(?<NightlyNumber>[^-]+)-");
+		var match = Regex.Match(version, @"nightly-(?<NightlyNumber>[0-9]+)-");
 		if (!match.Success) return null;
 
-		return match.Groups["NightlyNumber"].Value;
+		return int.Parse(match.Groups["NightlyNumber"].Value);
 	}
 	#endregion
 

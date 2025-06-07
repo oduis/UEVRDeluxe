@@ -8,7 +8,8 @@ UEVR Easy Injector contains a web database for easy discovery and installation, 
 
 It also adds voice commands and global hotkeys to improve the VR experience.
 
-It uses [PrayDogs UEVR engine](https://github.com/praydog/UEVR) but does not need an UEVR installation.
+It uses [PrayDogs UEVR engine](https://github.com/praydog/UEVR) but does not need an UEVR installation. 
+UEVR Easy allows you to install any specific version of the UEVR backend using its integrated updater.
 
 ## Installation
 Simply download the setup program from the release section.  

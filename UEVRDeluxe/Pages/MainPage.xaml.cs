@@ -72,10 +72,7 @@ public sealed partial class MainPage : Page {
 
 			hotKeyCheckTimer.Start();
 
-			string buttonLabel = "Update UEVR Backend to latest Nightly";
-			string currentVersion= Injector.GetUEVRVersion();
-			if (!string.IsNullOrEmpty(currentVersion)) buttonLabel += $" ({currentVersion.TrimStart('0')} installed)";
-			VM.DownloadButtonLabel = buttonLabel;
+			RefreshUpdateButtonLabel();
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Startup");
 		}
@@ -250,19 +247,81 @@ public sealed partial class MainPage : Page {
 	#endregion
 
 	#region UpdateUEVR
+	void RefreshUpdateButtonLabel() {
+		string buttonLabel = "Update UEVR Backend to latest Nightly";
+		int? currentNightlyNumber = Injector.GetUEVRNightlyNumber();
+		if (currentNightlyNumber.HasValue) buttonLabel += $" ({currentNightlyNumber} installed)";
+		VM.DownloadButtonLabel = buttonLabel;
+	}
+
+	async Task<int?> ShowUpdateNightlyDialogAsync() {
+
+
+		var radioLatest = new RadioButton { Content = "Latest version", IsChecked = true };
+		var radioSpecific = new RadioButton { Content = "Specific nightly number:" };
+
+		// not in the same parent, so do it manually
+		radioLatest.Checked += (object s, RoutedEventArgs e) => radioSpecific.IsChecked = false;
+		radioSpecific.Checked += (s, e) => radioLatest.IsChecked = false;
+
+		var nightlyBox = new TextBox { PlaceholderText = "e.g. 1036", Width = 120 };
+		nightlyBox.TextChanged += (s, e) => { if (!string.IsNullOrEmpty(nightlyBox.Text)) radioSpecific.IsChecked = true; };
+
+		var spSpecific = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+		spSpecific.Children.Add(radioSpecific);
+		spSpecific.Children.Add(nightlyBox);
+
+		var errorText = new TextBlock {
+			Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red), Visibility = Visibility.Collapsed
+		};
+
+		var spMain = new StackPanel { Spacing = 8 };
+		spMain.Children.Add(radioLatest);
+		spMain.Children.Add(spSpecific);
+		spMain.Children.Add(errorText);
+
+		var dialog = new ContentDialog {
+			Title = "Update UEVR Backend to", XamlRoot = this.XamlRoot,
+			PrimaryButtonText = "Update", CloseButtonText = "Cancel",
+			Content = spMain
+		};
+
+		int? resultNightly = null;
+		dialog.PrimaryButtonClick += (s, e) => {
+			if (radioLatest.IsChecked == true) {
+				resultNightly = null;
+			} else if (radioSpecific.IsChecked == true && int.TryParse(nightlyBox.Text, out int nightlyNumber) && nightlyNumber > 0) {
+				resultNightly = nightlyNumber;
+			} else {
+				errorText.Text = "Please enter a valid nightly number";
+				errorText.Visibility = Visibility.Visible;
+				e.Cancel = true;
+			}
+		};
+
+		var result = await dialog.ShowAsync();
+		if (result != ContentDialogResult.Primary) return -1; // Cancelled
+		return resultNightly;
+	}
+
 	async void UpdateUEVR_Click(object sender, RoutedEventArgs e) {
 		try {
 			VM.IsLoading = true;
 
-			Logger.Log.LogInformation("Starting UEVR Nightly update");
-			bool updated = await Injector.UpdateBackendAsync();
+			int? nightlyNumber = await ShowUpdateNightlyDialogAsync();
+			if (nightlyNumber == -1) { VM.IsLoading = false; return; }
+
+			Logger.Log.LogInformation($"Starting UEVR Nightly update (nightly: {nightlyNumber?.ToString() ?? "latest"})");
+			bool updated = await Injector.UpdateBackendAsync(nightlyNumber);
 			Logger.Log.LogInformation($"Nightly updated: {updated}");
+
+			RefreshUpdateButtonLabel();
 
 			VM.IsLoading = false;
 
 			await new ContentDialog {
 				Title = "UEVR Nightly", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
-				Content = updated ? "Updated successfully" : "You version is up to date"
+				Content = updated ? "Updated successfully" : "You local version was already up to date"
 			}.ShowAsync();
 		} catch (Exception ex) {
 			VM.IsLoading = false;

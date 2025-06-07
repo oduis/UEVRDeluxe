@@ -1,6 +1,6 @@
 {
   "app": "UEVR Easy Injector",
-  "version": "1.9.0.0",
-  "releaseNotes": "Added EA Desktop games; Fixes XBox games, Warning if using voice command with admin rights",
-  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V1900"
+  "version": "2.0.0.0",
+  "releaseNotes": "Update to specific version",
+  "webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2000"
 }
