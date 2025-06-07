@@ -113,6 +113,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <None Update="UEVR\UEVRLink.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Page Update="Pages\EditVoiceCommandsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

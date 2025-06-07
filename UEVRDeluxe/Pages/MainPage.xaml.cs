@@ -71,6 +71,11 @@ public sealed partial class MainPage : Page {
 			}
 
 			hotKeyCheckTimer.Start();
+
+			string buttonLabel = "Update UEVR Backend to latest Nightly";
+			string currentVersion= Injector.GetUEVRVersion();
+			if (!string.IsNullOrEmpty(currentVersion)) buttonLabel += $" ({currentVersion.TrimStart('0')} installed)";
+			VM.DownloadButtonLabel = buttonLabel;
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Startup");
 		}

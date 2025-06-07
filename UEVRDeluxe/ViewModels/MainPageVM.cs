@@ -17,4 +17,7 @@ public class MainPageVM : VMBase {
 	public Visibility WarningVisible => string.IsNullOrWhiteSpace(warning) ? Visibility.Collapsed : Visibility.Visible;
 
 	public Visibility VisibleIfAdmin => !string.IsNullOrWhiteSpace(AzureManager.GetCloudAdminPasskey()) ? Visibility.Visible : Visibility.Collapsed;
+
+	string downloadButtonLabel;
+	public string DownloadButtonLabel { get => downloadButtonLabel; set => Set(ref downloadButtonLabel, value); }
 }

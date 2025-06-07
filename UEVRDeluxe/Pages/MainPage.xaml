@@ -62,7 +62,7 @@
 				ToolTipService.ToolTip="Download and install latest UEVR nightly backend version. Antivirus might block this.">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Update UEVR Backend to latest Nightly</TextBlock>
+					<TextBlock Style="{StaticResource styButtonIconText}" Text="{x:Bind VM.DownloadButtonLabel, Mode=OneWay}" />
 				</Grid>
 			</Button>
 			<Button Click="Rescan_Click" Style="{StaticResource styButton}"

@@ -120,10 +120,9 @@ class Injector {
 	/// <summary>Download latest UEVR nightly and install locally</summary>
 	/// <returns>True if update was required, false if not.</returns>
 	public static async Task<bool> UpdateBackendAsync() {
-		if (!Win32.IsUserAnAdmin()) throw new Exception("Please run UEVR Easy Injector as an Administrator");
+		if (!Win32.IsUserAnAdmin()) throw new Exception("Please run UEVR Easy Injector as an administrator for downloads");
 
 		string zipUrl;
-		string versionFilePath = Path.Combine(UEVRBaseDir, UEVR_VERSION_FILENAME);
 
 		byte[] zipData;
 		using (var client = new HttpClient()) {
@@ -142,7 +141,7 @@ class Injector {
 
 			zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip";
 
-			if (File.Exists(versionFilePath) && string.Equals(File.ReadAllText(versionFilePath).Trim(), zipUrl)) {
+			if (File.Exists(VersionFilePath) && string.Equals(File.ReadAllText(VersionFilePath).Trim(), zipUrl)) {
 				return false;
 			}
 
@@ -161,13 +160,27 @@ class Injector {
 			}
 		}
 
-		File.WriteAllText(versionFilePath, zipUrl);
+		File.WriteAllText(VersionFilePath, zipUrl);
 		return true;
+	}
+
+	/// <summary>Currently installed nightly UEVR version</summary>
+	/// <returns>Returns NULL if not downloaded yet</returns>
+	public static string GetUEVRVersion() {
+		if (!File.Exists(VersionFilePath)) return null;
+		string version = File.ReadAllText(VersionFilePath).Trim();
+
+		// Parse the nighly number from a URL like https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip
+		var match = Regex.Match(version, @"nightly-(?<NightlyNumber>[^-]+)-");
+		if (!match.Success) return null;
+
+		return match.Groups["NightlyNumber"].Value;
 	}
 	#endregion
 
 	#region * Directory paths
 	static string UEVRBaseDir => Path.Combine(AppContext.BaseDirectory, "UEVR");
+	static string VersionFilePath => Path.Combine(UEVRBaseDir, UEVR_VERSION_FILENAME);
 
 	static string GetFullDLLPath(string dllName) {
 		var fullPath = Path.Combine(UEVRBaseDir, dllName);
