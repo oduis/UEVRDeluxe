@@ -1,6 +1,12 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿#region Usings
+using Markdig;
+using Markdig.Renderers;
+using Markdig.Renderers.Html.Inlines;
+using Markdig.Syntax.Inlines;
+using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Threading.Tasks;
+using System.Threading.Tasks; 
+#endregion
 
 namespace UEVRDeluxe.Pages;
 
@@ -9,9 +15,14 @@ static class PageHelpers {
 		if (webViewDescription.CoreWebView2 == null) await webViewDescription.EnsureCoreWebView2Async(MainWindow.WebViewEnv);
 
 		string html;
-		if (!string.IsNullOrWhiteSpace(descriptionMD))
-			html = Markdig.Markdown.ToHtml(descriptionMD);
-		else
+		if (!string.IsNullOrWhiteSpace(descriptionMD)) {
+			var pipeline = new MarkdownPipelineBuilder()
+				.UseAdvancedExtensions()
+				.Use(new LinkTargetExtension())
+				.Build();
+
+			html = Markdown.ToHtml(descriptionMD, pipeline);
+		} else
 			html = "<p>( no profile description found )</p>";
 
 		string bodyStyle = darkMode ? "background-color: black; color: white;" : "background-color: white; color: black;";
@@ -30,5 +41,31 @@ static class PageHelpers {
 			+ bodyStyle + "\">" + html + "</body></html>";
 
 		webViewDescription.NavigateToString(html);
+	}
+
+	/// <summary>Custom extension to add target="_blank" to all links (except inline images)</summary>
+	class LinkTargetExtension : IMarkdownExtension {
+		public void Setup(MarkdownPipelineBuilder pipeline) { }
+
+		public void Setup(MarkdownPipeline pipeline, IMarkdownRenderer renderer) {
+			if (renderer is HtmlRenderer htmlRenderer) {
+				var linkRenderer = htmlRenderer.ObjectRenderers.FindExact<LinkInlineRenderer>();
+				if (linkRenderer != null) linkRenderer.TryWriters.Add(TryWriteLinkWithTargetBlank);
+			}
+		}
+
+		bool TryWriteLinkWithTargetBlank(HtmlRenderer renderer, LinkInline link) {
+			if (!link.IsImage) {
+				renderer.Write("<a href=\"").Write(link.GetDynamicUrl != null ? link.GetDynamicUrl() ?? string.Empty : link.Url ?? string.Empty)
+					.Write("\" target=\"_blank\"");
+				if (!string.IsNullOrEmpty(link.Title))
+					renderer.Write(" title=\"").Write(link.Title).Write("\"");
+				renderer.Write(">");
+				renderer.WriteChildren(link);
+				renderer.Write("</a>");
+				return true;
+			}
+			return false;
+		}
 	}
 }
