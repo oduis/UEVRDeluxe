@@ -46,6 +46,14 @@ public class PublicFunctions : FunctionsBase {
 						result.AddRange(
 							await ReadProfilesAsync(tableClient, exeName.Replace(originalEnv, otherEnv)));
 					}
+
+					// Sometimes the upload is for the plain exeName, e.g. "HogwartsLegacy".
+					result.AddRange(await ReadProfilesAsync(tableClient, exeName.Substring(0, exeName.IndexOf("-" + originalEnv))));
+				} else if (!exeName.EndsWith(UnrealConstants.FILENAME_POSTFIX_SHIPPING)) {
+					// No environment found. Sometimes this is because the exeName ist plain, e.g. "GroundBranch"
+					foreach (string otherEnv in UnrealConstants.FILENAME_ENVIRONMENTS) {
+						result.AddRange(await ReadProfilesAsync(tableClient, $"{exeName}-{otherEnv}-{UnrealConstants.FILENAME_POSTFIX_SHIPPING}"));
+					}
 				}
 			}
 

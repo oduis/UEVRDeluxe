@@ -18,4 +18,7 @@ public static class AzConstants {
 public static class UnrealConstants {
 	/// <summary>These parts of a filename in an UEVR Exe are the environments</summary>
 	public static readonly string[] FILENAME_ENVIRONMENTS = ["Win64", "WinGDK"];
+
+	/// <summary>Usually the end of the filename name</summary>
+	public const string FILENAME_POSTFIX_SHIPPING = "Shipping";
 }
