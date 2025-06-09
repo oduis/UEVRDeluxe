@@ -21,8 +21,10 @@ public static class GameStoreManager {
 	readonly static string[] IGNORE_GAME_NAMES = [
 		"Steamworks Common Redistributables", "SteamVR", "PlayStation\u00AEVR2 App", "Godot Engine", "Unreal Engine", "Blender"];
 
+	/// <summary>Some are e.g. launchers or mod handlers</summary>
 	readonly static string[] IGNORE_EXE_NAME_PARTS = [
-		"Setup.exe", "Setup_x64.exe", "Setup_x32.exe", "Launcher.exe", "CrashReport", "easyanticheat", "installer.exe", "crashpad_handler" ];
+		"Setup.exe", "Setup_x64.exe", "Setup_x32.exe", "Launcher.exe", "CrashReport", "easyanticheat", "installer.exe",
+		"crashpad_handler", "obse64_loader", "EpicWebHelper", "crs_handler" ];
 
 	readonly static string[] UNREAL_ENGINE_STRINGS = ["UnrealEngine", "UE4", "UE5", "UE6", "Epic Games"];
 
