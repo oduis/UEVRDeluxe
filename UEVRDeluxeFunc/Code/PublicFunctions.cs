@@ -36,8 +36,8 @@ public class PublicFunctions : FunctionsBase {
 				includeEnvironments = parsedIncludeEnvironments;
 			}
 
-			// Add profiles for all environments if requested
-			if (includeEnvironments) {
+			// Add profiles for all environments if requested, but only if there is not specific version found
+			if (includeEnvironments && !result.Any()) {
 				string originalEnv = UnrealConstants.FILENAME_ENVIRONMENTS.FirstOrDefault(e => exeName.Contains(e));
 
 				if (originalEnv != null) {
