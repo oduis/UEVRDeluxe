@@ -281,7 +281,8 @@ public sealed partial class GamePage : Page {
 			var deviceInformation = DeviceInformation.CreateFromIdAsync(deviceID).AsTask().Result;
 			VM.DefaultInputDeviceName = deviceInformation?.Name ?? "Unknown Device";
 
-			VM.EnableVoiceCommands = File.Exists(VoiceCommandProfile.GetFilePath(VM.GameInstallation.EXEName));
+			VM.EnableVoiceCommands = File.Exists(VoiceCommandProfile.GetFilePath(VM.GameInstallation.EXEName))
+				&& !Win32.IsUserAnAdmin();
 		} else {
 			VM.DefaultInputDeviceName = "( no default audio input )";
 			VM.EnableVoiceCommands = false;
