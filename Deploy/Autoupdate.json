@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.0.0.0",
-	"releaseNotes": "Update to specific UEVR backend version; Automatically convert profile between GamePass and Steam",
+	"version": "2.0.1.0",
+	"releaseNotes": "Enhanced compatibility with some Mod managers espc. for Oblivion; Links in descriptions open in new window",
 	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2000"
 }
