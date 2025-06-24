@@ -78,7 +78,7 @@
 		</TextBlock>
 
 		<Border Grid.Row="3" Visibility="{x:Bind VM.WarningVisible, Mode=OneWay}" Style="{StaticResource styWarning}" Margin="0,8,0,0">
-			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" />
+			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" FontWeight="Bold" />
 		</Border>
 
 		<StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="52" Margin="0,20,0,0">
@@ -116,7 +116,7 @@
 							 ToolTipService.ToolTip="Flat2VR on Discord">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/DiscordLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
-					<TextBlock VerticalAlignment="Center" FontSize="11">Support</TextBlock>
+					<TextBlock VerticalAlignment="Center" FontSize="11">Discord</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
 			<HyperlinkButton Click="NavigateAdminPage" Visibility="{x:Bind VM.VisibleIfAdmin}">

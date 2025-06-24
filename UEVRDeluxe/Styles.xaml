@@ -71,7 +71,7 @@
 		<Setter Property="Padding" Value="20,12,20,14" />
 		<Setter Property="Background" Value="{ThemeResource ControlFillColorSecondaryBrush}" />
 		<Setter Property="BorderBrush" Value="{ThemeResource SystemFillColorCautionBrush}" />
-		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="BorderThickness" Value="2" />
 		<Setter Property="CornerRadius" Value="4" />
 	</Style>
 

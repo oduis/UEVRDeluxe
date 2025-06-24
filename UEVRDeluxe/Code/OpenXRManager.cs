@@ -12,6 +12,7 @@ public static class OpenXRManager {
 
 	const string REGKEY_OPENXRV1ROOT = @"SOFTWARE\Khronos\OpenXR\1";
 	const string REGKEY_ALL_RUNTIMES = REGKEY_OPENXRV1ROOT + @"\AvailableRuntimes";
+	const string REGKEY_IMPLICITLAYERS = REGKEY_OPENXRV1ROOT + @"\ApiLayers\Implicit";
 	const string REGKEY_NAME_ACTIVE_RUNTIME = "ActiveRuntime";
 
 	/// <summary>Some have old name the user might not recognize.</summary>
@@ -24,7 +25,8 @@ public static class OpenXRManager {
 	/// <remarks>Some runtimes like the old Windows Mixed Reality and Varjo don't play nice, but they are very niche, so ignore</remarks>
 	public static List<OpenXRRuntime> GetAllRuntimes() {
 		var runtimes = new List<OpenXRRuntime>();
-		var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+
+		using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
 
 		// Get the current runtime
 		var keyOpenXRRoot = hklm.OpenSubKey(REGKEY_OPENXRV1ROOT, false);
@@ -66,7 +68,7 @@ public static class OpenXRManager {
 	}
 
 	public static void SetActiveRuntime(string path) {
-		var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+		using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
 
 		var keyOpenXRRoot = hklm.OpenSubKey(REGKEY_OPENXRV1ROOT, true);
 		if (keyOpenXRRoot == null) keyOpenXRRoot = hklm.CreateSubKey(REGKEY_OPENXRV1ROOT);
@@ -75,6 +77,20 @@ public static class OpenXRManager {
 		if (string.Equals(path, currentPath, StringComparison.OrdinalIgnoreCase)) return;
 
 		keyOpenXRRoot.SetValue(REGKEY_NAME_ACTIVE_RUNTIME, path);
+	}
+
+	/// <summary>This is outdated since 2023 and is know to causes trouble in newer games</summary>
+	public static bool IsOpenXRToolkitEnabled() {
+		using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+		var layers = hklm.OpenSubKey(REGKEY_IMPLICITLAYERS, false);
+
+		// enumerate all keys in layers. if the Name contains XR_APILAYER_MBUCCHIA and the dword value is 1, return true.
+		if (layers == null) return false;
+		string keyOpenXRToolkit = layers.GetValueNames().FirstOrDefault(name => name.Contains("XR_APILAYER_MBUCCHIA", StringComparison.OrdinalIgnoreCase));
+		if (keyOpenXRToolkit == null) return false;
+		var value = layers.GetValue(keyOpenXRToolkit);
+		if (value is not int dwordValue) return false;
+		return dwordValue == 0;  // if it is 1 its installed, but disabled
 	}
 }
 

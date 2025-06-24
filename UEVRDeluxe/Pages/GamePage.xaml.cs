@@ -7,12 +7,15 @@ using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Enumeration;
 using Windows.Media.Devices;
 using Windows.System;
@@ -287,6 +290,45 @@ public sealed partial class GamePage : Page {
 			VM.DefaultInputDeviceName = "( no default audio input )";
 			VM.EnableVoiceCommands = false;
 		}
+	}
+	#endregion
+
+	#region CopySupportInfo
+	async void CopySupportInfo_Click(object sender, RoutedEventArgs args) {
+		var sbInfo = new StringBuilder();
+		sbInfo.AppendLine($"Game: {VM.GameInstallation.Name} [{VM.GameInstallation.EXEName}]");
+		sbInfo.Append($"Profile: ");
+
+		if (VM.LocalProfile?.Meta == null) {
+			sbInfo.AppendLine("( Free profile )");
+		} else {
+			sbInfo.AppendLine(
+				($"{VM.LocalProfile.Meta.ModifiedDate:yyyy-MM-dd} by {VM.LocalProfile.Meta.AuthorName}: {VM.LocalProfile.Meta.Remarks}").TrimEnd([' ', ':']));
+		}
+		
+		DateTime? lastModified = VM.LocalProfile.GetConfigFileLastModified();
+		if (lastModified.HasValue) sbInfo.AppendLine($"Config.txt last modified: {lastModified.Value.ToString("yyyy-MM-dd")}");
+
+		sbInfo.AppendLine($"UEVR Backend version: {Injector.GetUEVRNightlyNumber()}");
+		sbInfo.AppendLine("HW Scheduling: " + (SystemInfo.IsHardwareSchedulingEnabled() ? "Enabled" : "Disabled"));
+
+		var installedGPUs = SystemInfo.GetInstalledGPUs();
+		sbInfo.AppendLine("GPUs: " + string.Join(", ", installedGPUs));
+
+		sbInfo.AppendLine("OpenXR Toolkit: " + (OpenXRManager.IsOpenXRToolkitEnabled() ? "Enabled" : "Disabled"));
+
+		sbInfo.AppendLine("Installed OpenXR Runtimes:");
+		var runtimes = OpenXRManager.GetAllRuntimes();
+		foreach (var runtime in runtimes.OrderByDescending(r=>r.IsDefault)) 
+			sbInfo.AppendLine($"- {runtime.Name}{(runtime.IsDefault ? " [DEFAULT]" : "")}");
+
+		var dp = new DataPackage { RequestedOperation = DataPackageOperation.Copy };
+		dp.SetText(sbInfo.ToString());
+		Clipboard.SetContent(dp);
+
+		await new ContentDialog {
+			Title = "UEVR", Content = "Support info copied to clipboard. Paste it on Discord Flatscreen 2 VR Modding Community along with your question.", CloseButtonText = "OK", XamlRoot = this.XamlRoot
+		}.ShowAsync();
 	}
 	#endregion
 

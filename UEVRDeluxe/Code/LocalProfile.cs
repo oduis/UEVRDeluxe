@@ -130,6 +130,19 @@ public class LocalProfile {
 
 	public void Delete() => Directory.Delete(FolderPath, true);
 
+	/// <summary>The main config file only</summary>
+	public DateTime? GetConfigFileLastModified() {
+		if (File.Exists(ConfigFilePath)) {
+			try {
+				return File.GetLastWriteTime(ConfigFilePath);
+			} catch (Exception ex) {
+				Logger.Log.LogError($"Error getting last modified date for {ConfigFilePath}: {ex.Message}");
+			}
+		}
+
+		return null;
+	}
+
 	public void Load() {
 		var parser = new FileIniDataParser();
 

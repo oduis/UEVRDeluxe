@@ -23,9 +23,6 @@ using UEVRDeluxe.ViewModels;
 namespace UEVRDeluxe.Pages;
 
 public sealed partial class MainPage : Page {
-	const string REGKEY_GRAPHICS = @"SYSTEM\CurrentControlSet\Control\GraphicsDrivers";
-	const string REGKEY_NAME_SCHEDULER = "HwSchMode";
-
 	readonly MainPageVM VM = new();
 
 	#region * Init
@@ -58,17 +55,15 @@ public sealed partial class MainPage : Page {
 			SortGames();
 
 			// Check if hardware scheduling is enabled and warn the user
-			var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+			var warnings = new List<string>();
 
-			if (hklm != null) {
-				var keyOpenXRRoot = hklm.OpenSubKey(REGKEY_GRAPHICS, false);
-				if (keyOpenXRRoot != null) {
-					string hwSchMode = keyOpenXRRoot.GetValue(REGKEY_NAME_SCHEDULER)?.ToString();
-					if (hwSchMode == "2") {
-						VM.Warning = "Consider disabling 'Hardware Accelerated GPU Scheduling' in your Windows 'Graphics settings', only if you have issues in games";
-					}
-				}
-			}
+			if (SystemInfo.IsHardwareSchedulingEnabled())
+				warnings.Add("Consider disabling 'Hardware Accelerated GPU Scheduling' in your Windows 'Graphics settings', only if you experience issues in games");
+
+			if (OpenXRManager.IsOpenXRToolkitEnabled())
+				warnings.Add("OpenXR Toolkit is active. Uninstall or disable it if you experience issues.");
+
+			if (warnings.Any()) VM.Warning = string.Join("\n", warnings);
 
 			hotKeyCheckTimer.Start();
 
