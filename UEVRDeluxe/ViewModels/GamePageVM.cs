@@ -14,8 +14,29 @@ public class GamePageVM : VMBase {
 	public LocalProfile LocalProfile {
 		get => localProfile;
 		set => Set(ref localProfile, value, [nameof(VisibleIfProfile), nameof(VisibleIfNoProfile),
+			nameof(UEVRVersionWarning), nameof(UEVRVersionWarningVisible),
 			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning), nameof(VisibleLateInjectWarning)]);
 	}
+
+	int? currentUEVRNightlyNumber;
+	public int? CurrentUEVRNightlyNumber {
+		get => currentUEVRNightlyNumber;
+		set => Set(ref currentUEVRNightlyNumber, value,
+			[nameof(UEVRVersionWarning), nameof(UEVRVersionWarningVisible)]);
+	}
+
+	public string UEVRVersionWarning {
+		get {
+			if (currentUEVRNightlyNumber.HasValue &&
+				((LocalProfile.Meta?.MinUEVRNightlyNumber ?? int.MinValue) > CurrentUEVRNightlyNumber
+				|| (LocalProfile.Meta?.MaxUEVRNightlyNumber ?? int.MaxValue) < CurrentUEVRNightlyNumber))
+				return $"Currently installed UEVR backend version {CurrentUEVRNightlyNumber} might not be compatible";
+
+			return null;
+		}
+	}
+	public Visibility UEVRVersionWarningVisible => !string.IsNullOrEmpty(UEVRVersionWarning) ? Visibility.Visible : Visibility.Collapsed;
+
 
 	string currentOpenXRRuntime;
 	public string CurrentOpenXRRuntime { get => currentOpenXRRuntime; set => Set(ref currentOpenXRRuntime, value); }

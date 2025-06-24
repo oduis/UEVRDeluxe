@@ -32,10 +32,32 @@ public class ProfileMeta {
 	/// <summary>Minimum version of UEVR, given as day of UEVR code to accomodate from interims releases.</summary>
 	/// <remarks>1.05 was 2024-10-31</remarks>
 	[JsonPropertyName("minUEVRVersionDay")]
-	public DateTime MinEVRVersionDate { get; set; }
+	[Obsolete()]
+	public DateTime? MinUEVRVersionDate { get; set; }
+
+	/// <summary>If set, minimum version number</summary>
+	[JsonPropertyName("minUEVRNightlyNumber")]
+	public int? MinUEVRNightlyNumber { get; set; }
+
+	/// <summary>If set, maximum version number</summary>
+	[JsonPropertyName("maxUEVRNightlyNumber")]
+	public int? MaxUEVRNightlyNumber { get; set; }
 
 	[JsonIgnore]
-	public string MinUEVRVersionDateDisplay => MinEVRVersionDate.ToString("d");
+	public string MinMaxUEVRNightlyNumberText {
+		get {
+			if (MinUEVRNightlyNumber.HasValue && MaxUEVRNightlyNumber.HasValue)
+				return $"{MinUEVRNightlyNumber} to {MaxUEVRNightlyNumber}";
+
+			if (MinUEVRNightlyNumber.HasValue && !MaxUEVRNightlyNumber.HasValue)
+				return $"{MinUEVRNightlyNumber} or higher";
+
+			if (!MinUEVRNightlyNumber.HasValue && MaxUEVRNightlyNumber.HasValue)
+				return $"{MaxUEVRNightlyNumber} or lower";
+
+			return "( no restriction )";
+		}
+	}
 
 	/// <summary>Indicates whether to nullify plugins</summary>
 	[JsonPropertyName("nullifyPlugins")]
@@ -51,7 +73,6 @@ public class ProfileMeta {
 
 	[JsonIgnore]
 	public string ModifiedDateDisplay => ModifiedDate.ToString("d");
-
 
 	/// <summary>SHORT remarks (max 128 chars)</summary>
 	[JsonPropertyName("remarks")]
@@ -71,7 +92,12 @@ public class ProfileMeta {
 		if (string.IsNullOrWhiteSpace(AuthorName) || AuthorName.Trim() != AuthorName || AuthorName.Length > TEXTFIELDS_MAX_LENGTH)
 			return $"{FILENAME}: Invalid AuthorName";
 
-		if (MinEVRVersionDate.Year < 2023) return $"{FILENAME}: Invalid UEVRVersionDate";
+		if (MinUEVRVersionDate.HasValue)
+			return $"{FILENAME}: minUEVRVersionDate is obsolete, use minUEVRNightlyNumber/maxUEVRNightlyNumber instead";
+
+		if ((MinUEVRNightlyNumber.HasValue && MaxUEVRNightlyNumber.HasValue && MinUEVRNightlyNumber > MaxUEVRNightlyNumber)
+			|| MinUEVRNightlyNumber <= 0 || MaxUEVRNightlyNumber <= 0)
+			return $"{FILENAME}: Invalid Min/Max UEVR nightly number";
 
 		if (ModifiedDate.Year < 2023 || ModifiedDate.Date > DateTime.Today) return $"{FILENAME}: Invalid ModifiedDate";
 

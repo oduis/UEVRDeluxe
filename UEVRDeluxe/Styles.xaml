@@ -105,15 +105,15 @@
 					</Grid.ColumnDefinitions>
 					<TextBlock Text="Created:" Margin="0,0,12,0" />
 
-					<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+					<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
 						<TextBlock Text="{Binding ModifiedDateDisplay}" />
 						<TextBlock Text="by" />
 						<TextBlock Grid.Column="1" Text="{Binding AuthorName}" />
 					</StackPanel>
 
 					<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
-						<TextBlock Text="Minimal UEVR version:" />
-						<TextBlock Text="{Binding MinUEVRVersionDateDisplay}" />
+						<TextBlock Text="UEVR version:" />
+						<TextBlock Text="{Binding MinMaxUEVRNightlyNumberText}" />
 						<TextBlock Text="/ Game version:" />
 						<TextBlock Text="{Binding GameVersion}" />
 					</StackPanel>

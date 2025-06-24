@@ -45,7 +45,7 @@ public abstract class FunctionsBase {
 	protected async Task<TableClient> CreateOpenTableAsync() {
 		var table = new TableClient(config["StorageConnectString"], TABLE_NAME);
 #if DEBUG
-		// Kostet Zugriffe, nur für Developer zum Emulator
+		// Exists costs, so just for developer running emulator
 		await table.CreateIfNotExistsAsync();
 #else
 		await Task.CompletedTask;  // keine Warnings
@@ -66,8 +66,9 @@ public abstract class FunctionsBase {
 				GameName = item[nameof(ProfileMeta.GameName)] as string,
 				GameVersion = item[nameof(ProfileMeta.GameVersion)] as string,
 				ModifiedDate = DateTime.ParseExact(item[nameof(ProfileMeta.ModifiedDate)] as string, "yyyyMMdd", CultureInfo.InvariantCulture),
-				Remarks = item[nameof(ProfileMeta.Remarks)] as string,
-				MinEVRVersionDate = DateTime.ParseExact(item[nameof(ProfileMeta.MinEVRVersionDate)] as string, "yyyyMMdd", CultureInfo.InvariantCulture)
+				MinUEVRNightlyNumber = item[nameof(ProfileMeta.MinUEVRNightlyNumber)] is int minValue ? minValue : (int?)null,
+				MaxUEVRNightlyNumber = item[nameof(ProfileMeta.MaxUEVRNightlyNumber)] is int maxValue ? maxValue : (int?)null,
+				Remarks = item[nameof(ProfileMeta.Remarks)] as string
 			});
 		}
 

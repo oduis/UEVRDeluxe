@@ -56,7 +56,7 @@ public class AdminFunctions : FunctionsBase {
 			string errMsg = profileMeta.Check();
 			if (errMsg != null) throw new ApplicationException(errMsg);
 
-			// Open first. Is something fails, than at the beginning
+			// Open first. Is something fails, then at the beginning
 			var blobContainerClient = await CreateOpenBlobsContainerAsync();
 			var tableClient = await CreateOpenTableAsync();
 
@@ -71,7 +71,8 @@ public class AdminFunctions : FunctionsBase {
 				{ nameof(ProfileMeta.GameVersion), profileMeta.GameVersion },
 				{ nameof(ProfileMeta.ModifiedDate), profileMeta.ModifiedDate.ToString("yyyyMMdd") },
 				{nameof(ProfileMeta.AuthorName), profileMeta.AuthorName },
-				{nameof(ProfileMeta.MinEVRVersionDate), profileMeta.MinEVRVersionDate.ToString("yyyyMMdd") },
+				{nameof(ProfileMeta.MinUEVRNightlyNumber), profileMeta.MinUEVRNightlyNumber },
+				{nameof(ProfileMeta.MaxUEVRNightlyNumber), profileMeta.MaxUEVRNightlyNumber },
 				{nameof(ProfileMeta.Remarks), profileMeta.Remarks }
 			};
 

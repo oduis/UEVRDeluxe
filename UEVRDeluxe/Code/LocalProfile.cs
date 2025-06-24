@@ -16,6 +16,8 @@ using UEVRDeluxe.Common;
 namespace UEVRDeluxe.Code;
 
 public class LocalProfile {
+	const int DEFAULT_MIN_UEVR_VERSION_NUMBER = 1098;
+
 	const string CONFIG_FILENAME = "config.txt";
 	const string CVARS_STANDARD_FILENAME = "cvars_standard.txt";
 
@@ -56,9 +58,6 @@ public class LocalProfile {
         ## Description
         ( Any more links, tips, etc. You can add more headers for more structure, e.g. changelogs )
         """;
-
-	/// <summary>Source code version release 1.05 october</summary>
-	readonly DateTime DEFAULT_MINEVRVERSIONDATE = new(2024, 10, 31);
 
 	public string FolderPath { get; private set; }
 
@@ -174,7 +173,7 @@ public class LocalProfile {
 				throw new Exception($"Incorrect profile meta {ProfileMetaPath}: {ex.Message}");
 			}
 		} else {
-			this.Meta = new() { ModifiedDate = DateTime.Today, MinEVRVersionDate = DEFAULT_MINEVRVERSIONDATE };
+			this.Meta = new() { ModifiedDate = DateTime.Today };
 		}
 
 		if (File.Exists(ProfileDescriptionPath)) {
@@ -231,13 +230,14 @@ public class LocalProfile {
 			Meta.GameName = installation?.Name?.Trim() ?? string.Empty;
 			Meta.AuthorName = Environment.UserName ?? string.Empty;
 			Meta.Remarks = string.Empty; Meta.GameVersion = string.Empty;
-			Meta.MinEVRVersionDate = DEFAULT_MINEVRVERSIONDATE;
+			Meta.MinUEVRNightlyNumber = DEFAULT_MIN_UEVR_VERSION_NUMBER;
 
 			File.WriteAllText(Path.Combine(FolderPath, ProfileMeta.FILENAME),
 				JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
 
 			metasMissing = true;
-		};
+		}
+		;
 
 		if (!File.Exists(ProfileDescriptionPath)
 			|| File.ReadAllText(ProfileDescriptionPath).StartsWith(DUMMY_DESCRIPTION_MD[..16])) {

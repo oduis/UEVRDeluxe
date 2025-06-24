@@ -42,34 +42,40 @@
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
-				<ColumnDefinition Width="32"/>
+				<ColumnDefinition Width="48"/>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="48"/>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="*" />
 			</Grid.ColumnDefinitions>
 
-			<TextBlock Style="{StaticResource stySubHeader}" Grid.ColumnSpan="5">Local Profile</TextBlock>
+			<TextBlock Style="{StaticResource stySubHeader}" Grid.ColumnSpan="8">Local Profile</TextBlock>
 
 			<TextBlock Grid.Row="1" Text="Created:" Margin="0,0,12,0" />
-			<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="6">
+			<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="5">
 				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.ModifiedDateDisplay, Mode=OneWay}" />
 				<TextBlock Text="by" />
-				<TextBlock Grid.Column="1" Text="{x:Bind VM.LocalProfile.Meta.AuthorName, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.AuthorName, Mode=OneWay}" TextWrapping="WrapWholeWords" />
 			</StackPanel>
 
-			<TextBlock Grid.Row="1" Grid.Column="3" Text="Versions:" Margin="0,0,8,0" />
-			<StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal" Spacing="4">
-				<TextBlock Text="minimal UEVR" />
-				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.MinUEVRVersionDateDisplay, Mode=OneWay}" />
-				<TextBlock Text="/ Game" />
-				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.GameVersion, Mode=OneWay}" TextWrapping="WrapWholeWords" />
-			</StackPanel>
+			<TextBlock Grid.Row="1" Grid.Column="3" Text="UEVR backend version required:" Margin="0,0,8,0" />
+			<TextBlock Grid.Row="1" Grid.Column="4" Text="{x:Bind VM.LocalProfile.Meta.MinMaxUEVRNightlyNumberText, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+
+			<TextBlock Grid.Row="1" Grid.Column="6" Text="Game version:" Margin="0,0,8,0" />
+			<TextBlock Grid.Row="1" Grid.Column="7" Text="{x:Bind VM.LocalProfile.Meta.GameVersion, Mode=OneWay}" TextWrapping="WrapWholeWords" />
 
 			<TextBlock Grid.Row="2" Text="Remarks:"/>
-			<TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Text="{x:Bind VM.LocalProfile.Meta.Remarks, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+			<TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="7" Text="{x:Bind VM.LocalProfile.Meta.Remarks, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+
+			<Border Grid.Row="3" Grid.ColumnSpan="8" Style="{StaticResource styWarning}" Visibility="{x:Bind VM.UEVRVersionWarningVisible, Mode=OneWay}" Margin="0,8,0,0">
+				<TextBlock Text="{x:Bind VM.UEVRVersionWarning, Mode=OneWay}" FontWeight="Bold" />
+			</Border>
 		</Grid>
 
 		<controls:WebView2 Grid.Row="2" x:Name="webViewDescription" Visibility="{x:Bind VM.ProfileDescriptionVisible, Mode=OneWay}" Margin="0,12,0,16" />

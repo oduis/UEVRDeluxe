@@ -64,6 +64,8 @@ public sealed partial class GamePage : Page {
 
 			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName);
 
+			VM.CurrentUEVRNightlyNumber = Injector.GetUEVRNightlyNumber();
+
 			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD, ActualTheme == ElementTheme.Dark);
 
 			VM.CurrentOpenXRRuntime = OpenXRManager.GetAllRuntimes()?.FirstOrDefault(r => r.IsDefault)?.Name ?? "( undefined )";
@@ -305,7 +307,7 @@ public sealed partial class GamePage : Page {
 			sbInfo.AppendLine(
 				($"{VM.LocalProfile.Meta.ModifiedDate:yyyy-MM-dd} by {VM.LocalProfile.Meta.AuthorName}: {VM.LocalProfile.Meta.Remarks}").TrimEnd([' ', ':']));
 		}
-		
+
 		DateTime? lastModified = VM.LocalProfile.GetConfigFileLastModified();
 		if (lastModified.HasValue) sbInfo.AppendLine($"Config.txt last modified: {lastModified.Value.ToString("yyyy-MM-dd")}");
 
@@ -319,7 +321,7 @@ public sealed partial class GamePage : Page {
 
 		sbInfo.AppendLine("Installed OpenXR Runtimes:");
 		var runtimes = OpenXRManager.GetAllRuntimes();
-		foreach (var runtime in runtimes.OrderByDescending(r=>r.IsDefault)) 
+		foreach (var runtime in runtimes.OrderByDescending(r => r.IsDefault))
 			sbInfo.AppendLine($"- {runtime.Name}{(runtime.IsDefault ? " [DEFAULT]" : "")}");
 
 		var dp = new DataPackage { RequestedOperation = DataPackageOperation.Copy };
