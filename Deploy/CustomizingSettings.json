@@ -1,0 +1,24 @@
+{
+	"exeNamesLauncher": [
+		"GothamKnights",
+		"Borderlands3",
+		"ff7remake_",
+		"HogwartsLegacy",
+		"starwarsjedifallenorder",
+		"StillWakesTheDeep",
+		"Wonderlands"
+	],
+	"exeNamePartsToIgnore": [
+		"crashpad_handler",
+		"CrashReport",
+		"crs_handler",
+		"easyanticheat",
+		"EpicWebHelper",
+		"installer.exe",
+		"obse64_loader",
+		"Launcher.exe",
+		"Setup.exe",
+		"Setup_x64.exe",
+		"Setup_x32.exe"
+	]
+}

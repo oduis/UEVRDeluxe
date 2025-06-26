@@ -3,10 +3,13 @@ using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
+using PeNet;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -19,20 +22,15 @@ namespace UEVRDeluxe.Code;
 
 public static class GameStoreManager {
 	readonly static string[] IGNORE_GAME_NAMES = [
-		"Steamworks Common Redistributables", "SteamVR", "PlayStation\u00AEVR2 App", "Godot Engine", "Unreal Engine", "Blender"];
-
-	/// <summary>Some are e.g. launchers or mod handlers</summary>
-	readonly static string[] IGNORE_EXE_NAME_PARTS = [
-		"Setup.exe", "Setup_x64.exe", "Setup_x32.exe", "Launcher.exe", "CrashReport", "easyanticheat", "installer.exe",
-		"crashpad_handler", "obse64_loader", "EpicWebHelper", "crs_handler" ];
-
-	readonly static string[] UNREAL_ENGINE_STRINGS = ["UnrealEngine", "UE4", "UE5", "UE6", "Epic Games"];
+	"Steamworks Common Redistributables", "SteamVR", "PlayStation\u00AEVR2 App", "Godot Engine", "Unreal Engine", "Blender"];
 
 	#region FindAllUEVRGames
 	static List<GameInstallation> gameInstallations;
 
 	public async static Task<List<GameInstallation>> FindAllUEVRGamesAsync(bool forceRescan) {
-		if (gameInstallations != null) return gameInstallations;  // If we e.g. get back from one game
+		if (gameInstallations != null && !forceRescan) return gameInstallations;  // If we e.g. get back from one game
+
+		if (forceRescan) Logger.Log.LogInformation("Forced game scan");
 
 		string rootFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UEVRDeluxe");
 		if (!Directory.Exists(rootFolder)) Directory.CreateDirectory(rootFolder);
@@ -55,7 +53,7 @@ public static class GameStoreManager {
 		allGames.AddRange(FindAllEAGames()); // Add EA games here
 
 		// Check if cache is still valid
-		if (cache != null && cache.AllInstallations.Count == allGames.Count
+		if (!forceRescan && cache != null && cache.AllInstallations.Count == allGames.Count
 				&& cache.AllInstallations.All(c => allGames.Any(g => g.ID == c.ID && g.FolderPath == c.FolderPath))) {
 
 			Logger.Log.LogTrace($"Taking cached game installations returning {cache.FilteredInstallationIDs.Count} games");
@@ -68,6 +66,25 @@ public static class GameStoreManager {
 			// simple clone, since the EXE is modified below
 			AllInstallations = allGames.ToArray().ToList()
 		};
+
+		// Read the settings from web
+		CustomizingSettings settings = null;
+		if (!string.IsNullOrEmpty(CompiledSecret.CUSTOMIZE_URL)) {
+			try {
+				Logger.Log.LogTrace("Reading customizing settings");
+
+				using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) }) {
+					settings = await client.GetFromJsonAsync<CustomizingSettings>(CompiledSecret.CUSTOMIZE_URL);
+				}
+			} catch (Exception ex) {
+				Logger.Log.LogError(ex, "Failed to read customizing settings");
+				settings = null;
+			}
+		}
+
+		if (settings == null) settings = new() { EXENamePartsToIgnore = [], EXENameLauncher = null };
+
+		Logger.Log.LogTrace($"Found {allGames.Count} games");
 
 		// Find UE-Executable. This is more an art than a science and takes longer ;-)
 		foreach (var game in allGames) {
@@ -97,7 +114,7 @@ public static class GameStoreManager {
 					string exeFileName = Path.GetFileName(exePath);
 
 					// Sometimes Crashreporters are sitting in prominent positions
-					if (IGNORE_EXE_NAME_PARTS.Any(f => exeFileName.Contains(f, StringComparison.OrdinalIgnoreCase)))
+					if (settings.EXENamePartsToIgnore.Any(f => exeFileName.Contains(f, StringComparison.OrdinalIgnoreCase)))
 						continue;
 
 					var exe = new ExecutableProp { filePath = exePath };
@@ -114,35 +131,58 @@ public static class GameStoreManager {
 					exe.isInWinFolder = folder == "win32" || folder == "win64" || folder == "wingdk";
 					exe.isInBinariesFolder = folder == "binaries";  // Not as good, but...
 
+					// Check for typical UE DLLs. But this does not work on e.g. XBox, since they are security boxed
+					if (!exe.filePath.Contains(@"\Program Files\WindowsApps\", StringComparison.OrdinalIgnoreCase)) {
+						try {
+							var peFile = new PeFile(exe.filePath);
+							// Not UE engine links, but all UE exes seem to reference these ones
+							exe.isPESignatureOK = peFile.ImportedFunctions.Count(f => f.DLL.StartsWith("api-ms-win")) >= 3;
+						} catch (Exception ex) {
+							Logger.Log.LogWarning(ex, $"Failed to PE-check file {exe.filePath}");
+							exe.isPESignatureOK = false;
+						}
+					}
+
 					exeProps.Add(exe);
 				}
 
-				var bestProps =
-					exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInWinFolder)
-					?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInBinariesFolder)
-					?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping)
-					?? exeProps.FirstOrDefault(g => g.isShipping && g.isInWinFolder)
-					?? exeProps.FirstOrDefault(g => g.isShipping && g.isInBinariesFolder)
-					?? exeProps.FirstOrDefault(g => g.isShipping)
-					?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInWinFolder)
-					?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInBinariesFolder)
-					?? exeProps.FirstOrDefault(g => g.isInWinFolder)
-					?? exeProps.FirstOrDefault(g => g.isInBinariesFolder)
-					?? exeProps.OrderBy(g => g.directoryCount).FirstOrDefault();
+				// Heuristic to find the best executable. DLLImport is the best checker,
+				// however sometimes there are EXE als launchers next to them, so we may not throw away all non-DLLImport exes.
+				// And sometimes PE-Check fails for security reasons, so we need to have a fallback.
+				static ExecutableProp GetBestEXEProp(IEnumerable<ExecutableProp> exeProps)
+					=> exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInWinFolder)
+						?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInBinariesFolder)
+						?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping)
+						?? exeProps.FirstOrDefault(g => g.isShipping && g.isInWinFolder)
+						?? exeProps.FirstOrDefault(g => g.isShipping && g.isInBinariesFolder)
+						?? exeProps.FirstOrDefault(g => g.isShipping)
+						?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInWinFolder)
+						?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInBinariesFolder)
+						?? exeProps.FirstOrDefault(g => g.isInWinFolder)
+						?? exeProps.FirstOrDefault(g => g.isInBinariesFolder)
+						?? exeProps.OrderBy(g => g.directoryCount).FirstOrDefault();
+
+				ExecutableProp bestProps = GetBestEXEProp(exeProps.Where(p => p.isPESignatureOK))
+					?? GetBestEXEProp(exeProps.Where(p => !p.isPESignatureOK));
 
 				if (bestProps != null) {
 					// in Steam there are sometimes exes next to the shipping exe, like in Star Wars fallen order.
 					// So we need to check if the exe is in the same folder as the shipping exe
+					// However only some do apply, other are e.g. mod manager. So we need a positive list.
 					if (bestProps.isShipping) {
 						string folder = Path.GetDirectoryName(bestProps.filePath);
-						if (exeProps.Any(e => e.filePath != bestProps.filePath && Path.GetDirectoryName(e.filePath) == folder)) {
-							bestProps = exeProps.First(e => e.filePath != bestProps.filePath && Path.GetDirectoryName(e.filePath) == folder);
+
+						var launcherProp = exeProps.FirstOrDefault(e => e.filePath != bestProps.filePath && Path.GetDirectoryName(e.filePath) == folder);
+						if (launcherProp != null
+							&& (settings.EXENameLauncher == null || settings.EXENameLauncher.Contains(Path.GetFileNameWithoutExtension(launcherProp.filePath)))) {
+							Logger.Log.LogTrace($"{bestProps.filePath} has known launcher");
+							bestProps = launcherProp;
 						}
 					}
 
 					game.EXEName = Path.GetFileNameWithoutExtension(bestProps.filePath);
 
-					Logger.Log.LogTrace($"{game.Name} executable: {bestProps.filePath}");
+					Logger.Log.LogTrace($"{game.Name} best executable: {bestProps.filePath}");
 				} else {
 					Logger.Log.LogTrace($"No executable found for {game.Name}");
 				}
@@ -574,7 +614,7 @@ internal class GameInstallationCache {
 
 internal class ExecutableProp {
 	public string filePath;
-	public bool isInWinFolder, isInBinariesFolder, isShipping, isSimilarName;
+	public bool isInWinFolder, isInBinariesFolder, isShipping, isSimilarName, isPESignatureOK;
 	public int directoryCount;
 }
 

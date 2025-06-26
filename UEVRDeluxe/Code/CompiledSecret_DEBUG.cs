@@ -8,5 +8,8 @@ public static class CompiledSecret {
 
 	/// <summary>In RELEASE the URL to the autoupdate file. Ignored if empty.</summary>
 	public const string AUTOUPDATE_URL = "";
+
+	/// <summary>In RELEASE the URL to the customizing file. Ignored if empty.</summary>
+	public const string CUSTOMIZE_URL = "https://uevrdeluxe.z5.web.core.windows.net/CustomizingSettings.json";
 }
 #endif

@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.1.0.0",
-	"releaseNotes": "Support info button; Check for OpenXR Toolkit; Check Min/Max UEVR version for profiles",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2100"
+	"version": "2.1.1.0",
+	"releaseNotes": "Better scanning of games (Ground Branch)",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2110"
 }
