@@ -244,16 +244,19 @@ public sealed partial class MainPage : Page {
 	#region UpdateUEVR
 	void RefreshUpdateButtonLabel() {
 		string buttonLabel = "Update UEVR Backend to latest Nightly";
-		int? currentNightlyNumber = Injector.GetUEVRNightlyNumber();
+		int? currentNightlyNumber = Injector.GetInstalledUEVRNightlyNumber();
 		if (currentNightlyNumber.HasValue) buttonLabel += $" ({currentNightlyNumber} installed)";
 		VM.DownloadButtonLabel = buttonLabel;
 	}
 
-	async Task<int?> ShowUpdateNightlyDialogAsync() {
-
-
-		var radioLatest = new RadioButton { Content = "Latest version", IsChecked = true };
-		var radioSpecific = new RadioButton { Content = "Specific nightly number:" };
+	async Task<int?> ShowUpdateNightlyDialogAsync(int? installedNightlyNumber, int latestNightlyNumber) {
+		bool latestInstalled = installedNightlyNumber == latestNightlyNumber;
+		var radioLatest = new RadioButton {
+			Content = $"Latest version ({latestNightlyNumber}{(latestInstalled ? ", already installed" : "")})", IsChecked = !latestInstalled
+		};
+		var radioSpecific = new RadioButton {
+			Content = "Specific nightly number:", IsChecked = latestInstalled
+		};
 
 		// not in the same parent, so do it manually
 		radioLatest.Checked += (object s, RoutedEventArgs e) => radioSpecific.IsChecked = false;
@@ -303,7 +306,10 @@ public sealed partial class MainPage : Page {
 		try {
 			VM.IsLoading = true;
 
-			int? nightlyNumber = await ShowUpdateNightlyDialogAsync();
+			int latestNightlyNumber = await Injector.ReadLatestUEVRNightlyNumberAsync();
+			int? installedNightlyNumber = Injector.GetInstalledUEVRNightlyNumber();
+
+			int? nightlyNumber = await ShowUpdateNightlyDialogAsync(installedNightlyNumber, latestNightlyNumber);
 			if (nightlyNumber == -1) { VM.IsLoading = false; return; }
 
 			Logger.Log.LogInformation($"Starting UEVR Nightly update (nightly: {nightlyNumber?.ToString() ?? "latest"})");

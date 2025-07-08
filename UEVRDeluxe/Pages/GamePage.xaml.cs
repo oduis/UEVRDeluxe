@@ -64,7 +64,7 @@ public sealed partial class GamePage : Page {
 
 			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName);
 
-			VM.CurrentUEVRNightlyNumber = Injector.GetUEVRNightlyNumber();
+			VM.CurrentUEVRNightlyNumber = Injector.GetInstalledUEVRNightlyNumber();
 
 			await PageHelpers.RefreshDescriptionAsync(webViewDescription, VM.LocalProfile?.DescriptionMD, ActualTheme == ElementTheme.Dark);
 
@@ -311,7 +311,7 @@ public sealed partial class GamePage : Page {
 		DateTime? lastModified = VM.LocalProfile.GetConfigFileLastModified();
 		if (lastModified.HasValue) sbInfo.AppendLine($"Config.txt last modified: {lastModified.Value.ToString("yyyy-MM-dd")}");
 
-		sbInfo.AppendLine($"UEVR Backend version: {Injector.GetUEVRNightlyNumber()}");
+		sbInfo.AppendLine($"UEVR Backend version: {Injector.GetInstalledUEVRNightlyNumber()}");
 		sbInfo.AppendLine("HW Scheduling: " + (SystemInfo.IsHardwareSchedulingEnabled() ? "Enabled" : "Disabled"));
 
 		var installedGPUs = SystemInfo.GetInstalledGPUs();

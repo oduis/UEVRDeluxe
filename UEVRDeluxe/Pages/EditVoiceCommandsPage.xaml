@@ -58,7 +58,7 @@
 
 		<TextBlock Grid.Row="3" Style="{StaticResource stySubHeader}" Margin="0,20,0,8">Voice Commands</TextBlock>
 		<tv:TableView Grid.Row="4" ItemsSource="{x:Bind VM.VoiceCommands, Mode=OneWay}" CanFilterColumns="False" IsReadOnly="True"
-					  AutoGenerateColumns="False" SelectionMode="None" ShowOptionsButton="False" ShowExportOptions="False">
+					  AutoGenerateColumns="False" SelectionMode="None" ShowExportOptions="False">
 			<tv:TableView.Columns>
 				<tv:TableViewTextColumn Header="Text to say" Binding="{Binding Text}" Width="*" />
 				<tv:TableViewTextColumn Header="Keyboard key" Binding="{Binding TextKeyCode}" />

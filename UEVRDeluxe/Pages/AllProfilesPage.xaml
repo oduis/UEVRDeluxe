@@ -21,7 +21,7 @@
 			</HyperlinkButton>
 			<TextBlock VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Profile catalog" />
 		</StackPanel>
-		<TextBlock Grid.Row="1" Margin="0,8,0,20" TextWrapping="WrapWholeWords">You can use UEVR Easy Injector for any profile (e.g. from Discord), just like the classical UEVR. Additionally, the community currently provides pre-verified profiles for these games in the database for easy install and some description.</TextBlock>
+		<TextBlock Grid.Row="1" Margin="0,8,0,20" TextWrapping="WrapWholeWords">You can use UEVR Easy Injector for <Bold>any profile</Bold> (e.g. from Discord), just like the classical UEVR. Additionally, the community currently provides pre-verified profiles for these games in the database for easy install and some description.</TextBlock>
 		<ScrollView Grid.Row="2" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
 			<TextBlock Text="{x:Bind VM.AllProfileNames, Mode=OneWay}" TextWrapping="WrapWholeWords" FontSize="14" LineHeight="18" />
 		</ScrollView>

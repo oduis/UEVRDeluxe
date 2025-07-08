@@ -141,18 +141,7 @@ class Injector {
 				if (!match.Success) throw new Exception($"Could not find nightly version {oldNightlyNumber} on GitHub");
 				commitHash = match.Groups[1].Value;
 			} else {
-				string html = await client.GetStringAsync(UEVR_LATEST_NIGHTLY_URL);
-				var doc = new HtmlDocument();
-				doc.LoadHtml(html);
-				var title = doc.DocumentNode.SelectSingleNode("//title");
-				// title is e.g. "Release UEVR Nightly 01036 (f97cc4ad910351521e8e2031f63bebc754673e26)"
-				// Parse and convert to to link: https://github.com/praydog/UEVR-nightly/releases/download/nightly-01036-f97cc4ad910351521e8e2031f63bebc754673e26/uevr.zip
-
-				var match = Regex.Match(title.InnerText, @"Release UEVR Nightly (\d+) \(([\da-f]+)\)");
-				if (!match.Success) throw new Exception("Invalid release title format: {title}");
-
-				nightlyNumber = match.Groups[1].Value;
-				commitHash = match.Groups[2].Value;
+				(nightlyNumber, commitHash) = await ReadLatestUEVRNightlyVersionAsync(client);
 			}
 
 			zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip";
@@ -180,9 +169,31 @@ class Injector {
 		return true;
 	}
 
+	static async Task<(string nightlyNumber, string commitHash)> ReadLatestUEVRNightlyVersionAsync(HttpClient client) {
+		string html = await client.GetStringAsync(UEVR_LATEST_NIGHTLY_URL);
+		var doc = new HtmlDocument();
+		doc.LoadHtml(html);
+		var title = doc.DocumentNode.SelectSingleNode("//title");
+		// title is e.g. "Release UEVR Nightly 01036 (f97cc4ad910351521e8e2031f63bebc754673e26)"
+		// Parse and convert to to link: https://github.com/praydog/UEVR-nightly/releases/download/nightly-01036-f97cc4ad910351521e8e2031f63bebc754673e26/uevr.zip
+
+		var match = Regex.Match(title.InnerText, @"Release UEVR Nightly (\d+) \(([\da-f]+)\)");
+		if (!match.Success) throw new Exception("Invalid release title format: {title}");
+
+		string nightlyNumber = match.Groups[1].Value;
+		string commitHash = match.Groups[2].Value;
+		return (nightlyNumber, commitHash);
+	}
+
+	public static async Task<int> ReadLatestUEVRNightlyNumberAsync() {
+		using var client = new HttpClient();
+		var (nightlyNumber, _) = await ReadLatestUEVRNightlyVersionAsync(client);
+		return int.Parse(nightlyNumber);
+	}
+
 	/// <summary>Currently installed nightly UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
-	public static int? GetUEVRNightlyNumber() {
+	public static int? GetInstalledUEVRNightlyNumber() {
 		if (!File.Exists(VersionFilePath)) return null;
 		string version = File.ReadAllText(VersionFilePath).Trim();
 
