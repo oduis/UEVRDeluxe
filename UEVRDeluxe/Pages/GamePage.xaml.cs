@@ -4,11 +4,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -36,8 +34,7 @@ public sealed partial class GamePage : Page {
 		this.Loaded += Page_Loaded;
 
 		// Initialize the DispatcherTimer
-		hotKeyCheckTimer = new();
-		hotKeyCheckTimer.Interval = TimeSpan.FromMilliseconds(400);
+		hotKeyCheckTimer = new() { Interval = TimeSpan.FromMilliseconds(400) };
 		hotKeyCheckTimer.Tick += HotKeyCheckTimer_Tick;
 	}
 
@@ -118,15 +115,32 @@ public sealed partial class GamePage : Page {
 	#region Launch
 	bool shouldStop;
 
+	void OnInjectRequested() => Launch_Click(this, null);
+
 	async void Launch_Click(object sender, RoutedEventArgs e) {
 		try {
 			if (VM.EnableVoiceCommands && Win32.IsUserAnAdmin())
 				throw new Exception("Start UEVR Easy without administrator privileges to use voice commands");
 
-			AppUserSettings.Write(KEY_ENABLE_VOICE_COMMANDS, VM.EnableVoiceCommands.ToString());
-
 			shouldStop = false;
 			VM.IsRunning = true; hotKeyCheckTimer?.Stop();
+
+			#region Setup voice recognition
+			if (VM.EnableVoiceCommands) {
+				// might already be started by the first launch on late injection
+				if (speechRecognizer == null) {
+					VM.StatusMessage = "Starting voice recognition...";
+					speechRecognizer = new();
+					speechRecognizer.InjectRequested += OnInjectRequested;
+					speechRecognizer.Start(VM.GameInstallation.EXEName);
+				}
+			} else {
+				speechRecognizer?.Stop();
+				speechRecognizer = null;
+			}
+
+			AppUserSettings.Write(KEY_ENABLE_VOICE_COMMANDS, VM.EnableVoiceCommands.ToString());
+			#endregion
 
 			#region Launch process and wait
 			var gameProcess = Injector.FindInjectableProcess(VM.GameInstallation.EXEName);
@@ -157,7 +171,7 @@ public sealed partial class GamePage : Page {
 						}
 					} else runningSinceUtc = null;  // In case it crashed on start or something
 
-					await Task.Delay(1000);
+					await Task.Delay(400);
 
 					if (shouldStop) return;  // if the user cancelled
 				} while (runningSinceUtc == null || DateTime.UtcNow.Subtract(runningSinceUtc.Value).TotalSeconds < delayBeforeInjectionSec);
@@ -185,10 +199,14 @@ public sealed partial class GamePage : Page {
 			VM.StatusMessage = "Injecting backend DLL...";
 			Injector.InjectDll(gameProcess.Id, "UEVRBackend.dll");
 
-			if (VM.EnableVoiceCommands) {
-				VM.StatusMessage = "Starting voice recognition...";
-				speechRecognizer = new();
-				speechRecognizer.Start(VM.GameInstallation.EXEName);
+			// Stop voice commands
+			if (speechRecognizer != null) {
+				speechRecognizer.InjectRequested -= OnInjectRequested;
+
+				if (speechRecognizer.StopAfterInjected) {
+					VM.StatusMessage += "Stopping voice commands after injecting";
+					speechRecognizer.Stop(); speechRecognizer = null;
+				}
 			}
 
 			VM.StatusMessage = "Game is running! You may see a black screen while the intro movies are playing. The UEVR in-game window will open. Press 'Ins' on keyboard or both controller joysticks to close it.";
@@ -222,6 +240,8 @@ public sealed partial class GamePage : Page {
 				}
 			}
 
+			speechRecognizer?.Stop(); speechRecognizer = null;
+
 			VM.StatusMessage = "Game stopped";
 		} catch (Exception ex) {
 			VM.StatusMessage += $" - {ex.Message}";
@@ -229,8 +249,9 @@ public sealed partial class GamePage : Page {
 			await new ContentDialog {
 				Title = "UEVR", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
-		} finally {
+
 			speechRecognizer?.Stop(); speechRecognizer = null;
+		} finally {
 			hotKeyCheckTimer?.Start();
 			VM.IsRunning = false;
 		}
@@ -259,7 +280,7 @@ public sealed partial class GamePage : Page {
 
 			if (!VM.IsRunning && VM.LocalProfile != null) {
 				if (!wasCalledViaHotKey.HasValue) wasCalledViaHotKey = true;
-				Launch_Click(this, null);
+				OnInjectRequested();
 			}
 		} else if (!wasCalledViaHotKey.HasValue) {
 			wasCalledViaHotKey = false;

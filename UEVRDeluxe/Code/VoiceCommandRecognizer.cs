@@ -19,8 +19,14 @@ public class VoiceCommandRecognizer {
 	Dictionary<string, int> mapCommand2KeyCode;
 	float minConfidence;
 
+	const int DUMMYKEYCODE_INJECT = 0xffffff;
+
 	/// <summary>For Testing</summary>
 	public event Action<object, string, float> SpeechRecognized;
+
+	/// <summary>No keypress, but injection</summary>
+	public event Action InjectRequested;
+	public bool StopAfterInjected { get; private set; }
 
 	/// <summary>Start without file/exe integrtation</summary>
 	public void Start(VoiceCommandProfile profile) {
@@ -48,6 +54,7 @@ public class VoiceCommandRecognizer {
 
 	void StartWorker(VoiceCommandProfile profile) {
 		minConfidence = profile.MinConfidence;
+		StopAfterInjected = profile.StopAfterInjected && !string.IsNullOrWhiteSpace(profile.InjectText);
 
 		// Build a list of expected phrases (they must start with the keyword)
 		mapCommand2KeyCode = new();
@@ -60,6 +67,12 @@ public class VoiceCommandRecognizer {
 				phraseList.Add(phrase);
 				mapCommand2KeyCode[phrase.ToLowerInvariant()] = command.VKKeyCode;
 			}
+		}
+
+		if (!string.IsNullOrWhiteSpace(profile.InjectText)) {
+			// Add the inject text as a command
+			phraseList.Add(profile.InjectText.Trim());
+			mapCommand2KeyCode[profile.InjectText.Trim().ToLowerInvariant()] = DUMMYKEYCODE_INJECT;
 		}
 
 		if (string.IsNullOrWhiteSpace(profile.LanguageTag))
@@ -107,8 +120,11 @@ public class VoiceCommandRecognizer {
 			var process = Process.GetProcessById((int)foregroundProcessId);
 
 			if (process.ProcessName.Equals(exeName, StringComparison.OrdinalIgnoreCase)) {
-				// Simulate a key press and release
-				var inputs = new INPUT[] {
+				if (vk == DUMMYKEYCODE_INJECT) {
+					InjectRequested?.Invoke();
+				} else {
+					// Simulate a key press and release
+					var inputs = new INPUT[] {
 						new() {
 							type = Win32.INPUT_KEYBOARD,
 							u = new InputUnion {
@@ -128,7 +144,8 @@ public class VoiceCommandRecognizer {
 						}
 					};
 
-				Win32.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+					Win32.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+				}
 			}
 		}
 	}
@@ -144,6 +161,13 @@ public class VoiceCommandProfile {
 
 	/// <summary>Minimum confidence for a command being recognized (0..1)</summary>
 	public float MinConfidence { get; set; }
+
+	/// <summary>Text to say to inject (for late injection scenarios)</summary>
+	public string InjectText { get; set; }
+
+	/// <summary>Should the void recognition stop after injecting?</summary>
+	/// <remarks>E.g. to safe compute power or to not pick up unintentional commands</remarks>
+	public bool StopAfterInjected { get; set; }
 
 	/// <summary>Commands (may include keywords)</summary>
 	public List<VoiceCommand> Commands { get; set; }

@@ -13,52 +13,61 @@
 	<Grid Margin="20,8,20,20">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
-		<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-			<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
-				<FontIcon Style="{StaticResource styBackLink}" />
-			</HyperlinkButton>
-			<TextBlock VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit Voice Profile" />
-		</StackPanel>
-
-		<StackPanel Grid.Row="1">
-			<TextBlock Style="{StaticResource stySubHeader}">Select Recognition Language</TextBlock>
-
-			<StackPanel Orientation="Horizontal" Margin="0,8">
-				<ComboBox ItemsSource="{x:Bind VM.Languages,Mode=OneWay}" DisplayMemberPath="NativeName" SelectedItem="{x:Bind VM.SelectedLanguage, Mode=TwoWay}" />
-				<HyperlinkButton Click="OpenWinLanguages_Click" Padding="0" Margin="48,0,0,0"
-								 ToolTipService.ToolTip="Open Windows System Settings to add speech recognition for a language">
-					<StackPanel Orientation="Horizontal">
-						<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xF2B7;" FontSize="18" Margin="0,0,8,0" />
-						<TextBlock VerticalAlignment="Center" Text="Open Windows System Settings to add speech recognitions" />
-					</StackPanel>
+		<StackPanel>
+			<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+				<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
+					<FontIcon Style="{StaticResource styBackLink}" />
 				</HyperlinkButton>
+				<TextBlock VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit Voice Profile" />
 			</StackPanel>
+
+			<StackPanel>
+				<TextBlock Style="{StaticResource stySubHeader}">Select Recognition Language</TextBlock>
+
+				<StackPanel Orientation="Horizontal" Margin="0,8">
+					<ComboBox ItemsSource="{x:Bind VM.Languages,Mode=OneWay}" DisplayMemberPath="NativeName" SelectedItem="{x:Bind VM.SelectedLanguage, Mode=TwoWay}" />
+					<HyperlinkButton Click="OpenWinLanguages_Click" Padding="0" Margin="48,0,0,0"
+									 ToolTipService.ToolTip="Open Windows System Settings to add speech recognition for a language">
+						<StackPanel Orientation="Horizontal">
+							<FontIcon Style="{StaticResource styHyperlinkIcon}" Glyph="&#xF2B7;" FontSize="18" Margin="0,0,8,0" />
+							<TextBlock VerticalAlignment="Center" Text="Open Windows System Settings to add speech recognitions" />
+						</StackPanel>
+					</HyperlinkButton>
+				</StackPanel>
+			</StackPanel>
+
+			<StackPanel Margin="0,16,0,0">
+				<TextBlock Style="{StaticResource stySubHeader}">Minimum Confidence Level for Recognition</TextBlock>
+
+				<StackPanel Orientation="Horizontal">
+					<Slider x:Name="slMinConfidence" Minimum="0" Maximum="100" TickFrequency="5" 
+							TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
+
+					<TextBlock Text="{x:Bind slMinConfidence.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+					<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+				</StackPanel>
+			</StackPanel>
+
+			<TextBlock Style="{StaticResource stySubHeader}" Margin="0,16,0,8">Inject Voice Command</TextBlock>
+			<StackPanel Orientation="Horizontal" Spacing="12">
+				<TextBlock VerticalAlignment="Center">When I say</TextBlock>
+				<TextBox Text="{x:Bind VM.InjectText, Mode=TwoWay}" Width="240" MaxLength="96" />
+				<TextBlock VerticalAlignment="Center" Margin="0,0,10,0" TextWrapping="WrapWholeWords">then inject UEVR while I'm in the game.</TextBlock>
+				<CheckBox IsChecked="{x:Bind VM.StopAfterInjected, Mode=TwoWay}" 
+						  ToolTipService.ToolTip="To safe processing power or prevent accidental recognitions">Stop all voice recognitions after injection</CheckBox>
+			</StackPanel>
+			<TextBlock Style="{StaticResource styHelpText}">( Only on late injection profiles when game was launched from UEVR Easy )</TextBlock>
+
+
+			<TextBlock Style="{StaticResource stySubHeader}" Margin="0,20,0,8">Other Voice Commands</TextBlock>
 		</StackPanel>
 
-		<StackPanel Grid.Row="2" Margin="0,16,0,0">
-			<TextBlock Style="{StaticResource stySubHeader}">Minimum Confidence Level for Recognition</TextBlock>
-
-			<StackPanel Orientation="Horizontal">
-				<Slider x:Name="slMinConfidence" Minimum="0" Maximum="100" TickFrequency="5" 
-						TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
-
-				<TextBlock Text="{x:Bind slMinConfidence.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
-				<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
-			</StackPanel>
-		</StackPanel>
-
-		<TextBlock Grid.Row="3" Style="{StaticResource stySubHeader}" Margin="0,20,0,8">Voice Commands</TextBlock>
-		<tv:TableView Grid.Row="4" ItemsSource="{x:Bind VM.VoiceCommands, Mode=OneWay}" CanFilterColumns="False" IsReadOnly="True"
-					  AutoGenerateColumns="False" SelectionMode="None" ShowExportOptions="False">
+		<tv:TableView Grid.Row="1" ItemsSource="{x:Bind VM.VoiceCommands, Mode=OneWay}" CanFilterColumns="False" IsReadOnly="True"
+					  AutoGenerateColumns="False" SelectionMode="None" ShowExportOptions="False" CornerButtonMode="None">
 			<tv:TableView.Columns>
 				<tv:TableViewTextColumn Header="Text to say" Binding="{Binding Text}" Width="*" />
 				<tv:TableViewTextColumn Header="Keyboard key" Binding="{Binding TextKeyCode}" />
@@ -76,48 +85,50 @@
 			</tv:TableView.Columns>
 		</tv:TableView>
 
-		<StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,16,0,4" Spacing="12">
-			<TextBlock VerticalAlignment="Center">When I say</TextBlock>
-			<TextBox Text="{x:Bind VM.Text, Mode=TwoWay}" Width="200" MaxLength="96" />
-			<TextBlock VerticalAlignment="Center">press keyboard key</TextBlock>
-			<TextBox Text="{x:Bind VM.TextKeyCode, Mode=TwoWay}" Width="100" MaxLength="16" />
-			<Button Click="AddCommand_Click" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE710;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Add command</TextBlock>
-				</Grid>
-			</Button>
+		<StackPanel Grid.Row="2">
+			<StackPanel Orientation="Horizontal" Margin="0,16,0,4" Spacing="12">
+				<TextBlock VerticalAlignment="Center">When I say</TextBlock>
+				<TextBox Text="{x:Bind VM.Text, Mode=TwoWay}" Width="240" MaxLength="96" />
+				<TextBlock VerticalAlignment="Center">press keyboard key</TextBlock>
+				<TextBox Text="{x:Bind VM.TextKeyCode, Mode=TwoWay}" Width="100" MaxLength="16" />
+				<Button Click="AddCommand_Click" Style="{StaticResource styButton}">
+					<Grid>
+						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE710;" />
+						<TextBlock Style="{StaticResource styButtonIconText}">Add command</TextBlock>
+					</Grid>
+				</Button>
+			</StackPanel>
+
+			<TextBlock Style="{StaticResource styHelpText}">You can explicitly write e.g. "Tab", "F12", "Enter", "PgUp", "Ins" etc. in the key to press field</TextBlock>
+
+			<StackPanel Spacing="12" Orientation="Horizontal" Margin="0,24,0,0">
+				<Button Click="Save_Click" Style="{StaticResource styButton}">
+					<Grid>
+						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
+						<TextBlock Style="{StaticResource styButtonIconText}">Save</TextBlock>
+					</Grid>
+				</Button>
+
+				<Button Click="Test_Click" Style="{StaticResource styButton}">
+					<Grid>
+						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE720;" />
+						<TextBlock Style="{StaticResource styButtonIconText}">Test</TextBlock>
+					</Grid>
+				</Button>
+
+				<Button Click="Back_Click" Style="{StaticResource styButton}">
+					<Grid>
+						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
+						<TextBlock Style="{StaticResource styButtonIconText}">Cancel</TextBlock>
+					</Grid>
+				</Button>
+			</StackPanel>
 		</StackPanel>
 
-		<TextBlock Grid.Row="6" Style="{StaticResource styHelpText}">You can explicitly write e.g. "Tab", "F12", "Enter", "PgUp", "Ins" etc. in the key to press field</TextBlock>
-
-		<StackPanel Grid.Row="7" Spacing="12" Orientation="Horizontal" Margin="0,24,0,0">
-			<Button Click="Save_Click" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Save</TextBlock>
-				</Grid>
-			</Button>
-
-			<Button Click="Test_Click" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE720;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Test</TextBlock>
-				</Grid>
-			</Button>
-
-			<Button Click="Back_Click" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Cancel</TextBlock>
-				</Grid>
-			</Button>
-		</StackPanel>
-
-		<ContentControl Grid.RowSpan="8" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+		<ContentControl Grid.RowSpan="3" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 
 		<!-- Voice Command Test Overlay -->
-		<Border x:Name="borTestOverlay" Grid.RowSpan="8" Visibility="Collapsed" 
+		<Border x:Name="borTestOverlay" Grid.RowSpan="3" Visibility="Collapsed" 
                 Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                 CornerRadius="8" MaxWidth="500" MaxHeight="300" Padding="16"
                 HorizontalAlignment="Center" VerticalAlignment="Center"

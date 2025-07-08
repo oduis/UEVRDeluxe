@@ -13,13 +13,19 @@ public class EditVoiceCommandsPageVM : VMBase {
 
 	string text, textKeyCode;
 	public string Text { get => text; set => Set(ref text, value); }
-	public string TextKeyCode { get=>textKeyCode; set => Set(ref textKeyCode, value); }
+	public string TextKeyCode { get => textKeyCode; set => Set(ref textKeyCode, value); }
 
 	List<Language> languages;
 	public List<Language> Languages { get => languages; set => Set(ref languages, value); }
 
 	Language selectedLanguage;
 	public Language SelectedLanguage { get => selectedLanguage; set => Set(ref selectedLanguage, value); }
+
+	string injectText;
+	public string InjectText { get => injectText; set => Set(ref injectText, value); }
+
+	bool stopAfterInjected;
+	public bool StopAfterInjected { get => stopAfterInjected; set => Set(ref stopAfterInjected, value); }
 
 	ObservableCollection<VoiceCommandEx> voiceCommands;
 	public ObservableCollection<VoiceCommandEx> VoiceCommands { get => voiceCommands; set => Set(ref voiceCommands, value); }
