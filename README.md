@@ -1,4 +1,4 @@
-# Unreal Easy Injector
+# Unreal Engine VR Easy Injector
 Play many esp. first person Unreal Engine games in VR!  
 Replacing the old UEVR Injector with a much more user friendly, easy to use and automated app.  
 It auto-scans you Steam/EPIC/GOG installed games and replaces tools like launcher, UEVRInjector, OpenXR switchers.
@@ -8,7 +8,7 @@ UEVR Easy Injector contains a web database for easy discovery and installation, 
 
 It also adds voice commands and global hotkeys to improve the VR experience.
 
-It uses [PrayDogs UEVR engine](https://github.com/praydog/UEVR) but does not need an UEVR installation. 
+It uses [PrayDogs UEVR engine](https://github.com/praydog/UEVR) but does not need or use an an UEVR classic installation. 
 UEVR Easy allows you to install any specific version of the UEVR backend using its integrated updater.
 
 ## Installation

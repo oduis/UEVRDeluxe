@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -26,6 +27,8 @@ namespace UEVRDeluxe.Pages;
 public sealed partial class GamePage : Page {
 	readonly GamePageVM VM = new();
 	VoiceCommandRecognizer speechRecognizer;
+
+	const string KEY_ENABLE_VOICE_COMMANDS = "EnableVoiceCommands";
 
 	#region * Init
 	public GamePage() {
@@ -119,6 +122,8 @@ public sealed partial class GamePage : Page {
 		try {
 			if (VM.EnableVoiceCommands && Win32.IsUserAnAdmin())
 				throw new Exception("Start UEVR Easy without administrator privileges to use voice commands");
+
+			AppUserSettings.Write(KEY_ENABLE_VOICE_COMMANDS, VM.EnableVoiceCommands.ToString());
 
 			shouldStop = false;
 			VM.IsRunning = true; hotKeyCheckTimer?.Stop();
@@ -286,7 +291,8 @@ public sealed partial class GamePage : Page {
 			var deviceInformation = DeviceInformation.CreateFromIdAsync(deviceID).AsTask().Result;
 			VM.DefaultInputDeviceName = deviceInformation?.Name ?? "Unknown Device";
 
-			VM.EnableVoiceCommands = File.Exists(VoiceCommandProfile.GetFilePath(VM.GameInstallation.EXEName))
+			VM.EnableVoiceCommands = bool.Parse(AppUserSettings.Read(KEY_ENABLE_VOICE_COMMANDS) ?? true.ToString())
+				&& File.Exists(VoiceCommandProfile.GetFilePath(VM.GameInstallation.EXEName))
 				&& !Win32.IsUserAnAdmin();
 		} else {
 			VM.DefaultInputDeviceName = "( no default audio input )";
