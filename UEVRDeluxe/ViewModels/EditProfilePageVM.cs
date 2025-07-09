@@ -1,7 +1,5 @@
 ﻿#region Usings
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using System.Collections.Generic;
 using UEVRDeluxe.Code;
 #endregion
 

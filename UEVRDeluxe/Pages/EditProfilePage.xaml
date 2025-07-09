@@ -7,7 +7,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    xmlns:viewmodels="using:UEVRDeluxe.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:EditProfilePageVM}">
+    xmlns:viewmodels="using:UEVRDeluxe.ViewModels"
+    xmlns:conv="using:UEVRDeluxe.Code"
+    d:DataContext="{d:DesignInstance Type=viewmodels:EditProfilePageVM}">
+
+	<Page.Resources>
+		<conv:NullableIntToDoubleConverter x:Key="NullableIntToDoubleConverter" />
+		<conv:DateTimeToDateTimeOffsetConverter x:Key="DateTimeToDateTimeOffsetConverter" />
+	</Page.Resources>
 
 	<Grid Margin="20,8,20,20">
 		<Grid.RowDefinitions>
@@ -25,179 +32,230 @@
 			<TextBlock VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit UEVR Profile" />
 		</StackPanel>
 
-		<ScrollView Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
-			<StackPanel Spacing="26" HorizontalAlignment="Stretch">
-				<StackPanel x:Name="spRenderingMethod">
-					<TextBlock Style="{StaticResource stySubHeader}">Rendering Method</TextBlock>
+		<TabView Grid.Row="1" IsAddTabButtonVisible="False">
+			<TabViewItem Header="&#x25A0;  UEVR Settings" IsClosable="False">
+				<ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
+					<StackPanel Spacing="26" HorizontalAlignment="Stretch">
+						<StackPanel x:Name="spRenderingMethod">
+							<TextBlock Style="{StaticResource stySubHeader}">Rendering Method</TextBlock>
 
-					<RadioButton Tag="0">
-						<StackPanel>
-							<TextBlock>Native Stereo</TextBlock>
-							<TextBlock Style="{StaticResource styHelpText}">Best performance, anti-aliasing works (Recommended if no issues)</TextBlock>
-							<CheckBox x:Name="cbNativeStereoFix">Increased compatiblity, reduced performance, but better than Synced Squential (Fix)</CheckBox>
-                            <CheckBox x:Name="cbNativeStereoFixSamePass" Margin="28,0,0,0" IsEnabled="{x:Bind cbNativeStereoFix.IsChecked.Value, Mode=OneWay}">Further increased compatibility. May prevent crashes in UE5 games (Same pass stereo)</CheckBox>
+							<RadioButton Tag="0">
+								<StackPanel>
+									<TextBlock>Native Stereo</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Best performance, anti-aliasing works (Recommended if no issues)</TextBlock>
+									<CheckBox x:Name="cbNativeStereoFix">Increased compatiblity, reduced performance, but better than Synced Squential (Fix)</CheckBox>
+									<CheckBox x:Name="cbNativeStereoFixSamePass" Margin="28,0,0,0" IsEnabled="{x:Bind cbNativeStereoFix.IsChecked.Value, Mode=OneWay}">Further increased compatibility. May prevent crashes in UE5 games (Same pass stereo)</CheckBox>
+								</StackPanel>
+							</RadioButton>
+							<RadioButton Tag="1" Margin="0,4">
+								<StackPanel>
+									<TextBlock>Synced Sequential</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">More CPU intensive, some anti aliasing will cause ghosting effects. But better compatibility if game has issues with Native Stereo.</TextBlock>
+									<StackPanel x:Name="spSyncedSequentialMethod" Margin="0,4,0,0" Spacing="2">
+										<RadioButton Tag="0">
+											<StackPanel>
+												<TextBlock>Skip Tick</TextBlock>
+												<TextBlock Style="{StaticResource styHelpText}">Best performance, particle effects work (Recommended if no issues)</TextBlock>
+											</StackPanel>
+										</RadioButton>
+										<RadioButton Tag="1">
+											<StackPanel>
+												<TextBlock>Skip Draw</TextBlock>
+												<TextBlock Style="{StaticResource styHelpText}">Better compatibility, but particle effects may not play correctly</TextBlock>
+											</StackPanel>
+										</RadioButton>
+									</StackPanel>
+								</StackPanel>
+							</RadioButton>
+							<RadioButton Tag="2">
+								<StackPanel>
+									<TextBlock>Alternating/AFR</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Worse quality, may cause nausea, but highest compatibility</TextBlock>
+								</StackPanel>
+							</RadioButton>
 						</StackPanel>
-					</RadioButton>
-					<RadioButton Tag="1" Margin="0,4">
+
 						<StackPanel>
-							<TextBlock>Synced Sequential</TextBlock>
-							<TextBlock Style="{StaticResource styHelpText}">More CPU intensive, some anti aliasing will cause ghosting effects. But better compatibility if game has issues with Native Stereo.</TextBlock>
-							<StackPanel x:Name="spSyncedSequentialMethod" Margin="0,4,0,0" Spacing="2">
+							<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
+							<CheckBox x:Name="cbGhostingFix">Eliminates faint ghost images around game characters. Especially helpful when using Synced Sequential. May cause side effects and crashes.</CheckBox>
+						</StackPanel>
+
+						<StackPanel>
+							<TextBlock Style="{StaticResource stySubHeader}">Resolution Scale</TextBlock>
+
+							<StackPanel Orientation="Horizontal">
+								<Slider x:Name="slResolutionScale" Minimum="70" Maximum="130" TickFrequency="5" 
+								TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
+
+								<TextBlock Text="{x:Bind slResolutionScale.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+								<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+							</StackPanel>
+
+							<TextBlock Style="{StaticResource styHelpText}">100% means full resolution of headset display. Higher scale gives more sharpness (since optical distortion is reduced), lower scale more performance. OpenXR only.</TextBlock>
+						</StackPanel>
+
+						<StackPanel>
+							<TextBlock Style="{StaticResource stySubHeader}">Upscaling</TextBlock>
+
+							<StackPanel x:Name="spUpscaler" Margin="0,4,0,0" Spacing="4">
 								<RadioButton Tag="0">
 									<StackPanel>
-										<TextBlock>Skip Tick</TextBlock>
-										<TextBlock Style="{StaticResource styHelpText}">Best performance, particle effects work (Recommended if no issues)</TextBlock>
+										<TextBlock>Use Game Default Upscaling</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">If game supports e.g. DLSS or FSR, and upscaling looks good in VR</TextBlock>
 									</StackPanel>
 								</RadioButton>
 								<RadioButton Tag="1">
 									<StackPanel>
-										<TextBlock>Skip Draw</TextBlock>
-										<TextBlock Style="{StaticResource styHelpText}">Better compatibility, but particle effects may not play correctly</TextBlock>
+										<TextBlock>Force Temporal Upscaling</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Replace game upscaler by a Unreal Engine built-in one. Use if game does not support upscaling or DLSS/FSR has rendering glitches.</TextBlock>
+										<StackPanel Orientation="Horizontal">
+											<Slider x:Name="slScreenPercentage" Minimum="40" Maximum="100" TickFrequency="5" 
+												TickPlacement="Outside" SnapsTo="Ticks" Width="654" Margin="0,0,16,0" />
+
+											<TextBlock Text="{x:Bind slScreenPercentage.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+											<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+										</StackPanel>
+										<TextBlock Style="{StaticResource styHelpText}">Higher percentage of the total resolution gives more sharpness, lower percentage more performance.</TextBlock>
 									</StackPanel>
 								</RadioButton>
 							</StackPanel>
 						</StackPanel>
-					</RadioButton>
-					<RadioButton Tag="2">
+
 						<StackPanel>
-							<TextBlock>Alternating/AFR</TextBlock>
-							<TextBlock Style="{StaticResource styHelpText}">Worse quality, may cause nausea, but highest compatibility</TextBlock>
+							<TextBlock Style="{StaticResource stySubHeader}">Snap turn</TextBlock>
+
+							<CheckBox x:Name="cbSnapTurn">Enable to turn in increments instead of continuously. Helps if you experience motion sickness while turning.</CheckBox>
+
+							<StackPanel Orientation="Horizontal">
+								<Slider x:Name="slSnapturnTurnAngle" IsEnabled="{x:Bind cbSnapTurn.IsChecked.Value, Mode=OneWay}" Minimum="10" Maximum="90" TickFrequency="5" 
+									TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
+
+								<TextBlock Text="{x:Bind slSnapturnTurnAngle.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+								<TextBlock Text="°" FontSize="16" VerticalAlignment="Center" />
+							</StackPanel>
 						</StackPanel>
-					</RadioButton>
-				</StackPanel>
 
-				<StackPanel>
-					<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
-					<CheckBox x:Name="cbGhostingFix">Eliminates faint ghost images around game characters. Especially helpful when using Synced Sequential. May cause side effects and crashes.</CheckBox>
-				</StackPanel>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="32" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
 
-				<StackPanel>
-					<TextBlock Style="{StaticResource stySubHeader}">Resolution Scale</TextBlock>
-
-					<StackPanel Orientation="Horizontal">
-						<Slider x:Name="slResolutionScale" Minimum="70" Maximum="130" TickFrequency="5" 
-						TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
-
-						<TextBlock Text="{x:Bind slResolutionScale.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
-						<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
-					</StackPanel>
-
-					<TextBlock Style="{StaticResource styHelpText}">100% means full resolution of headset display. Higher scale gives more sharpness (since optical distortion is reduced), lower scale more performance. OpenXR only.</TextBlock>
-				</StackPanel>
-
-				<StackPanel>
-					<TextBlock Style="{StaticResource stySubHeader}">Upscaling</TextBlock>
-
-					<StackPanel x:Name="spUpscaler" Margin="0,4,0,0" Spacing="4">
-						<RadioButton Tag="0">
 							<StackPanel>
-								<TextBlock>Use Game Default Upscaling</TextBlock>
-								<TextBlock Style="{StaticResource styHelpText}">If game supports e.g. DLSS or FSR, and upscaling looks good in VR</TextBlock>
+								<TextBlock Style="{StaticResource stySubHeader}">Multiplayer Aim Support</TextBlock>
+								<CheckBox x:Name="cbAimMPSupport">Enable if you experience unusual camera effects when playing multiplayer games. Leave off if you encounter no issues.</CheckBox>
 							</StackPanel>
-						</RadioButton>
-						<RadioButton Tag="1">
-							<StackPanel>
-								<TextBlock>Force Temporal Upscaling</TextBlock>
-								<TextBlock Style="{StaticResource styHelpText}">Replace game upscaler by a Unreal Engine built-in one. Use if game does not support upscaling or DLSS/FSR has rendering glitches.</TextBlock>
-								<StackPanel Orientation="Horizontal">
-									<Slider x:Name="slScreenPercentage" Minimum="40" Maximum="100" TickFrequency="5" 
-										TickPlacement="Outside" SnapsTo="Ticks" Width="654" Margin="0,0,16,0" />
 
-									<TextBlock Text="{x:Bind slScreenPercentage.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
-									<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+							<StackPanel Grid.Column="2">
+								<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
+
+								<CheckBox x:Name="cbEnableDepth">Reduces latency, especially when using Meta Quest Link. May cause crashes.</CheckBox>
+							</StackPanel>
+						</Grid>
+
+						<StackPanel>
+							<TextBlock Style="{StaticResource stySubHeader}">Typical in game settings</TextBlock>
+							<TextBlock TextWrapping="WrapWholeWords">
+								<Run>Rendering VR at very high resolutions is extremely demanding. 
+									Ensure you have a powerful GPU with ample VRAM, and avoid maxing out game settings. 
+									While optimizing, monitor GPU usage and especially GPU VRAM in Task Explorer.</Run>
+								<LineBreak/>
+								<Run>If the game supports it, adjust these in-game graphic settings:</Run>
+								<LineBreak/> 
+								<Run>- Chromatic aberration: OFF</Run>
+								<LineBreak/>
+								<Run>- Motion blur: OFF</Run>
+								<LineBreak/>
+								<Run>- Depth of field: OFF</Run>
+								<LineBreak/>
+								<Run>- View/head bobbing: OFF</Run>
+								<LineBreak/>
+								<Run>- DLSS/FSR: OFF if the game does not support Native Stereo rendering</Run>
+								<LineBreak/>
+								<Run>- Post processing: typically looks better on LOW</Run>
+								<LineBreak/>
+							</TextBlock>
+						</StackPanel>
+					</StackPanel>
+				</ScrollViewer>
+			</TabViewItem>
+			<TabViewItem Header="&#x25A0;  Profile Description" IsClosable="False">
+				<ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
+					<StackPanel Spacing="26" HorizontalAlignment="Stretch">
+						<StackPanel Spacing="8">
+							<TextBlock Style="{StaticResource stySubHeader}">Profile Metadata</TextBlock>
+							<StackPanel Spacing="10">
+								<StackPanel Orientation="Horizontal" Spacing="24">
+									<StackPanel Width="320" Spacing="4">
+										<TextBlock>Author Name</TextBlock>
+										<TextBox Text="{x:Bind VM.LocalProfile.Meta.AuthorName, Mode=TwoWay}" MaxLength="64" />
+									</StackPanel>
+									<StackPanel Width="320" Spacing="4">
+										<TextBlock>Game Version</TextBlock>
+										<TextBox Text="{x:Bind VM.LocalProfile.Meta.GameVersion, Mode=TwoWay}" MaxLength="64" />
+									</StackPanel>
+									<StackPanel Width="200" Spacing="4">
+										<TextBlock>Modified Date</TextBlock>
+										<CalendarDatePicker Date="{x:Bind VM.LocalProfile.Meta.ModifiedDate, Mode=TwoWay, Converter={StaticResource DateTimeToDateTimeOffsetConverter}}" />
+									</StackPanel>
 								</StackPanel>
-								<TextBlock Style="{StaticResource styHelpText}">Higher percentage of the total resolution gives more sharpness, lower percentage more performance.</TextBlock>
+								<StackPanel Spacing="4">
+									<TextBlock>Remarks (max 128 chars)</TextBlock>
+									<TextBox Text="{x:Bind VM.LocalProfile.Meta.Remarks, Mode=TwoWay}" MaxLength="128" />
+								</StackPanel>
 							</StackPanel>
-						</RadioButton>
+						</StackPanel>
+
+						<StackPanel Spacing="10">
+							<TextBlock Style="{StaticResource stySubHeader}">UEVR Requirements</TextBlock>
+
+							<StackPanel Orientation="Horizontal" Spacing="24">
+								<StackPanel Width="180" Spacing="4">
+									<TextBlock>Minimum Nightly Number</TextBlock>
+									<NumberBox Value="{x:Bind VM.LocalProfile.Meta.MinUEVRNightlyNumber, Mode=TwoWay, Converter={StaticResource NullableIntToDoubleConverter}}" Minimum="1" PlaceholderText="Optional" />
+								</StackPanel>
+								<StackPanel Width="180" Spacing="4">
+									<TextBlock>Maximum Nightly Number</TextBlock>
+									<NumberBox Value="{x:Bind VM.LocalProfile.Meta.MaxUEVRNightlyNumber, Mode=TwoWay, Converter={StaticResource NullableIntToDoubleConverter}}" Minimum="1" PlaceholderText="Optional" />
+								</StackPanel>
+							</StackPanel>
+
+							<CheckBox Content="Late Injection (For stability, requires injection when the game is already running and in 3D)" IsChecked="{x:Bind VM.LocalProfile.Meta.LateInjection, Mode=TwoWay}" />
+						</StackPanel>
+
+						<Grid Margin="0,16">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto" />
+								<RowDefinition Height="Auto" />
+							</Grid.RowDefinitions>
+
+							<TextBlock Margin="0,0,10,0">Game EXE:</TextBlock>
+							<TextBlock Grid.Column="1" Text="{x:Bind VM.GameInstallation.EXEName}" />
+							<TextBlock Grid.Row="1">EXE Path:</TextBlock>
+							<TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind VM.GameInstallation.FolderPath}" />
+						</Grid>
 					</StackPanel>
-				</StackPanel>
-				
-				<StackPanel>
-					<TextBlock Style="{StaticResource stySubHeader}">Snap turn</TextBlock>
-
-					<CheckBox x:Name="cbSnapTurn">Enable to turn in increments instead of continuously. Helps if you experience motion sickness while turning.</CheckBox>
-
-					<StackPanel Orientation="Horizontal">
-						<Slider x:Name="slSnapturnTurnAngle" IsEnabled="{x:Bind cbSnapTurn.IsChecked.Value, Mode=OneWay}" Minimum="10" Maximum="90" TickFrequency="5" 
-							TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
-
-						<TextBlock Text="{x:Bind slSnapturnTurnAngle.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
-						<TextBlock Text="°" FontSize="16" VerticalAlignment="Center" />
-					</StackPanel>
-				</StackPanel>
-
-				<Grid>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="*" />
-						<ColumnDefinition Width="32" />
-						<ColumnDefinition Width="*" />
-					</Grid.ColumnDefinitions>
-
-					<StackPanel>
-						<TextBlock Style="{StaticResource stySubHeader}">Multiplayer Aim Support</TextBlock>
-						<CheckBox x:Name="cbAimMPSupport">Enable if you experience unusual camera effects when playing multiplayer games. Leave off if you encounter no issues.</CheckBox>
-					</StackPanel>
-
-					<StackPanel Grid.Column="2">
-						<TextBlock Style="{StaticResource stySubHeader}">Depth buffer integration</TextBlock>
-
-						<CheckBox x:Name="cbEnableDepth">Reduces latency, especially when using Meta Quest Link. May cause crashes.</CheckBox>
-					</StackPanel>
-				</Grid>
-
-				<StackPanel>
-					<TextBlock Style="{StaticResource stySubHeader}">Typical in game settings</TextBlock>
-					<TextBlock TextWrapping="WrapWholeWords">
-						<Run>Rendering VR at very high resolutions is extremely demanding. 
-							Ensure you have a powerful GPU with ample VRAM, and avoid maxing out game settings. 
-							While optimizing, monitor GPU usage and especially GPU VRAM in Task Explorer.</Run>
-						<LineBreak/>
-						<Run>If the game supports it, adjust these in-game graphic settings:</Run>
-						<LineBreak/> 
-						<Run>- Chromatic aberration: OFF</Run>
-						<LineBreak/>
-						<Run>- Motion blur: OFF</Run>
-						<LineBreak/>
-						<Run>- Depth of field: OFF</Run>
-						<LineBreak/>
-						<Run>- View/head bobbing: OFF</Run>
-						<LineBreak/>
-						<Run>- DLSS/FSR: OFF if the game does not support Native Stereo rendering</Run>
-						<LineBreak/>
-						<Run>- Post processing: typically looks better on LOW</Run>
-						<LineBreak/>
-					</TextBlock>
-					<Grid Margin="0,16">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto" />
-							<ColumnDefinition Width="*" />
-						</Grid.ColumnDefinitions>
-						<Grid.RowDefinitions>
-							<RowDefinition Height="Auto" />
-							<RowDefinition Height="Auto" />
-						</Grid.RowDefinitions>
-
-						<TextBlock Margin="0,0,8,0">Game EXE:</TextBlock>
-						<TextBlock Grid.Column="1" Text="{x:Bind VM.GameInstallation.EXEName}" />
-						<TextBlock Grid.Row="1">EXE Path:</TextBlock>
-						<TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind VM.GameInstallation.FolderPath}" />
-					</Grid>
-				</StackPanel>
-			</StackPanel>
-		</ScrollView>
+				</ScrollViewer>
+			</TabViewItem>
+		</TabView>
 
 		<StackPanel Grid.Row="2" Spacing="12" Orientation="Horizontal" Margin="0,14,0,0">
 			<Button Click="Save_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Save</TextBlock>
+					<TextBlock Style="{StaticResource styButtonIconText}" Text="Save" />
 				</Grid>
 			</Button>
 
 			<Button Click="OpenFolder_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE838;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Open Folder</TextBlock>
+					<TextBlock Style="{StaticResource styButtonIconText}" Text="Open Folder" />
 				</Grid>
 			</Button>
 
@@ -205,22 +263,22 @@
 					ToolTipService.ToolTip="Prepare profile for publishing. Deletes temporary files and generates a cleaned profile ZIP for sharing.">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE78c;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Publish</TextBlock>
+					<TextBlock Style="{StaticResource styButtonIconText}" Text="Publish" />
 				</Grid>
 			</Button>
-			
+
 			<Button Click="Delete_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}"
 					ToolTipService.ToolTip="Can be helpful if UEVR or the game was massively updated since the profile was built">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74D;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Delete</TextBlock>
+					<TextBlock Style="{StaticResource styButtonIconText}" Text="Delete" />
 				</Grid>
 			</Button>
 
 			<Button Click="Back_Click" Style="{StaticResource styButton}">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Cancel</TextBlock>
+					<TextBlock Style="{StaticResource styButtonIconText}" Text="Cancel" />
 				</Grid>
 			</Button>
 		</StackPanel>
