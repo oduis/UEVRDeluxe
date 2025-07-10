@@ -28,8 +28,8 @@ public class GamePageVM : VMBase {
 	public string UEVRVersionWarning {
 		get {
 			if (currentUEVRNightlyNumber.HasValue &&
-				((LocalProfile.Meta?.MinUEVRNightlyNumber ?? int.MinValue) > CurrentUEVRNightlyNumber
-				|| (LocalProfile.Meta?.MaxUEVRNightlyNumber ?? int.MaxValue) < CurrentUEVRNightlyNumber))
+				((LocalProfile?.Meta?.MinUEVRNightlyNumber ?? int.MinValue) > CurrentUEVRNightlyNumber
+				|| (LocalProfile?.Meta?.MaxUEVRNightlyNumber ?? int.MaxValue) < CurrentUEVRNightlyNumber))
 				return $"Currently installed UEVR backend version {CurrentUEVRNightlyNumber} might not be compatible";
 
 			return null;
