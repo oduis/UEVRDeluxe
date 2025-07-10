@@ -29,12 +29,6 @@ public class ProfileMeta {
 	[JsonPropertyName("authorName")]
 	public string AuthorName { get; set; }
 
-	/// <summary>Minimum version of UEVR, given as day of UEVR code to accomodate from interims releases.</summary>
-	/// <remarks>1.05 was 2024-10-31</remarks>
-	[JsonPropertyName("minUEVRVersionDay")]
-	[Obsolete()]
-	public DateTime? MinUEVRVersionDate { get; set; }
-
 	/// <summary>If set, minimum version number</summary>
 	[JsonPropertyName("minUEVRNightlyNumber")]
 	public int? MinUEVRNightlyNumber { get; set; }
@@ -91,9 +85,6 @@ public class ProfileMeta {
 
 		if (string.IsNullOrWhiteSpace(AuthorName) || AuthorName.Trim() != AuthorName || AuthorName.Length > TEXTFIELDS_MAX_LENGTH)
 			return $"{FILENAME}: Invalid AuthorName";
-
-		if (MinUEVRVersionDate.HasValue)
-			return $"{FILENAME}: minUEVRVersionDate is obsolete, use minUEVRNightlyNumber/maxUEVRNightlyNumber instead";
 
 		if ((MinUEVRNightlyNumber.HasValue && MaxUEVRNightlyNumber.HasValue && MinUEVRNightlyNumber > MaxUEVRNightlyNumber)
 			|| MinUEVRNightlyNumber <= 0 || MaxUEVRNightlyNumber <= 0)
