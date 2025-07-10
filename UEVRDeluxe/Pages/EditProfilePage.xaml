@@ -25,17 +25,17 @@
 
 		<Image Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="72" Margin="4" Source="{x:Bind VM.GameInstallation.IconURL, Mode=OneWay}" />
 
-		<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+		<StackPanel Orientation="Horizontal" Margin="0,0,0,4">
 			<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
 				<FontIcon Style="{StaticResource styBackLink}" />
 			</HyperlinkButton>
 			<TextBlock VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Edit UEVR Profile" />
 		</StackPanel>
 
-		<TabView Grid.Row="1" IsAddTabButtonVisible="False">
+		<TabView Grid.Row="1" IsAddTabButtonVisible="False" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
 			<TabViewItem Header="&#x25A0;  UEVR Settings" IsClosable="False">
 				<ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
-					<StackPanel Spacing="26" HorizontalAlignment="Stretch">
+					<StackPanel Spacing="26" HorizontalAlignment="Stretch" Margin="0,6,0,0">
 						<StackPanel x:Name="spRenderingMethod">
 							<TextBlock Style="{StaticResource stySubHeader}">Rendering Method</TextBlock>
 
@@ -180,12 +180,12 @@
 					</StackPanel>
 				</ScrollViewer>
 			</TabViewItem>
-			<TabViewItem Header="&#x25A0;  Profile Description" IsClosable="False">
+			<TabViewItem Header="&#x25A0;  Profile Information" IsClosable="False">
 				<ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
-					<StackPanel Spacing="26" HorizontalAlignment="Stretch">
-						<StackPanel Spacing="8">
+					<StackPanel Spacing="26" HorizontalAlignment="Stretch" Margin="0,6,0,0">
+						<StackPanel Spacing="6">
 							<TextBlock Style="{StaticResource stySubHeader}">Profile Metadata</TextBlock>
-							<StackPanel Spacing="10">
+							<StackPanel Spacing="12">
 								<StackPanel Orientation="Horizontal" Spacing="24">
 									<StackPanel Width="320" Spacing="4">
 										<TextBlock>Author Name</TextBlock>
@@ -207,7 +207,7 @@
 							</StackPanel>
 						</StackPanel>
 
-						<StackPanel Spacing="10">
+						<StackPanel Spacing="6">
 							<TextBlock Style="{StaticResource stySubHeader}">UEVR Requirements</TextBlock>
 
 							<StackPanel Orientation="Horizontal" Spacing="24">
@@ -224,7 +224,7 @@
 							<CheckBox Content="Late Injection (For stability, requires injection when the game is already running and in 3D)" IsChecked="{x:Bind VM.LocalProfile.Meta.LateInjection, Mode=TwoWay}" />
 						</StackPanel>
 
-						<Grid Margin="0,16">
+						<Grid>
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="Auto" />
 								<ColumnDefinition Width="*" />
@@ -241,6 +241,19 @@
 						</Grid>
 					</StackPanel>
 				</ScrollViewer>
+			</TabViewItem>
+			<TabViewItem Header="&#x25A0;  Description" IsClosable="False">
+				<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*" />
+						<RowDefinition Height="Auto" />
+					</Grid.RowDefinitions>
+
+					<TextBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AcceptsReturn="True" Margin="0,8,0,12"
+							 Text="{x:Bind VM.DescriptionMD, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+
+					<TextBlock Grid.Row="1" Style="{StaticResource styHelpText}">Enter a description in Markdown (MD) format outlining the configurations and requirements of this profile. Use secondary headings (e.g., ## MyHeader) instead of primary headings.</TextBlock>
+				</Grid>
 			</TabViewItem>
 		</TabView>
 

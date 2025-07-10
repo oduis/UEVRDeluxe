@@ -49,7 +49,7 @@ public class LocalProfile {
 		LuaLoader_LogToDisk=false
 		""";
 
-	const string DUMMY_DESCRIPTION_MD = """
+	public const string DUMMY_DESCRIPTION_MD = """
         ( See markdownguide.org for help with Markdown format )
         ## Installation and configuration
         ( add required mods or game settings here. Keep it short. Newlines in MD are double space a the end of a line )
@@ -71,7 +71,7 @@ public class LocalProfile {
 	public IniData CVarsStandard { get; private set; }
 
 	/// <summary>Content of the ProfileDescription.md</summary>
-	public string DescriptionMD { get; private set; }
+	public string DescriptionMD { get; set; }
 
 	public static LocalProfile FromUnrealVRProfile(string exeName, bool createIfEmpty = false) {
 		string directory = GetDirectoryName(exeName);
@@ -190,7 +190,7 @@ public class LocalProfile {
 		await WriteTextFileIfChangedAsync(CVarStandardFilePath, CleanedIni(CVarsStandard));
 
 		await WriteTextFileIfChangedAsync(ProfileMetaPath, JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
-		if (!string.IsNullOrEmpty(DescriptionMD)) await WriteTextFileIfChangedAsync(ProfileDescriptionPath, DescriptionMD);
+		await WriteTextFileIfChangedAsync(ProfileDescriptionPath, DescriptionMD);
 	}
 
 	async Task WriteTextFileIfChangedAsync(string path, string content) {

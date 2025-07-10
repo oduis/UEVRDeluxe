@@ -108,6 +108,12 @@ public sealed partial class EditProfilePage : Page {
 			}
 		}
 
+		if (VM.DescriptionMD != null && VM.DescriptionMD != LocalProfile.DUMMY_DESCRIPTION_MD) {
+			VM.LocalProfile.DescriptionMD = VM.DescriptionMD;
+		} else {
+			VM.LocalProfile.DescriptionMD = null;  // Remove the dummy description
+		}
+
 		await VM.LocalProfile.SaveAsync();
 	}
 

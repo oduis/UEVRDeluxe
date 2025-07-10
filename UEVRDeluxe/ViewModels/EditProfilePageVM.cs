@@ -15,8 +15,15 @@ public class EditProfilePageVM : VMBase {
 		set {
 			VisibleIfProfile = (value?.GetExists() ?? false) ? Visibility.Visible : Visibility.Collapsed;
 			Set(ref localProfile, value, [nameof(VisibleIfProfile)]);
+
+			DescriptionMD = string.IsNullOrWhiteSpace(value.DescriptionMD)
+				? LocalProfile.DUMMY_DESCRIPTION_MD : value.DescriptionMD;
 		}
 	}
+
+	string descriptionMD;
+	/// <summary>Might contain a dummy description that should not be changed or saved</summary>
+	public string DescriptionMD { get => descriptionMD; set => Set(ref descriptionMD, value); }
 
 	public Visibility VisibleIfProfile;
 }
