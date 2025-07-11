@@ -59,7 +59,7 @@ public static class AzureManager {
 		return await resp.Content.ReadFromJsonAsync<List<ProfileMeta>>();
 	}
 
-	public static async Task<IEnumerable<ProfileMeta>> SearchProfilesAsync(string exeName, bool includeEnvironments, bool nocache = false) {
+	public static async Task<List<ProfileMeta>> SearchProfilesAsync(string exeName, bool includeEnvironments, bool nocache = false) {
 		string cacheKey = $"Search_{exeName}";
 
 		if (!nocache && memCache.TryGetValue(cacheKey, out object cached)) return (List<ProfileMeta>)cached;
@@ -74,23 +74,23 @@ public static class AzureManager {
 		var result = await resp.Content.ReadFromJsonAsync<List<ProfileMeta>>();
 		memCache[cacheKey] = result;
 
-		return result.OrderBy(p => p.GameName).ThenByDescending(p => p.ModifiedDate);
+		return result.OrderBy(p => p.GameName).ThenByDescending(p => p.ModifiedDate).ToList();
 	}
 
-	public static async Task<string> GetAllProfileNamesAsync(bool nocache = false) {
-		string cacheKey = "GetAllProfileNames";
+	public static async Task<List<ProfileMeta>> GetAllProfilesAsync(bool nocache = false) {
+		string cacheKey = "GetAllProfiles";
 
-		if (!nocache && memCache.TryGetValue(cacheKey, out object cached)) return (string)cached;
+		if (!nocache && memCache.TryGetValue(cacheKey, out object cached)) return (List<ProfileMeta>)cached;
 
 		var client = GetHttpClient();
 
-		var resp = await client.GetAsync("allprofilenames");
-		if (!resp.IsSuccessStatusCode) throw new Exception($"Failed to search all profile names ({(int)resp.StatusCode})");
+		var resp = await client.GetAsync("allprofiles");
+		if (!resp.IsSuccessStatusCode) throw new Exception($"Failed to search all profiles ({(int)resp.StatusCode})");
 
-		var result = await resp.Content.ReadAsStringAsync();
+		var result = await resp.Content.ReadFromJsonAsync<List<ProfileMeta>>();
 		memCache[cacheKey] = result;
 
-		return result;
+		return result.OrderBy(p => p.GameName).ThenByDescending(p => p.ModifiedDate).ToList();
 	}
 
 	public static async Task<byte[]> DownloadProfileZipAsync(string exeName, Guid profileID) {

@@ -135,6 +135,32 @@ public class PublicFunctions : FunctionsBase {
 		return resp;
 	}
 
+	[Function("DownloadAllProfiles")]
+	public async Task<HttpResponseData> RunDownloadAllProfilesAsync(
+	[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "allprofiles")] HttpRequestData req) {
+		HttpResponseData resp;
+
+		try {
+			logger.LogInformation($"DownloadAllProfiles()");
+
+			CheckHttpRequest(req);
+
+			var blobContainerClient = await CreateOpenBlobsContainerAsync();
+			var blobClient = blobContainerClient.GetBlobClient(BLOB_ALLGAMES_JSON);
+
+			// Minimal download to get the description json without querying the whole table
+			var blobContent = await blobClient.DownloadContentAsync();
+
+			resp = HttpDataHelpers.CreateOKResultReponse(req, 15, KnownMimeTypes.Json);
+			await resp.Body.WriteAsync(blobContent.Value.Content);
+		} catch (Exception ex) {
+			resp = await HttpDataHelpers.CreateLogExceptionResponseAsync(logger, req, ex);
+		}
+
+		return resp;
+	}
+
+	[Obsolete()]
 	[Function("DownloadAllProfileNames")]
 	public async Task<HttpResponseData> RunDownloadAllProfileNamesAsync(
 		[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "allprofilenames")] HttpRequestData req) {

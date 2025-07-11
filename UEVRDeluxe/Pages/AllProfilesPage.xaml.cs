@@ -20,7 +20,7 @@ public sealed partial class AllProfilesPage : Page {
 		try {
 			VM.IsLoading = true;
 
-			VM.AllProfileNames = await AzureManager.GetAllProfileNamesAsync();
+			VM.AllProfileMetas = await AzureManager.GetAllProfilesAsync();
 
 			VM.IsLoading = false;
 		} catch (Exception ex) {

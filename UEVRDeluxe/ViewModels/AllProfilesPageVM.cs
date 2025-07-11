@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using UEVRDeluxe.Common;
 
 namespace UEVRDeluxe.ViewModels;
 
 public class AllProfilesPageVM : VMBase {
-	string allProfileNames;
-	public string AllProfileNames {
-		get => allProfileNames;
-		set => Set(ref allProfileNames, value);
+	List<ProfileMeta> allProfileMetas;
+	public List<ProfileMeta> AllProfileMetas {
+		get => allProfileMetas;
+		set => Set(ref allProfileMetas, value);
 	}
 }

@@ -1,4 +1,5 @@
 ﻿#region Usings
+using Azure;
 using Azure.Data.Tables;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ public abstract class FunctionsBase {
 
 	/// <summary>Cache containing a list of all game names.</summary>
 	protected string BLOB_ALLGAMES_DOCUMENT = "_AllGames.txt";
+	protected string BLOB_ALLGAMES_JSON = "_AllGames.json";
 
 	protected async Task<BlobContainerClient> CreateOpenBlobsContainerAsync() {
 		var container = new BlobContainerClient(config["StorageConnectString"], BLOB_PROFILE_CONTAINER_NAME);
@@ -54,8 +56,12 @@ public abstract class FunctionsBase {
 	}
 
 	protected async Task<List<ProfileMeta>> ReadProfilesAsync(TableClient table, string exeName) {
-		if (string.IsNullOrWhiteSpace(exeName)) throw new ArgumentNullException(nameof(exeName));
-		var query = table.QueryAsync<TableEntity>(q => q.PartitionKey == exeName);
+		AsyncPageable<TableEntity> query;
+		
+		if (string.IsNullOrWhiteSpace(exeName))
+			query = table.QueryAsync<TableEntity>();
+		else
+			query = table.QueryAsync<TableEntity>(q => q.PartitionKey == exeName);
 
 		var profiles = new List<ProfileMeta>();
 		await foreach (TableEntity item in query) {

@@ -141,17 +141,27 @@ public class AdminFunctions : FunctionsBase {
 	#endregion
 
 	#region UpdateAllGamesDocumentAsync
-	/// <summary>Tables scans are expensive. Just cache the document</summary>
+	/// <summary>Tables scans are expensive. Just cache the document.</summary>
 	async Task UpdateAllGamesDocumentAsync(TableClient tableClient, BlobContainerClient blobContainerClient) {
-		var queryAll = tableClient.Query<TableEntity>();
-		var distinctGameNames = queryAll.Select(entity => entity.GetString(nameof(ProfileMeta.GameName)))
-						 .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().Order().ToList();
+		var allGames = await ReadProfilesAsync(tableClient, null);
 
-		logger.LogInformation($"Caching {distinctGameNames} total games");
+		logger.LogInformation($"Caching {allGames.Count} total games");
+
+		// serialize allGames to Json and write to blobClient file
+		var jsonOptions = new JsonSerializerOptions();
+
+		var blobClient = blobContainerClient.GetBlobClient(BLOB_ALLGAMES_JSON);
+		using (var strm = blobClient.OpenWrite(true)) {
+			await JsonSerializer.SerializeAsync(strm, allGames, jsonOptions);
+		}
+
+		// TODO: remove this the OLD file when the new version is out a while
+		var distinctGameNames = allGames.Select(n => n.GameName)
+						 .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().Order().ToList();
 
 		byte[] data = System.Text.Encoding.UTF8.GetBytes(string.Join("\n", distinctGameNames));
 
-		var blobClient = blobContainerClient.GetBlobClient(BLOB_ALLGAMES_DOCUMENT);
+		blobClient = blobContainerClient.GetBlobClient(BLOB_ALLGAMES_DOCUMENT);
 		using (var strm = blobClient.OpenWrite(true)) {
 			await strm.WriteAsync(data);
 		}
