@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.1.1.0",
-	"releaseNotes": "Better scanning of games (Ground Branch)",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2110"
+	"version": "2.2.0.0",
+	"releaseNotes": "Inject via voice command (late injection); Edit profiles metadata; Show latest UEVR Nightly without starting as admin",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2200"
 }
