@@ -14,7 +14,7 @@ public class GamePageVM : VMBase {
 	public LocalProfile LocalProfile {
 		get => localProfile;
 		set => Set(ref localProfile, value, [nameof(VisibleIfProfile), nameof(VisibleIfNoProfile),
-			nameof(UEVRVersionWarning), nameof(UEVRVersionWarningVisible),
+			nameof(UEVRVersionWarning), nameof(UEVRVersionWarningVisible), nameof(InjectButtonLabel),
 			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning), nameof(VisibleLateInjectWarning)]);
 	}
 
@@ -61,6 +61,23 @@ public class GamePageVM : VMBase {
 
 	public Visibility VisibleIfProfile => LocalProfile != null ? Visibility.Visible : Visibility.Collapsed;
 	public Visibility VisibleIfNoProfile => LocalProfile == null ? Visibility.Visible : Visibility.Collapsed;
+
+	bool isGameProcessRunning = false;
+	public bool IsGameProcessRunning {
+		get => isGameProcessRunning;
+		set => Set(ref isGameProcessRunning, value, [nameof(InjectButtonLabel)]);
+	}
+
+	public string InjectButtonLabel {
+		get {
+			if (isGameProcessRunning)
+				return $"Inject into running game (Ctrl+Alt+U)";
+			else if ((localProfile?.Meta?.LateInjection ?? false))
+				return "Launch game (Ctrl+Alt+U)";
+			else
+				return $"Launch game & inject with {AppUserSettings.GetDelayBeforeInjectionSec()} secs delay (Ctrl+Alt+U)";
+		}
+	}
 
 	/// <summary>Currently in injection mode game?</summary>
 	bool isRunning = false;

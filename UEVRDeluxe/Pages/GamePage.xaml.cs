@@ -157,9 +157,7 @@ public sealed partial class GamePage : Page {
 
 				VM.StatusMessage = "Waiting for launched game to start...";
 
-				int delayBeforeInjectionSec = AppUserSettings.DEFAULT_DELAY_BEFORE_INJECTION_SEC;
-				string appSetting = AppUserSettings.Read("DelayBeforeInjectionSec");
-				if (int.TryParse(appSetting, out int iAppSetting) && iAppSetting > 0) delayBeforeInjectionSec = iAppSetting;
+				int delayBeforeInjectionSec = AppUserSettings.GetDelayBeforeInjectionSec();
 
 				DateTime? runningSinceUtc = null;
 				do {
@@ -171,7 +169,7 @@ public sealed partial class GamePage : Page {
 						}
 					} else runningSinceUtc = null;  // In case it crashed on start or something
 
-					await Task.Delay(400);
+					await Task.Delay(300);
 
 					if (shouldStop) return;  // if the user cancelled
 				} while (runningSinceUtc == null || DateTime.UtcNow.Subtract(runningSinceUtc.Value).TotalSeconds < delayBeforeInjectionSec);
@@ -268,7 +266,7 @@ public sealed partial class GamePage : Page {
 	}
 	#endregion
 
-	#region * HotKey
+	#region * HotKey/Timer
 	readonly DispatcherTimer hotKeyCheckTimer;
 
 	/// <summary>The first tick decides if a hotkey was passed through</summary>
@@ -284,6 +282,9 @@ public sealed partial class GamePage : Page {
 			}
 		} else if (!wasCalledViaHotKey.HasValue) {
 			wasCalledViaHotKey = false;
+		} else {
+			var gameProcess = Injector.FindInjectableProcess(VM.GameInstallation.EXEName);
+			VM.IsGameProcessRunning = gameProcess != null && !gameProcess.HasExited;
 		}
 	}
 	#endregion

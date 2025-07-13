@@ -2,15 +2,10 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using UEVRDeluxe.Code;
-using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
 #endregion
 
@@ -31,9 +26,7 @@ public sealed partial class SettingsPage : Page {
 
 			Logger.Log.LogTrace("Opening settings page");
 
-			VM.DelayBeforeInjection = AppUserSettings.DEFAULT_DELAY_BEFORE_INJECTION_SEC;
-			string appSetting = AppUserSettings.Read("DelayBeforeInjectionSec");
-			if (int.TryParse(appSetting, out int iAppSetting) && iAppSetting > 0) VM.DelayBeforeInjection = iAppSetting;
+			VM.DelayBeforeInjection = AppUserSettings.GetDelayBeforeInjectionSec();
 
 			VM.OpenXRRuntimes = OpenXRManager.GetAllRuntimes();
 			var defaultRuntime = VM.OpenXRRuntimes.FirstOrDefault(r => r.IsDefault);
