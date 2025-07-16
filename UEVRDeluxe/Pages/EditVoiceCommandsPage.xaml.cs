@@ -157,7 +157,8 @@ public sealed partial class EditVoiceCommandsPage : Page {
 
 	VoiceCommandProfile CreateProfile() {
 		if (VM.SelectedLanguage == null) throw new Exception("Please select a language");
-		if (VM.VoiceCommands.Count == 0) throw new Exception("Please add at least one voice command");
+		if (VM.VoiceCommands.Count == 0 && string.IsNullOrWhiteSpace(VM.InjectText))
+			throw new Exception("Please add at least one voice command");
 
 		var profile = new VoiceCommandProfile {
 			EXEName = VM.EXEName,
