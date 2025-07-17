@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.2.0.0",
-	"releaseNotes": "Inject via voice command (late injection); Edit profiles metadata; Show latest UEVR Nightly without starting as admin",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2200"
+	"version": "2.3.0.0",
+	"releaseNotes": "Better update button info; Voice profiles with just the inject command; More info in profile catalog",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2300"
 }
