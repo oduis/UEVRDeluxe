@@ -169,7 +169,13 @@ class Injector {
 		return true;
 	}
 
+	/// <summary>We don't want a web request on every entering to the main page.</summary>
+	static string cachedLatestNightlyNumber, cachedLatestCommitHash;
+
 	static async Task<(string nightlyNumber, string commitHash)> ReadLatestUEVRNightlyVersionAsync(HttpClient client) {
+		if (cachedLatestNightlyNumber != null && cachedLatestCommitHash != null)
+			return (cachedLatestNightlyNumber, cachedLatestCommitHash);
+
 		string html = await client.GetStringAsync(UEVR_LATEST_NIGHTLY_URL);
 		var doc = new HtmlDocument();
 		doc.LoadHtml(html);
@@ -180,9 +186,9 @@ class Injector {
 		var match = Regex.Match(title.InnerText, @"Release UEVR Nightly (\d+) \(([\da-f]+)\)");
 		if (!match.Success) throw new Exception("Invalid release title format: {title}");
 
-		string nightlyNumber = match.Groups[1].Value;
-		string commitHash = match.Groups[2].Value;
-		return (nightlyNumber, commitHash);
+		cachedLatestNightlyNumber = match.Groups[1].Value;
+		cachedLatestCommitHash = match.Groups[2].Value;
+		return (cachedLatestNightlyNumber, cachedLatestCommitHash);
 	}
 
 	public static async Task<int> ReadLatestUEVRNightlyNumberAsync() {

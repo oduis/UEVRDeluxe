@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -67,7 +66,7 @@ public sealed partial class MainPage : Page {
 
 			hotKeyCheckTimer.Start();
 
-			RefreshUpdateButtonLabel();
+			await RefreshUpdateButtonLabelAsync();
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Startup");
 		}
@@ -242,11 +241,26 @@ public sealed partial class MainPage : Page {
 	#endregion
 
 	#region UpdateUEVR
-	void RefreshUpdateButtonLabel() {
-		string buttonLabel = "Update UEVR Backend to latest Nightly";
+	async Task RefreshUpdateButtonLabelAsync() {
 		int? currentNightlyNumber = Injector.GetInstalledUEVRNightlyNumber();
-		if (currentNightlyNumber.HasValue) buttonLabel += $" ({currentNightlyNumber} installed)";
-		VM.DownloadButtonLabel = buttonLabel;
+
+		int? latestNightlyNumber;
+		try {
+			latestNightlyNumber = await Injector.ReadLatestUEVRNightlyNumberAsync();
+		} catch (Exception ex) {
+			Logger.Log.LogError(ex, "Failed to read latest UEVR nightly number");
+			latestNightlyNumber = null;
+		}
+
+		if (latestNightlyNumber.HasValue && currentNightlyNumber.HasValue)
+			if (latestNightlyNumber == currentNightlyNumber) {
+				VM.DownloadButtonLabel = $"Change UEVR version ({latestNightlyNumber} [latest] installed)";
+			} else {
+				VM.DownloadButtonLabel = $"Upgrade UEVR to version {latestNightlyNumber} ({currentNightlyNumber} installed)";
+			}
+		else if (currentNightlyNumber.HasValue) {
+			VM.DownloadButtonLabel = $"Upgrade UEVR version ({currentNightlyNumber} installed)";
+		} else VM.DownloadButtonLabel = "Upgrade UEVR version";
 	}
 
 	async Task<int?> ShowUpdateNightlyDialogAsync(int? installedNightlyNumber, int latestNightlyNumber) {
@@ -316,7 +330,7 @@ public sealed partial class MainPage : Page {
 			bool updated = await Injector.UpdateBackendAsync(nightlyNumber);
 			Logger.Log.LogInformation($"Nightly updated: {updated}");
 
-			RefreshUpdateButtonLabel();
+			await RefreshUpdateButtonLabelAsync();
 
 			VM.IsLoading = false;
 

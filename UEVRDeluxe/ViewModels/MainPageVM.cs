@@ -18,6 +18,6 @@ public class MainPageVM : VMBase {
 
 	public Visibility VisibleIfAdmin => !string.IsNullOrWhiteSpace(AzureManager.GetCloudAdminPasskey()) ? Visibility.Visible : Visibility.Collapsed;
 
-	string downloadButtonLabel;
+	string downloadButtonLabel = "Update UEVR version";
 	public string DownloadButtonLabel { get => downloadButtonLabel; set => Set(ref downloadButtonLabel, value); }
 }
