@@ -20,6 +20,7 @@
 		"Setup.exe",
 		"Setup_x64.exe",
 		"Setup_x32.exe",
-		"gamelaunchhelper.exe"
+		"gamelaunchhelper.exe",
+		"UnrealCEFSubProcess"
 	]
 }
