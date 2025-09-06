@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.3.0.0",
-	"releaseNotes": "Better update button info; Voice profiles with just the inject command; More info in profile catalog",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2300"
+	"version": "2.3.1.0",
+	"releaseNotes": "Prevent an endless loop on incorrectly set symbolic links",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2310"
 }

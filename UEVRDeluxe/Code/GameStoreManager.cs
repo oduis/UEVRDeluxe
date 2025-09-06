@@ -86,15 +86,23 @@ public static class GameStoreManager {
 
 		Logger.Log.LogTrace($"Found {allGames.Count} games");
 
+		// Some guys set symlinks, which lead to endless loops if set incorrectly
+		var enumOptionsSubdirectories = new EnumerationOptions {
+			RecurseSubdirectories = true,
+			AttributesToSkip = FileAttributes.ReparsePoint,
+			IgnoreInaccessible = true
+		};
+
 		// Find UE-Executable. This is more an art than a science and takes longer ;-)
 		foreach (var game in allGames) {
+			Logger.Log.LogTrace($"Scanning {game.Name} in {game.FolderPath}");
 #if DEBUG
 			// Force visibility if you don't want to buy a UE game just to test
 			//if (game.EAContentIDs != null) { game.EXEName = "Test"; continue; }
 #endif
 			try {
 				// First check if directories contain the magic directories that are specific to Unreal
-				string[] alldirs = Directory.GetDirectories(game.FolderPath, "*", SearchOption.AllDirectories);
+				string[] alldirs = Directory.GetDirectories(game.FolderPath, "*", enumOptionsSubdirectories);
 
 				if (!alldirs.Any(d => d.Contains("Engine\\Binaries\\Win64", StringComparison.OrdinalIgnoreCase)
 					|| d.Contains("Engine\\Binaries\\ThirdParty", StringComparison.OrdinalIgnoreCase))) {
@@ -103,7 +111,7 @@ public static class GameStoreManager {
 				}
 
 				// The find the EXE
-				string[] exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", SearchOption.AllDirectories);
+				string[] exesPaths = Directory.GetFiles(game.FolderPath, "*.exe", enumOptionsSubdirectories);
 
 				// the name of the game directory often partly occurs in the correct exe name
 				// e.g folder (=game) \ReadyOrNot\, exe like ReadyOrNot.exe
@@ -375,12 +383,11 @@ public static class GameStoreManager {
 
 			Logger.Log.LogTrace($"Found GOG Client {gogExeName}");
 
-			var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
-
-			var keyGames = hklm.OpenSubKey(@"SOFTWARE\GOG.com\Games", false);
+			using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
+			using var keyGames = hklm.OpenSubKey(@"SOFTWARE\GOG.com\Games", false);
 
 			foreach (string subkeyName in keyGames.GetSubKeyNames()) {
-				var gameKey = keyGames.OpenSubKey(subkeyName, false);
+				using var gameKey = keyGames.OpenSubKey(subkeyName, false);
 
 				string gameName = gameKey.GetValue("gameName") as string;
 				if (string.IsNullOrEmpty(gameName)) continue;
