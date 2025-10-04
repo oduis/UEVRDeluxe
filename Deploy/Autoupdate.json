@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.3.1.0",
-	"releaseNotes": "Prevent an endless loop on incorrectly set symbolic links",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2310"
+	"version": "2.3.2.0",
+	"releaseNotes": "Auto-enable voice commands on profile saves; Small fix for profile upload.",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2320"
 }
