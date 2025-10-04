@@ -51,5 +51,18 @@ public static class AppUserSettings {
 		if (int.TryParse(appSetting, out int iAppSetting) && iAppSetting > 0) delayBeforeInjectionSec = iAppSetting;
 		return delayBeforeInjectionSec;
 	}
+
+	const string KEY_ENABLE_VOICE_COMMANDS = "EnableVoiceCommands";
+
+	public static bool EnableVoiceCommands {
+		get {
+			string appSetting = Read(KEY_ENABLE_VOICE_COMMANDS);
+			if (appSetting != null && bool.TryParse(appSetting, out bool value)) return value;
+			return true;
+		}
+		set {
+			Write(KEY_ENABLE_VOICE_COMMANDS, value.ToString());
+		}
+	}
 	#endregion
 }

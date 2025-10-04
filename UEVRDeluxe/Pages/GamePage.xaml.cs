@@ -26,8 +26,6 @@ public sealed partial class GamePage : Page {
 	readonly GamePageVM VM = new();
 	VoiceCommandRecognizer speechRecognizer;
 
-	const string KEY_ENABLE_VOICE_COMMANDS = "EnableVoiceCommands";
-
 	#region * Init
 	public GamePage() {
 		this.InitializeComponent();
@@ -139,7 +137,7 @@ public sealed partial class GamePage : Page {
 				speechRecognizer = null;
 			}
 
-			AppUserSettings.Write(KEY_ENABLE_VOICE_COMMANDS, VM.EnableVoiceCommands.ToString());
+			AppUserSettings.EnableVoiceCommands = VM.EnableVoiceCommands;
 			#endregion
 
 			#region Launch process and wait
@@ -313,7 +311,7 @@ public sealed partial class GamePage : Page {
 			var deviceInformation = DeviceInformation.CreateFromIdAsync(deviceID).AsTask().Result;
 			VM.DefaultInputDeviceName = deviceInformation?.Name ?? "Unknown Device";
 
-			VM.EnableVoiceCommands = bool.Parse(AppUserSettings.Read(KEY_ENABLE_VOICE_COMMANDS) ?? true.ToString())
+			VM.EnableVoiceCommands = AppUserSettings.EnableVoiceCommands
 				&& File.Exists(VoiceCommandProfile.GetFilePath(VM.GameInstallation.EXEName))
 				&& !Win32.IsUserAnAdmin();
 		} else {

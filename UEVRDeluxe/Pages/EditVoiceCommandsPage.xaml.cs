@@ -147,6 +147,8 @@ public sealed partial class EditVoiceCommandsPage : Page {
 			File.WriteAllText(VoiceCommandProfile.GetFilePath(VM.EXEName),
 				JsonSerializer.Serialize(profile, new JsonSerializerOptions { WriteIndented = true }));
 
+			AppUserSettings.EnableVoiceCommands = true;  // in case it was switched off
+
 			VM.IsLoading = false;
 
 			Frame.GoBack();
