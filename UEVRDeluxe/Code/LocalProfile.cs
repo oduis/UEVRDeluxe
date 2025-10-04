@@ -40,9 +40,6 @@ public class LocalProfile {
 		FrameworkConfig_LogLevel=3
 		OpenXR_IgnoreVirtualDesktopChecks=true
 		OpenXR_ResolutionScale=1.000000
-		VR_DPadShifting=true
-		VR_DPadShiftingMethod=0
-		VR_JoystickDeadzone=0.200000
 		VR_PassDepthToRuntime=false
 		VR_ShowFPSOverlay=false
 		VR_ShowStatsOverlay=false
