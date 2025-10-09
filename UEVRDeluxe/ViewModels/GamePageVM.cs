@@ -15,7 +15,8 @@ public class GamePageVM : VMBase {
 		get => localProfile;
 		set => Set(ref localProfile, value, [nameof(VisibleIfProfile), nameof(VisibleIfNoProfile),
 			nameof(UEVRVersionWarning), nameof(UEVRVersionWarningVisible), nameof(InjectButtonLabel),
-			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning), nameof(VisibleLateInjectWarning)]);
+			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning), nameof(VisibleLateInjectWarning),
+			nameof(StrippedProfileVisible), nameof(NoProfileVisible), nameof(VisibleIfNotRunningAndProfile)]);
 	}
 
 	int? currentUEVRNightlyNumber;
@@ -45,7 +46,9 @@ public class GamePageVM : VMBase {
 
 	public Visibility ProfileDescriptionVisible => Warning == null && !string.IsNullOrWhiteSpace(LocalProfile?.DescriptionMD) ? Visibility.Visible : Visibility.Collapsed;
 
-	public Visibility WarningVisible => Warning != null ? Visibility.Visible : Visibility.Collapsed;
+	public Visibility StrippedProfileVisible => LocalProfile != null && string.IsNullOrEmpty(LocalProfile.Meta.EXEName) ? Visibility.Visible : Visibility.Collapsed;
+	public Visibility NoProfileVisible => LocalProfile == null ? Visibility.Visible : Visibility.Collapsed;
+
 
 	public string Warning {
 		get {
@@ -84,11 +87,14 @@ public class GamePageVM : VMBase {
 	public bool IsRunning {
 		get => isRunning;
 		set => Set(ref isRunning, value,
-			[nameof(VisibleIfRunning), nameof(VisibleIfNotRunning), nameof(VisibleLateInjectWarning)]);
+			[nameof(VisibleIfRunning), nameof(VisibleIfNotRunning), nameof(VisibleIfNotRunningAndProfile), nameof(VisibleLateInjectWarning)]);
 	}
 
 	public Visibility VisibleIfRunning => isRunning ? Visibility.Visible : Visibility.Collapsed;
+
 	public Visibility VisibleIfNotRunning => !isRunning ? Visibility.Visible : Visibility.Collapsed;
+
+	public Visibility VisibleIfNotRunningAndProfile => !isRunning && LocalProfile != null ? Visibility.Visible : Visibility.Collapsed;
 
 	public Visibility VisibleLateInjectWarning
 		=> (localProfile?.Meta?.LateInjection ?? false) && !isRunning ? Visibility.Visible : Visibility.Collapsed;

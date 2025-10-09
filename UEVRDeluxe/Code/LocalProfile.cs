@@ -78,7 +78,7 @@ public class LocalProfile {
 		return null;
 	}
 
-	static string GetDirectoryName(string exeName) {
+	public static string GetDirectoryName(string exeName) {
 		string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UnrealVRMod");
 
 		if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);

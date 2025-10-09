@@ -32,9 +32,24 @@
 			<TextBlock Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="{x:Bind VM.GameInstallation.Name, Mode=OneWay}" />
 		</StackPanel>
 
-		<Border Grid.Row="1" Grid.RowSpan="2" Margin="48" Visibility="{x:Bind VM.WarningVisible, Mode=OneWay}" 
+		<Border Grid.Row="1" Grid.RowSpan="2" Margin="36" Visibility="{x:Bind VM.NoProfileVisible, Mode=OneWay}" 
                 VerticalAlignment="Center" HorizontalAlignment="Center">
-			<TextBlock FontSize="18" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" />
+			<TextBlock FontSize="18" TextWrapping="WrapWholeWords" LineHeight="28" LineStackingStrategy="BlockLineHeight">
+				<Run FontWeight="Bold">A UEVR Profile is required to run this game</Run><LineBreak />
+				<Run>&#x2022; Recommended: </Run>
+				<Hyperlink Click="Search_Click">Search for a pre-built profile online</Hyperlink><Run>.</Run>
+				<LineBreak />
+				<Run>&#x2022; Have a ZIP from Discord or other sources? Just extract it into </Run>
+				<Hyperlink Click="OpenUEVRProfileRoot_Click">the UEVR folder</Hyperlink><Run>.</Run>
+				<LineBreak />
+				<Run>&#x2022; Can't find one? You can </Run>
+				<Hyperlink Click="Edit_Click">create a basic profile yourself</Hyperlink><Run>.</Run>
+			</TextBlock>
+		</Border>
+
+		<Border Grid.Row="1" Grid.RowSpan="2" Margin="48" Visibility="{x:Bind VM.StrippedProfileVisible, Mode=OneWay}" 
+                VerticalAlignment="Center" HorizontalAlignment="Center">
+			<TextBlock FontSize="18" TextWrapping="WrapWholeWords" Text="You have a local profile for this game, but it contains no publishing description" />
 		</Border>
 
 		<Grid Grid.Row="1" Visibility="{x:Bind VM.ProfileMetaVisible, Mode=OneWay}">
@@ -81,9 +96,9 @@
 		<controls:WebView2 Grid.Row="2" x:Name="webViewDescription" Visibility="{x:Bind VM.ProfileDescriptionVisible, Mode=OneWay}" Margin="0,12,0,16" />
 
 		<TextBlock Grid.Row="3" Style="{StaticResource stySubHeader}"
-                   Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">How is your VR headset connected to the PC?</TextBlock>
+                   Visibility="{x:Bind VM.VisibleIfNotRunningAndProfile, Mode=OneWay}">How is your VR headset connected to the PC?</TextBlock>
 
-		<Grid Grid.Row="4" Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">
+		<Grid Grid.Row="4" Visibility="{x:Bind VM.VisibleIfNotRunningAndProfile, Mode=OneWay}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
@@ -104,7 +119,7 @@
 			</TextBlock>
 		</Grid>
 
-		<Grid Grid.Row="5" Margin="0,12,0,16" Visibility="{x:Bind VM.VisibleIfNotRunning, Mode=OneWay}">
+		<Grid Grid.Row="5" Margin="0,12,0,16" Visibility="{x:Bind VM.VisibleIfNotRunningAndProfile, Mode=OneWay}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto" />
 				<ColumnDefinition Width="Auto" />
@@ -166,7 +181,7 @@
 				</Grid>
 			</Button>
 
-			<Button Grid.Column="2" Click="CopySupportInfo_Click" Style="{StaticResource styButton}" Margin="0,0,12,0" MinWidth="150"
+			<Button Grid.Column="2" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="CopySupportInfo_Click" Style="{StaticResource styButton}" Margin="0,0,12,0" MinWidth="150"
                     ToolTipService.ToolTip="Copy support information to clipboard">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE72D;" />

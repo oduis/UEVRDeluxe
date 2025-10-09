@@ -363,6 +363,24 @@ public sealed partial class GamePage : Page {
 	void Edit_Click(object sender, RoutedEventArgs e)
 		=> Frame.Navigate(typeof(EditProfilePage), VM.GameInstallation, new DrillInNavigationTransitionInfo());
 
+	async void OpenUEVRProfileRoot_Click(object sender, RoutedEventArgs e) {
+		try {
+			string profileRoot = LocalProfile.GetDirectoryName(null);
+			if (!Directory.Exists(profileRoot)) Directory.CreateDirectory(profileRoot);
+
+			var folderUri = new Uri(profileRoot);
+
+			var startInfo = new ProcessStartInfo {
+				FileName = folderUri.AbsoluteUri,
+				UseShellExecute = true,
+				Verb = "open"
+			};
+			Process.Start(startInfo);
+		} catch (Exception ex) {
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Open folder error");
+		}
+	}
+
 	void NavigateSettingsPage(object sender, RoutedEventArgs e)
 		=> Frame.Navigate(typeof(SettingsPage), null, new DrillInNavigationTransitionInfo());
 
