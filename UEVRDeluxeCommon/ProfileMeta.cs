@@ -65,9 +65,6 @@ public class ProfileMeta {
 	[JsonPropertyName("modifiedDate")]
 	public DateTime ModifiedDate { get; set; }
 
-	[JsonIgnore]
-	public string ModifiedDateDisplay => ModifiedDate.ToString("d");
-
 	/// <summary>SHORT remarks (max 128 chars)</summary>
 	[JsonPropertyName("remarks")]
 	public string Remarks { get; set; }

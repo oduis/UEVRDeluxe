@@ -8,28 +8,34 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:tv="using:WinUI.TableView"
     mc:Ignorable="d" 
-	xmlns:viewmodels="using:UEVRDeluxe.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:AllProfilesPageVM}">
+	xmlns:viewmodels="using:UEVRDeluxe.ViewModels"
+    xmlns:conv="using:UEVRDeluxe.Code"
+    d:DataContext="{d:DesignInstance Type=viewmodels:AllProfilesPageVM}">
 
-	<Grid Margin="20,8,20,20">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
-		<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-			<HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
-				<FontIcon Style="{StaticResource styBackLink}" />
-			</HyperlinkButton>
-			<TextBlock VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Profile catalog" />
-		</StackPanel>
-		<TextBlock Grid.Row="1" Margin="0,8,0,20" TextWrapping="WrapWholeWords">You can use UEVR Easy Injector for <Bold>any profile</Bold> (e.g. from Discord), just like the classical UEVR. Additionally, the community currently provides pre-verified profiles for these games in the database for easy install and some description.</TextBlock>
+    <Page.Resources>
+        <conv:DateDisplayConverter x:Key="DateDisplayConverter" />
+    </Page.Resources>
 
-		<tv:TableView Grid.Row="2" ItemsSource="{x:Bind VM.AllProfileMetas, Mode=OneWay}" CanFilterColumns="False" IsReadOnly="True"
+    <Grid Margin="20,8,20,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <HyperlinkButton Click="Back_Click" VerticalAlignment="Center" Padding="0">
+                <FontIcon Style="{StaticResource styBackLink}" />
+            </HyperlinkButton>
+            <TextBlock VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Profile catalog" />
+        </StackPanel>
+        <TextBlock Grid.Row="1" Margin="0,8,0,20" TextWrapping="WrapWholeWords">You can use UEVR Easy Injector for <Bold>any profile</Bold> (e.g. from Discord), just like the classical UEVR. Additionally, the community currently provides pre-verified profiles for these games in the database for easy install and some description.</TextBlock>
+
+        <tv:TableView Grid.Row="2" ItemsSource="{x:Bind VM.AllProfileMetas, Mode=OneWay}" CanFilterColumns="False" IsReadOnly="True"
 					  AutoGenerateColumns="False" SelectionMode="None" ShowExportOptions="False" CornerButtonMode="None">
 			<tv:TableView.Columns>
 				<tv:TableViewTextColumn Header="Game" Binding="{Binding GameName}" />
 				<tv:TableViewTextColumn Header="Profile Author" Binding="{Binding AuthorName}" />
-				<tv:TableViewTextColumn Header="Modified" Binding="{Binding ModifiedDateDisplay}" />
+				<tv:TableViewTextColumn Header="Modified" Binding="{Binding ModifiedDate, Converter={StaticResource DateDisplayConverter}}" />
 				<tv:TableViewTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="*" />
 			</tv:TableView.Columns>
 		</tv:TableView>

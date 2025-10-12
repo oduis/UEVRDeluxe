@@ -8,7 +8,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
-    xmlns:viewmodels="using:UEVRDeluxe.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:GamePageVM}">
+    xmlns:viewmodels="using:UEVRDeluxe.ViewModels" xmlns:conv="using:UEVRDeluxe.Code"
+	d:DataContext="{d:DesignInstance Type=viewmodels:GamePageVM}">
+
+	<Page.Resources>
+		<conv:DateDisplayConverter x:Key="DateDisplayConverter" />
+	</Page.Resources>
 
 	<Grid Margin="20,8,20,20">
 		<Grid.RowDefinitions>
@@ -74,7 +79,7 @@
 
 			<TextBlock Grid.Row="1" Text="Created:" Margin="0,0,12,0" />
 			<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="5">
-				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.ModifiedDateDisplay, Mode=OneWay}" />
+				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.ModifiedDate, Mode=OneWay, Converter={StaticResource DateDisplayConverter}}" />
 				<TextBlock Text="by" />
 				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.AuthorName, Mode=OneWay}" TextWrapping="WrapWholeWords" />
 			</StackPanel>

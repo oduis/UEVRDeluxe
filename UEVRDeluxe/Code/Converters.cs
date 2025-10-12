@@ -41,3 +41,15 @@ public partial class DateTimeToDateTimeOffsetConverter : IValueConverter {
 		return DateTime.Now;
 	}
 }
+
+public class DateDisplayConverter : IValueConverter {
+	public object Convert(object value, Type targetType, object parameter, string language) {
+		if (value is DateTime dt) return dt.ToString("yyyy-MM-dd");
+		return string.Empty;
+	}
+
+	public object ConvertBack(object value, Type targetType, object parameter, string language) {
+		if (value is string s && DateTime.TryParse(s, out var dt)) return dt;
+		return DateTime.MinValue;
+	}
+}
