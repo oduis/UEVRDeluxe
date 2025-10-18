@@ -34,8 +34,8 @@
 
 		<TabView Grid.Row="1" IsAddTabButtonVisible="False" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
 			<TabViewItem Header="&#x25A0;  UEVR Settings" IsClosable="False">
-				<ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
-					<StackPanel Spacing="26" HorizontalAlignment="Stretch" Margin="0,6,0,0">
+				<ScrollViewer x:Name="svSettings" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
+					<StackPanel Spacing="26" Margin="0,6,0,0" HorizontalAlignment="Left" Width="{Binding ElementName=svSettings, Path=ActualWidth, Mode=OneWay}">
 						<StackPanel x:Name="spRenderingMethod">
 							<TextBlock Style="{StaticResource stySubHeader}">Rendering Method</TextBlock>
 
@@ -250,7 +250,7 @@
 					</Grid.RowDefinitions>
 
 					<TextBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AcceptsReturn="True" Margin="0,8,0,12"
-							 Text="{x:Bind VM.DescriptionMD, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+							 Text="{x:Bind VM.DescriptionMD, Mode=TwoWay}" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible" />
 
 					<TextBlock Grid.Row="1" Style="{StaticResource styHelpText}">Enter a description in Markdown (MD) format outlining the configurations and requirements of this profile. Use secondary headings (e.g., ## MyHeader) instead of primary headings.</TextBlock>
 				</Grid>
