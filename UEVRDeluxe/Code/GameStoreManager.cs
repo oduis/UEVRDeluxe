@@ -387,25 +387,30 @@ public static class GameStoreManager {
 			using var keyGames = hklm.OpenSubKey(@"SOFTWARE\GOG.com\Games", false);
 
 			foreach (string subkeyName in keyGames.GetSubKeyNames()) {
-				using var gameKey = keyGames.OpenSubKey(subkeyName, false);
+				try {
+					using var gameKey = keyGames.OpenSubKey(subkeyName, false);
 
-				string gameName = gameKey.GetValue("gameName") as string;
-				if (string.IsNullOrEmpty(gameName)) continue;
+					string gameName = gameKey.GetValue("gameName") as string;
+					if (string.IsNullOrEmpty(gameName)) continue;
 
-				Logger.Log.LogTrace($"Found GOG game {gameName}");
-				var game = new GameInstallation {
-					GOGID = long.Parse(subkeyName),
-					StoreType = GameStoreType.GOG,
-					Name = gameName,
+					Logger.Log.LogTrace($"Found GOG game {gameName}");
+					var game = new GameInstallation {
+						GOGID = long.Parse(subkeyName),
+						StoreType = GameStoreType.GOG,
+						Name = gameName,
 #if DEBUG
-					//EXEName = "Test",  // Force visibility if you don't want to buy a UE game on GOG just to test
+						//EXEName = "Test",  // Force visibility if you don't want to buy a UE game on GOG just to test
 #endif
-					FolderPath = gameKey.GetValue("path") as string,
-					IconURL = "/Assets/GOGLogo.jpg",
-					ShellLaunchPath = ($"{gameKey.GetValue("launchCommand") as string} {gameKey.GetValue("launchParam") as string}").Trim()
-				};
+						FolderPath = gameKey.GetValue("path") as string,
+						IconURL = "/Assets/GOGLogo.jpg",
+						ShellLaunchPath = ($"{gameKey.GetValue("launchCommand") as string} {gameKey.GetValue("launchParam") as string}").Trim()
+					};
 
-				if (Directory.Exists(game.FolderPath)) allGames.Add(game);
+					if (Directory.Exists(game.FolderPath)) allGames.Add(game);
+				} catch (Exception ex) {
+					// In case of a corrupted library definition
+					Logger.Log.LogWarning($"Failed to read XBox game key {subkeyName}: {ex}");
+				}
 			}
 		} catch (Exception ex) {
 			// Show must go on if an installation of one store is flawed
