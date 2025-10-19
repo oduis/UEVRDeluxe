@@ -11,7 +11,7 @@
     <UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<Nullable>disable</Nullable>
-		<VersionPrefix>2.3.2.0</VersionPrefix>
+		<VersionPrefix>2.3.2.1</VersionPrefix>
 		<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 		<FileVersion>$(VersionPrefix)</FileVersion>
 		<WindowsPackageType>None</WindowsPackageType>
@@ -28,7 +28,6 @@
     <None Remove="Pages\GamePage.xaml" />
     <None Remove="Pages\MainPage.xaml" />
     <None Remove="Pages\ProfileDescrPage.xaml" />
-    <None Remove="Styles.xaml" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -76,6 +75,7 @@
     <PackageReference Include="MimeMapping" Version="3.1.0" />
     <PackageReference Include="NReco.Logging.File" Version="1.2.2" />
     <PackageReference Include="PeNet" Version="5.1.0" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.9" />
     <PackageReference Include="System.Management" Version="9.0.9" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
@@ -115,6 +115,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <Page Update="Styles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="UEVR\UEVRLink.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -151,17 +154,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Styles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <Page Update="Pages\AdminPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="Pages\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

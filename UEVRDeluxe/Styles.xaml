@@ -2,7 +2,11 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:UEVRDeluxe" xmlns:common="using:UEVRDeluxe.Common">
+    xmlns:local="using:UEVRDeluxe" 
+    xmlns:common="using:UEVRDeluxe.Common"
+    xmlns:conv="using:UEVRDeluxe.Code">
+
+	<conv:DateDisplayConverter x:Key="DateDisplayConverter" />
 
 	<Style x:Key="styProgress" TargetType="ContentControl">
 		<Setter Property="Template">
@@ -106,7 +110,7 @@
 					<TextBlock Text="Created:" Margin="0,0,12,0" />
 
 					<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
-						<TextBlock Text="{Binding ModifiedDateDisplay}" />
+						<TextBlock Text="{Binding ModifiedDate, Converter={StaticResource DateDisplayConverter}}" />
 						<TextBlock Text="by" />
 						<TextBlock Grid.Column="1" Text="{Binding AuthorName}" />
 					</StackPanel>
