@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.3.2.0",
-	"releaseNotes": "Auto-enable voice commands on profile saves; Small fix for profile upload.",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2320"
+	"version": "2.3.3.0",
+	"releaseNotes": "Increased stability on corrupted XBox installations; some UI fixes",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2330"
 }
