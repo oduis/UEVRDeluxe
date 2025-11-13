@@ -12,7 +12,7 @@ public static class AzConstants {
 	public static string GetProfileFileName(Guid profileID, string exeName) => $"{exeName}_{profileID:n}.zip";
 
 	/// <summary>If the ZIP is larger than this in bytes it typically contains a log file ;-)</summary>
-	public const long MAX_PROFILE_ZIP_SIZE = 10 * 1024 * 1024;
+	public const long MAX_PROFILE_ZIP_SIZE = 20 * 1024 * 1024;
 }
 
 public static class UnrealConstants {
