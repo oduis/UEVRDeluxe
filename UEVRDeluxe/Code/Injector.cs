@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Net.Http;
-using System.IO.Compression;
 using HtmlAgilityPack;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
@@ -113,61 +112,9 @@ class Injector {
 	#region * UpdateBackend
 	const string UEVR_LATEST_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases/latest";
 
-	/// <summary>Version number must be 5 digits leading zeros</summary>
-	const string UEVR_SEARCH_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases?q=Nightly+{0}&expanded=true";
-
-	/// <summary>Contains the URL of the version successfully downloaded</summary>
+	/// <summary>Contains the URL of the version successfully downloaded.</summary>
+	/// <remarks>WARNING: Also change in Cmd</remarks>
 	const string UEVR_VERSION_FILENAME = "UEVRLink.txt";
-
-	/// <summary>Download latest UEVR nightly and install locally</summary>
-	/// <param name="oldNightlyNumber">Desired nightly number. If NULL just the latest.</param>
-	/// <returns>True if update was required, false if not.</returns>
-	public static async Task<bool> UpdateBackendAsync(int? oldNightlyNumber) {
-		if (!Win32.IsUserAnAdmin()) throw new Exception("Please run UEVR Easy Injector as an administrator for downloads");
-
-		string zipUrl, nightlyNumber, commitHash;
-
-		byte[] zipData;
-		using (var client = new HttpClient()) {
-			if (oldNightlyNumber.HasValue) {
-				// Search for the specific nightly version
-				nightlyNumber = oldNightlyNumber.Value.ToString("D5");
-				string searchUrl = string.Format(UEVR_SEARCH_NIGHTLY_URL, nightlyNumber);
-
-				string html = await client.GetStringAsync(searchUrl);
-
-				// e.g. <a href="/praydog/UEVR-nightly/releases/tag/nightly-01095-69fd6801eec8f9ede3c6667302b1740268b89c50" data-view-component="true" class="Link--primary Link" ...
-				var match = Regex.Match(html, $"releases/tag/nightly-{nightlyNumber}-([0-9a-f]+)");
-				if (!match.Success) throw new Exception($"Could not find nightly version {oldNightlyNumber} on GitHub");
-				commitHash = match.Groups[1].Value;
-			} else {
-				(nightlyNumber, commitHash) = await ReadLatestUEVRNightlyVersionAsync(client);
-			}
-
-			zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip";
-
-			if (File.Exists(VersionFilePath) && string.Equals(File.ReadAllText(VersionFilePath).Trim(), zipUrl)) {
-				return false;
-			}
-
-			zipData = await client.GetByteArrayAsync(zipUrl);
-		}
-
-		using (var zipStream = new MemoryStream(zipData))
-		using (var archive = new ZipArchive(zipStream)) {
-			foreach (var entry in archive.Entries) {
-				if (entry.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) {
-					string destinationPath = Path.Combine(UEVRBaseDir, entry.Name);
-					entry.ExtractToFile(destinationPath, true);
-
-					File.SetLastAccessTimeUtc(destinationPath, entry.LastWriteTime.UtcDateTime);
-				}
-			}
-		}
-
-		File.WriteAllText(VersionFilePath, zipUrl);
-		return true;
-	}
 
 	/// <summary>We don't want a web request on every entering to the main page.</summary>
 	static string cachedLatestNightlyNumber, cachedLatestCommitHash;

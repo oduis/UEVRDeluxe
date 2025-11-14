@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UEVRDeluxe", "UEVRDeluxe\UEVRDeluxe.csproj", "{75415972-19A4-4E14-B407-6E831A81A032}"
 EndProject
@@ -17,6 +17,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UEVRDeluxeFunc", "UEVRDeluxeFunc\UEVRDeluxeFunc.csproj", "{23CB9033-5771-4C94-89DA-5B423BA105C7}"
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "UEVRDeluxePackage", "UEVRDeluxePackage\UEVRDeluxePackage.wapproj", "{49846E68-9478-4D50-BAD1-628E61D61499}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UEVRDeluxeCmd", "UEVRDeluxeCmd\UEVRDeluxeCmd.csproj", "{7DFD756C-A297-20C4-B3C6-C39D973F7807}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,6 +76,18 @@ Global
 		{49846E68-9478-4D50-BAD1-628E61D61499}.Release|x86.ActiveCfg = Release|x64
 		{49846E68-9478-4D50-BAD1-628E61D61499}.Release|x86.Build.0 = Release|x64
 		{49846E68-9478-4D50-BAD1-628E61D61499}.Release|x86.Deploy.0 = Release|x64
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Debug|x64.Build.0 = Debug|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Debug|x86.Build.0 = Debug|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Release|ARM64.Build.0 = Release|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Release|x64.ActiveCfg = Release|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Release|x64.Build.0 = Release|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Release|x86.ActiveCfg = Release|Any CPU
+		{7DFD756C-A297-20C4-B3C6-C39D973F7807}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

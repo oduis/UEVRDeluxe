@@ -327,8 +327,8 @@ public sealed partial class MainPage : Page {
 			if (nightlyNumber == -1) { VM.IsLoading = false; return; }
 
 			Logger.Log.LogInformation($"Starting UEVR Nightly update (nightly: {nightlyNumber?.ToString() ?? "latest"})");
-			bool updated = await Injector.UpdateBackendAsync(nightlyNumber);
-			Logger.Log.LogInformation($"Nightly updated: {updated}");
+
+			await CmdManager.RunAsync($"UPDATEBACKEND {(nightlyNumber ?? latestNightlyNumber)}");
 
 			await RefreshUpdateButtonLabelAsync();
 
@@ -336,7 +336,7 @@ public sealed partial class MainPage : Page {
 
 			await new ContentDialog {
 				Title = "UEVR Nightly", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
-				Content = updated ? "Updated successfully" : "You local version was already up to date"
+				Content = "Updated successfully"
 			}.ShowAsync();
 		} catch (Exception ex) {
 			VM.IsLoading = false;
