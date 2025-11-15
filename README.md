@@ -3,7 +3,7 @@ Play many esp. first person Unreal Engine games in VR!
 Replacing the old UEVR Injector with a much more user friendly, easy to use and automated app.  
 It auto-scans you Steam/EPIC/GOG installed games and replaces tools like launcher, UEVRInjector, OpenXR switchers.
 
-Most profile websites are outdated, profiles floating in Discord discussions, hard to discover.
+Most profile websites are outdated, profiles floating in Discord discussions, hard to discover, hard to install for laymen (including PAKs etc.).
 UEVR Easy Injector contains a web database for easy discovery and installation, plus adds authors information on how to use the profiles.
 
 It also adds voice commands and global hotkeys to improve the VR experience.
@@ -14,24 +14,12 @@ UEVR Easy allows you to install any specific version of the UEVR backend using i
 ## Installation
 Simply download the setup program from the release section.  
 Some virus scanner mark the UEVR engine as a false positive, because it (suspiciously) injects itself into other game apps.
-Please add an exception for UEVR in your antivirus software if necessary.
+Please add an exception for UEVR in your antivirus software if necessary.  
 Do **not** run the classical UEVR injector in parallel (side by side install is no problem, just not start them).
 
 ## Submitting profiles
 Please only submit tested profiles, not work in progress.  
-In the "Edit profile" screen is a "Publish" button. It cleans you profile from temp files like logs and dumps and packs it up in a ZIP, 
-with some standardized variables.
-On first submit it will generate two files in the profiles folder (if not existing already).  
-Add descriptive data in these files (see below). 
-Then publish again, and post the resulting ZIP file on this [Discord channel](https://discord.com/channels/747967102895390741/947806014344925274)
-
-### ProfileMeta.json
-Open with a text editor and fill in especially your authors name, a SHORT remark.
-
-### ProfileDescription.md
-Here you can add more information for the user, like required mods, restrictions etc.
-The attention span these days is short. Simple bullet points, keep it short.
-The format is MarkDown. There are a of online editors, like [Dillinger](https://dillinger.io/)
+[Click here on how to submit a profile](https://uevrdeluxe.org/SubmitProfile.html)
 
 # Contributing
 The backend database lives on Azure and is privately paid for by myself. 
