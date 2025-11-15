@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.3.3.0",
-	"releaseNotes": "Increased stability on corrupted XBox installations; some UI fixes",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2330"
+	"version": "2.4.0.0",
+	"releaseNotes": "Auto-Installation of PAK files; Update UEVR backend without needing to start as admin",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2400"
 }
