@@ -1,1 +1,1 @@
-https://github.com/praydog/UEVR-nightly/releases/download/nightly-01112-49c818779787dcb54754079cfeaac65d423abf83/uevr.zip
+https://github.com/praydog/UEVR-nightly/releases/download/nightly-01115-e630558f92491cdc3b88d1a84f8bb37b5b0bec9f/uevr.zip
