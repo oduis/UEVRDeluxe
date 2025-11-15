@@ -1,9 +1,12 @@
 #region Usings
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
@@ -20,8 +23,8 @@ public sealed partial class DownloadProfilePage : Page {
 	protected override void OnNavigatedTo(NavigationEventArgs e) {
 		base.OnNavigatedTo(e);
 
-		var para= e.Parameter as DownloadProfilePageArgs;
-		VM.OriginalEXEName = para.OriginalEXEName;
+		var para = e.Parameter as DownloadProfilePageArgs;
+		VM.GameEXEPath = para.GameEXEPath;
 		VM.ProfileMetas = para.ProfileMetas;
 		if (VM.ProfileMetas.Count == 1) VM.SelectedProfileMeta = VM.ProfileMetas[0];
 	}
@@ -32,7 +35,26 @@ public sealed partial class DownloadProfilePage : Page {
 
 			byte[] profileZip = await AzureManager.DownloadProfileZipAsync(VM.SelectedProfileMeta.EXEName, VM.SelectedProfileMeta.ID);
 
+			// Try to uninstall old profile first, if it had PAKs
+			var oldProfile = LocalProfile.FromUnrealVRProfile(VM.OriginalEXEName);
+			if (oldProfile?.Meta?.FileCopies?.Any() == true) {
+				try {
+					await CmdManager.UninstallAsync(oldProfile.FolderPath, Path.GetDirectoryName(VM.GameEXEPath));
+				} catch (Exception exUninstall) {
+					Logger.Log.LogCritical(exUninstall, "Uninstall failed");
+				}
+			}
+
 			LocalProfile.ReplaceFromZip(VM.OriginalEXEName, profileZip);
+
+			var newProfile = LocalProfile.FromUnrealVRProfile(VM.OriginalEXEName);
+			if (newProfile?.Meta?.FileCopies?.Any() == true) {
+				try {
+					await CmdManager.InstallAsync(newProfile.FolderPath, Path.GetDirectoryName(VM.GameEXEPath));
+				} catch (Exception exInstall) {
+					throw new Exception($"Install of profile file copies (PAK) failed: {exInstall.Message}", exInstall);
+				}
+			}
 
 			VM.IsLoading = false;
 			Frame.GoBack();
@@ -72,6 +94,6 @@ public sealed partial class DownloadProfilePage : Page {
 
 
 public class DownloadProfilePageArgs {
-	public string OriginalEXEName;
+	public string GameEXEPath;
 	public ObservableCollection<ProfileMeta> ProfileMetas;
 }

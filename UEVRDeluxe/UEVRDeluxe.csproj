@@ -11,7 +11,7 @@
     <UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<Nullable>disable</Nullable>
-		<VersionPrefix>2.3.3.0</VersionPrefix>
+		<VersionPrefix>2.4.0.0</VersionPrefix>
 		<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 		<FileVersion>$(VersionPrefix)</FileVersion>
 		<WindowsPackageType>None</WindowsPackageType>
@@ -181,7 +181,8 @@
     <Folder Include="Cmd\" />
   </ItemGroup>
 	<PropertyGroup>
-		<PreBuildEvent>copy "$(SolutionDir)UEVRDeluxeCmd\bin\Debug\net8.0\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
+		<PreBuildEvent Condition="'$(Configuration)' == 'Debug'">copy "$(SolutionDir)UEVRDeluxeCmd\bin\Debug\net8.0\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
+		<PreBuildEvent Condition="'$(Configuration)' == 'Release'">copy "$(SolutionDir)UEVRDeluxeCmd\bin\Release\net8.0\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
 	</PropertyGroup>
   <PropertyGroup Label="Globals">
     <WebView2EnableCsWinRTProjection>True</WebView2EnableCsWinRTProjection>

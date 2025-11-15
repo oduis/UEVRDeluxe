@@ -188,7 +188,7 @@ public static class GameStoreManager {
 						}
 					}
 
-					game.EXEName = Path.GetFileNameWithoutExtension(bestProps.filePath);
+					game.EXEPath = bestProps.filePath;
 
 					Logger.Log.LogTrace($"{game.Name} best executable: {bestProps.filePath}");
 				} else {
@@ -198,6 +198,19 @@ public static class GameStoreManager {
 				Logger.Log.LogError(ex, $"Failed to find executable for {game.Name}");
 			}
 		}
+
+#if DEBUG
+		// For testing purposes
+		allGames.Add(new GameInstallation {
+			Name = "Test App",
+			StoreType = GameStoreType.GOG,
+			GOGID = 1234567890,
+			FolderPath = @"C:\Program Files\UEVRTestApp",
+			EXEPath = @"C:\Program Files\UEVRTestApp\Binaries\Win64\UEVRTestApp-Win64-Shipping",
+			IconURL = "/Assets/GOGLogo.jpg",
+			ShellLaunchPath = "dummy"
+		});
+#endif
 
 		cache.FilteredInstallationIDs = allGames.Where(g => g.EXEName != null).Select(g => g.ID).Order().ToList();
 
@@ -587,14 +600,18 @@ public class GameInstallation {
 
 	public string Name { get; set; }
 
+	/// <summary>Games root folder (EXE is typically in a sub folder)</summary>
 	public string FolderPath { get; set; }
 
 	public string IconURL { get; set; }
 
 	public GameStoreType StoreType { get; set; }
 
+	/// <summary>Full path to EXE</summary>
+	public string EXEPath { get; set; }
+
 	/// <summary>The real executable (not the launchers above) without .exe</summary>
-	public string EXEName { get; set; }
+	public string EXEName => EXEPath != null ? Path.GetFileNameWithoutExtension(EXEPath) : null;
 
 	public string ShellLaunchPath { get; set; }
 
@@ -606,12 +623,12 @@ public enum GameStoreType {
 	Epic,
 	GOG,
 	XBox,
-	EA // Add EA to the GameStoreType enum
+	EA
 }
 
 /// <summary>Disk representation.</summary>
 internal class GameInstallationCache {
-	public const int LATEST_CACHE_STRUCTURE_VERSION = 1;
+	public const int LATEST_CACHE_STRUCTURE_VERSION = 2;
 
 	/// <summary>What version was it built with?</summary>
 	/// <remarks>For future expansion, to determine if we'd need to recreate the cache because of structural changes.</remarks>

@@ -7,7 +7,9 @@ namespace UEVRDeluxe.ViewModels;
 
 public class DownloadProfilePageVM : VMBase {
 	/// <summary>Since search does also returns profiles for other platforms</summary>
-	public string OriginalEXEName { get; set; }
+	public string GameEXEPath { get; set; }
+
+	public string OriginalEXEName => System.IO.Path.GetFileNameWithoutExtension(GameEXEPath);
 
 	ObservableCollection<ProfileMeta> profileMetas;
 	public ObservableCollection<ProfileMeta> ProfileMetas { get => profileMetas; set => Set(ref profileMetas, value); }

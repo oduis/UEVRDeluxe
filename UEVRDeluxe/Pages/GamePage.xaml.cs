@@ -100,7 +100,7 @@ public sealed partial class GamePage : Page {
 			}
 
 			Frame.Navigate(typeof(DownloadProfilePage), new DownloadProfilePageArgs {
-				OriginalEXEName = VM.GameInstallation.EXEName, ProfileMetas = profileMetas
+				GameEXEPath = VM.GameInstallation.EXEPath, ProfileMetas = profileMetas
 			}, new DrillInNavigationTransitionInfo());
 
 			VM.IsLoading = false;
@@ -360,6 +360,7 @@ public sealed partial class GamePage : Page {
 	}
 	#endregion
 
+	#region * Profile commands
 	void Edit_Click(object sender, RoutedEventArgs e)
 		=> Frame.Navigate(typeof(EditProfilePage), VM.GameInstallation, new DrillInNavigationTransitionInfo());
 
@@ -380,6 +381,7 @@ public sealed partial class GamePage : Page {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Open folder error");
 		}
 	}
+	#endregion
 
 	void NavigateSettingsPage(object sender, RoutedEventArgs e)
 		=> Frame.Navigate(typeof(SettingsPage), null, new DrillInNavigationTransitionInfo());

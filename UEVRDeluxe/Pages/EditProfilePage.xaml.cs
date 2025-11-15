@@ -184,6 +184,29 @@ public sealed partial class EditProfilePage : Page {
 		try {
 			VM.IsLoading = true;
 
+			// If the profile meta declares files to be copied to the game folder, try to uninstall them first
+			if (VM.LocalProfile?.Meta?.FileCopies?.Any()==true && !string.IsNullOrWhiteSpace(VM.GameInstallation?.EXEPath)) {
+				try {
+					await CmdManager.UninstallAsync(VM.LocalProfile.FolderPath, Path.GetDirectoryName(VM.GameInstallation.EXEPath));
+				} catch (Exception exUninstall) {
+					// Ask the user if they want to continue deleting the local profile even if uninstall failed
+					var errDialog = new ContentDialog {
+						Title = "Uninstall error",
+						Content = $"Failed to uninstall profile files from game folder:\n{exUninstall.Message}\n\nContinue to delete the local profile anyway?",
+						PrimaryButtonText = "Yes",
+						CloseButtonText = "No",
+						DefaultButton = ContentDialogButton.Close,
+						XamlRoot = this.XamlRoot
+					};
+
+					var errResult = await errDialog.ShowAsync();
+					if (errResult != ContentDialogResult.Primary) {
+						VM.IsLoading = false;
+						return; // abort deletion
+					}
+				}
+			}
+
 			VM.LocalProfile.Delete();
 
 			VM.IsLoading = false;

@@ -229,6 +229,20 @@ public class LocalProfile {
 			Meta.Remarks = string.Empty; Meta.GameVersion = string.Empty;
 			Meta.MinUEVRNightlyNumber = DEFAULT_MIN_UEVR_VERSION_NUMBER;
 
+			// search paks subfolder for file copies and prepopulate
+			string paksFolder = Path.Combine(FolderPath, "Paks");
+			if (Directory.Exists(paksFolder) && Meta.FileCopies == null) {
+				var pakFiles = Directory.GetFiles(paksFolder, "*.pak", SearchOption.TopDirectoryOnly);
+
+				foreach (var pakFile in pakFiles) {
+					Meta.FileCopies ??= new();
+					Meta.FileCopies.Add(new FileCopy {
+						SourceFileRelProfile = "Paks\\" + Path.GetFileName(pakFile),
+						DestinationFolderRelGameEXE = @"..\..\Paks"  // typically in a bin\win64 folder
+					});
+				}
+			}
+
 			File.WriteAllText(Path.Combine(FolderPath, ProfileMeta.FILENAME),
 				JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
 

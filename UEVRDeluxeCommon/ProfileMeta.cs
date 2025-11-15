@@ -1,6 +1,9 @@
-﻿using System;
+﻿#region Usings
+using System;
 using System.IO;
 using System.Text.Json.Serialization;
+using System.Collections.Generic; 
+#endregion
 
 namespace UEVRDeluxe.Common;
 
@@ -69,6 +72,11 @@ public class ProfileMeta {
 	[JsonPropertyName("remarks")]
 	public string Remarks { get; set; }
 
+	/// <summary>Files that should be copied from the profile to the game folder on install (typically PAK files)</summary>
+	/// <remarks>They will be removed on uninstall</remarks>
+	[JsonPropertyName("fileCopies")]
+	public List<FileCopy> FileCopies { get; set; }
+
 	public string Check() {
 		if (string.IsNullOrWhiteSpace(EXEName) || EXEName.Trim() != EXEName || EXEName.Length > TEXTFIELDS_MAX_LENGTH
 			|| Path.GetFileNameWithoutExtension(EXEName) != Path.GetFileName(EXEName))
@@ -92,6 +100,56 @@ public class ProfileMeta {
 		if (!string.IsNullOrWhiteSpace(Remarks) && (Remarks.Trim() != Remarks || Remarks.Length > TEXTFIELDS_MAX_LENGTH))
 			return $"{FILENAME}: Invalid Remarks";
 
+		// Validate FileCopies list if present: only check format, not filesystem
+		if (FileCopies != null) {
+			for (int i = 0; i < FileCopies.Count; i++) {
+				var fc = FileCopies[i];
+				if (fc == null) return $"{FILENAME}: Invalid FileCopies: entry is null";
+
+				// Basic shared validations: non-empty and trimmed
+				if (string.IsNullOrWhiteSpace(fc.SourceFileRelProfile) || fc.SourceFileRelProfile.Trim() != fc.SourceFileRelProfile)
+					return $"{FILENAME}: Invalid FileCopies.SourceFileRelProfile: empty or not trimmed";
+
+				if (string.IsNullOrWhiteSpace(fc.DestinationFolderRelGameEXE) || fc.DestinationFolderRelGameEXE.Trim() != fc.DestinationFolderRelGameEXE)
+					return $"{FILENAME}: Invalid FileCopies.DestinationFolderRelGameEXE: empty or not trimmed";
+
+				char[] invalidPathChars = Path.GetInvalidPathChars();
+				char[] invalidFileNameChars = Path.GetInvalidFileNameChars();
+
+				if (fc.SourceFileRelProfile.IndexOfAny(invalidPathChars) >= 0)
+					return $"{FILENAME}: Invalid FileCopies.SourceFileRelProfile: contains invalid path characters";
+
+				if (Path.GetFileName(fc.SourceFileRelProfile).IndexOfAny(invalidFileNameChars) >= 0)
+					return $"{FILENAME}: Invalid FileCopies.SourceFileRelProfile: filename contains invalid characters";
+
+				if (fc.DestinationFolderRelGameEXE.IndexOfAny(invalidPathChars) >= 0)
+					return $"{FILENAME}: Invalid FileCopies.DestinationFolderRelGameEXE: contains invalid path characters";
+
+				if (Path.GetFileName(fc.DestinationFolderRelGameEXE).IndexOfAny(invalidFileNameChars) >= 0)
+					return $"{FILENAME}: Invalid FileCopies.DestinationFolderRelGameEXE: folder name contains invalid characters";
+
+				// Source should represent a file path (may be relative): it must not end with a directory separator
+				if (fc.SourceFileRelProfile.EndsWith(Path.DirectorySeparatorChar) || fc.SourceFileRelProfile.EndsWith(Path.AltDirectorySeparatorChar))
+					return $"{FILENAME}: Invalid FileCopies.SourceFileRelProfile: appears to be a directory, should be a file";
+
+				// Heuristic: destination should represent a folder path (may be relative). The last segment should not look like a file with an extension.
+				string destLast = Path.GetFileName(fc.DestinationFolderRelGameEXE.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+				if (!string.IsNullOrEmpty(destLast) && !string.IsNullOrEmpty(Path.GetExtension(destLast)))
+					return $"{FILENAME}: Invalid FileCopies.DestinationFolderRelGameEXE: appears to be a file (has extension), should be a folder";
+			}
+		}
+
 		return null;
 	}
+}
+
+/// <summary>Defines a file copy action from the profile to the game folder, typically used for PAK files</summary>
+public class FileCopy {
+	/// <summary>Path relative to profile of the source file to copy</summary>
+	[JsonPropertyName("sourceFileRelProfile")]
+	public string SourceFileRelProfile { get; set; }
+
+	/// <summary>Folder relative to the folder of the game EXE where the file should be copied to</summary>
+	[JsonPropertyName("destinationFolderRelGameEXE")]
+	public string DestinationFolderRelGameEXE { get; set; }
 }

@@ -9,4 +9,10 @@
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Compile Include="..\UEVRDeluxeCommon\ProfileMeta.cs">
+			<Link>Common\ProfileMeta.cs</Link>
+		</Compile>
+	</ItemGroup>
+
 </Project>

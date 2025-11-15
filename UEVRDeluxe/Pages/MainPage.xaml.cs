@@ -328,7 +328,7 @@ public sealed partial class MainPage : Page {
 
 			Logger.Log.LogInformation($"Starting UEVR Nightly update (nightly: {nightlyNumber?.ToString() ?? "latest"})");
 
-			await CmdManager.RunAsync($"UPDATEBACKEND {(nightlyNumber ?? latestNightlyNumber)}");
+			await CmdManager.UpdateBackendAsync(nightlyNumber ?? latestNightlyNumber);
 
 			await RefreshUpdateButtonLabelAsync();
 
