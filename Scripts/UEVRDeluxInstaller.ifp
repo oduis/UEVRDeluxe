@@ -38,7 +38,7 @@
     <Commands/>
     <Registry/>
     <Shortcuts defaultPath="&lt;Company&gt;\&lt;AppName&gt;" isDefaultPathAlterable="false" isCreateStartmenuShortcutsForAllUsers="false" isCreateDesktopShortcutsForAllUsers="true">
-      <Shortcut destination="Desktop" name="Unreal VR Easy Injector" targetFile="&lt;InstallPath&gt;\UEVRDeluxe.exe" commandLineArguments="" iconFilePath="" iconIndex="0"/>
+      <Shortcut destination="Desktop" name="Unreal VR Easy Injector" targetFile="&lt;InstallPath&gt;\win-x64\UEVRDeluxe.exe" commandLineArguments="" iconFilePath="" iconIndex="0"/>
     </Shortcuts>
     <Serials isDialogEnabled="false" count="1000" mask ="#####-#####-#####-#####"/>
     <SplashScreen isDialogEnabled="false" delayTime="2">
