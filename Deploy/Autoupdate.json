@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.4.0.0",
-	"releaseNotes": "Auto-Installation of PAK files; Update UEVR backend without needing to start as admin",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2400"
+	"version": "2.4.0.1",
+	"releaseNotes": "Fix error on update UEVR or download profile if .Net 8 runtime was not installed; New uninstaller",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2401"
 }
