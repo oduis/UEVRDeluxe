@@ -68,6 +68,8 @@ public sealed partial class GamePage : Page {
 
 			VM.CurrentOpenXRRuntime = OpenXRManager.GetAllRuntimes()?.FirstOrDefault(r => r.IsDefault)?.Name ?? "( undefined )";
 
+			VM.LinkProtocol = AppUserSettings.LinkProtocol;
+
 			hotKeyCheckTimer.Start();
 
 			MediaDevice.DefaultAudioCaptureDeviceChanged += MediaDevice_DefaultAudioCaptureDeviceChanged;
@@ -138,6 +140,7 @@ public sealed partial class GamePage : Page {
 			}
 
 			AppUserSettings.EnableVoiceCommands = VM.EnableVoiceCommands;
+			AppUserSettings.LinkProtocol = VM.LinkProtocol;
 			#endregion
 
 			#region Launch process and wait

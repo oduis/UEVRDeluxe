@@ -64,5 +64,17 @@ public static class AppUserSettings {
 			Write(KEY_ENABLE_VOICE_COMMANDS, value.ToString());
 		}
 	}
+
+	const string KEY_LINK_PROTOCOL = "LinkProtocol";
+
+	public static string LinkProtocol {
+		get {
+			string appSetting = Read(KEY_LINK_PROTOCOL);
+			return string.IsNullOrEmpty(appSetting) ? "XR" : appSetting;
+		}
+		set {
+			Write(KEY_LINK_PROTOCOL, value);
+		}
+	}
 	#endregion
 }
