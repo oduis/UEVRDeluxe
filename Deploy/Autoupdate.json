@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.4.0.1",
-	"releaseNotes": "Fix error on update UEVR or download profile if .Net 8 runtime was not installed; New uninstaller",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2401"
+	"version": "2.4.1.0",
+	"releaseNotes": "OpenXR/OpenVR setting is globally saved now. Better profile options description.",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2410"
 }
