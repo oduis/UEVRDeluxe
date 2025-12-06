@@ -1,4 +1,5 @@
 #region Usings
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -52,6 +53,8 @@ static class CmdManager {
 			WorkingDirectory = Path.GetDirectoryName(helperPath)
 		};
 
+		Logger.Log.LogInformation($"Running {helperPath} with arguments: {psi.Arguments}");
+
 		try {
 			using var proc = Process.Start(psi);
 			if (proc != null) {
@@ -73,6 +76,6 @@ static class CmdManager {
 		} catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223) {
 			throw new OperationCanceledException("User cancelled elevation request", ex);
 		}
-	} 
+	}
 	#endregion
 }

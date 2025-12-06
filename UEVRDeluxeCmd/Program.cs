@@ -42,7 +42,6 @@ class Program {
 			Console.Error.WriteLine(ex.Message);
 
 			try {
-				File.WriteAllText(@"C:\temp\err.txt", ex.Message);
 				if (resultFilePathPath != null) File.WriteAllText(resultFilePathPath, ex.Message);
 			} catch { }
 
@@ -175,7 +174,7 @@ class Program {
 		if (!File.Exists(metaPath)) throw new Exception($"Profile meta not found: {metaPath}");
 
 		Console.WriteLine($"Reading profile metadata from {metaPath}");
-		var meta = JsonSerializer.Deserialize<ProfileMeta>(File.ReadAllText(metaPath));
+		var meta = JsonSerializer.Deserialize(File.ReadAllText(metaPath), ProfileMetaJsonContext.Default.ProfileMeta);
 		if (meta == null) throw new Exception("Failed to deserialize profile metadata");
 
 		string check = meta.Check();

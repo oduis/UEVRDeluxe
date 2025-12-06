@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Text.Json.Serialization;
 using System.Collections.Generic; 
+using System.Text.Json.Serialization.Metadata;
 #endregion
 
 namespace UEVRDeluxe.Common;
@@ -152,4 +153,11 @@ public class FileCopy {
 	/// <summary>Folder relative to the folder of the game EXE where the file should be copied to</summary>
 	[JsonPropertyName("destinationFolderRelGameEXE")]
 	public string DestinationFolderRelGameEXE { get; set; }
+}
+
+[JsonSerializable(typeof(ProfileMeta))]
+[JsonSerializable(typeof(FileCopy))]
+[JsonSerializable(typeof(List<FileCopy>))]
+public partial class ProfileMetaJsonContext : JsonSerializerContext
+{
 }
