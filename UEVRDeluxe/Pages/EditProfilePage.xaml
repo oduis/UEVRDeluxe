@@ -41,16 +41,26 @@
 
 							<RadioButton Tag="0">
 								<StackPanel>
-									<TextBlock>Native Stereo</TextBlock>
-									<TextBlock Style="{StaticResource styHelpText}">Best performance, anti-aliasing works (Recommended if no issues)</TextBlock>
-									<CheckBox x:Name="cbNativeStereoFix">Increased compatiblity, reduced performance, but better than Synced Squential (Fix)</CheckBox>
-									<CheckBox x:Name="cbNativeStereoFixSamePass" Margin="28,0,0,0" IsEnabled="{x:Bind cbNativeStereoFix.IsChecked.Value, Mode=OneWay}">Further increased compatibility. May prevent crashes in UE5 games (Same pass stereo)</CheckBox>
+									<TextBlock>Native Stereo (Recommended)</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Unreal engine's native VR rendering. Best performance and image quality. Recommended if no issues.</TextBlock>
+									<CheckBox x:Name="cbNativeStereoFix">
+										<StackPanel>
+											<TextBlock>Native Stereo Fix</TextBlock>
+											<TextBlock Style="{StaticResource styHelpText}">Increased compatibility, reduced performance, but better than Synced Sequential. Often corrects light/shadow mismatches between eyes and flickering.</TextBlock>
+										</StackPanel>
+									</CheckBox>
+									<CheckBox x:Name="cbNativeStereoFixSamePass" Margin="28,0,0,0" IsEnabled="{x:Bind cbNativeStereoFix.IsChecked.Value, Mode=OneWay}">
+										<StackPanel>
+											<TextBlock>Same pass stereo</TextBlock>
+											<TextBlock Style="{StaticResource styHelpText}">Further increased compatibility. May prevent crashes in UE5 games.</TextBlock>
+										</StackPanel>
+									</CheckBox>
 								</StackPanel>
 							</RadioButton>
 							<RadioButton Tag="1" Margin="0,4">
 								<StackPanel>
-									<TextBlock>Synced Sequential</TextBlock>
-									<TextBlock Style="{StaticResource styHelpText}">More CPU intensive, some anti aliasing will cause ghosting effects. But better compatibility if game has issues with Native Stereo.</TextBlock>
+									<TextBlock>Synced Sequential (Higher compatibility)</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Worse performance (more CPU intensive) than Native Stereo. Image may show ghosting effects. But better compatibility if game has issues with Native Stereo.</TextBlock>
 									<StackPanel x:Name="spSyncedSequentialMethod" Margin="0,4,0,0" Spacing="2">
 										<RadioButton Tag="0">
 											<StackPanel>
@@ -69,15 +79,15 @@
 							</RadioButton>
 							<RadioButton Tag="2">
 								<StackPanel>
-									<TextBlock>Alternating/AFR</TextBlock>
-									<TextBlock Style="{StaticResource styHelpText}">Worse quality, may cause nausea, but highest compatibility</TextBlock>
+									<TextBlock>Alternating/AFR (Fallback mode)</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Worst image quality and performance. May cause nausea, but highest compatibility.</TextBlock>
 								</StackPanel>
 							</RadioButton>
 						</StackPanel>
 
 						<StackPanel>
 							<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
-							<CheckBox x:Name="cbGhostingFix">Eliminates faint ghost images around game characters. Especially helpful when using Synced Sequential. May cause side effects and crashes.</CheckBox>
+							<CheckBox x:Name="cbGhostingFix">Eliminates faint ghost images around game characters. Helpful when using Synced Sequential or Native Stereo Fix. May cause crashes in some games.</CheckBox>
 						</StackPanel>
 
 						<StackPanel>
