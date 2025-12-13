@@ -63,6 +63,7 @@
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
@@ -93,7 +94,13 @@
 			<TextBlock Grid.Row="2" Text="Remarks:"/>
 			<TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="7" Text="{x:Bind VM.LocalProfile.Meta.Remarks, Mode=OneWay}" TextWrapping="WrapWholeWords" />
 
-			<Border Grid.Row="3" Grid.ColumnSpan="8" Style="{StaticResource styWarning}" Visibility="{x:Bind VM.UEVRVersionWarningVisible, Mode=OneWay}" Margin="0,8,0,0">
+			<HyperlinkButton Grid.Row="3" Grid.ColumnSpan="8" Margin="0,4,0,0" Padding="0"
+				NavigateUri="{x:Bind VM.DonateLinkUri, Mode=OneWay}"
+				Visibility="{x:Bind VM.DonateLinkVisible, Mode=OneWay}">
+				<TextBlock FontWeight="Normal" TextDecorations="Underline" Foreground="Blue" FontSize="18">Enjoy this profile? Support the Author!</TextBlock>
+			</HyperlinkButton>
+
+			<Border Grid.Row="4" Grid.ColumnSpan="8" Style="{StaticResource styWarning}" Visibility="{x:Bind VM.UEVRVersionWarningVisible, Mode=OneWay}" Margin="0,8,0,0">
 				<TextBlock Text="{x:Bind VM.UEVRVersionWarning, Mode=OneWay}" FontWeight="Bold" />
 			</Border>
 		</Grid>

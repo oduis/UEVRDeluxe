@@ -73,6 +73,9 @@ public class ProfileMeta {
 	[JsonPropertyName("remarks")]
 	public string Remarks { get; set; }
 
+	[JsonPropertyName("donateURL")]
+	public string DonateURL { get; set; }
+
 	/// <summary>Files that should be copied from the profile to the game folder on install (typically PAK files)</summary>
 	/// <remarks>They will be removed on uninstall</remarks>
 	[JsonPropertyName("fileCopies")]
@@ -100,6 +103,15 @@ public class ProfileMeta {
 
 		if (!string.IsNullOrWhiteSpace(Remarks) && (Remarks.Trim() != Remarks || Remarks.Length > TEXTFIELDS_MAX_LENGTH))
 			return $"{FILENAME}: Invalid Remarks";
+
+		if (!string.IsNullOrWhiteSpace(DonateURL)) {
+			if (DonateURL.Trim() != DonateURL || DonateURL.Length > TEXTFIELDS_MAX_LENGTH * 2)
+				return $"{FILENAME}: Invalid DonateURL";
+
+			if (!Uri.TryCreate(DonateURL, UriKind.Absolute, out var donateUri) ||
+				(donateUri.Scheme != Uri.UriSchemeHttp && donateUri.Scheme != Uri.UriSchemeHttps))
+				return $"{FILENAME}: Invalid DonateURL";
+		}
 
 		// Validate FileCopies list if present: only check format, not filesystem
 		if (FileCopies != null) {

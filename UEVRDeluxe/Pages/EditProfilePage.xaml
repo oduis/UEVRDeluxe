@@ -211,6 +211,10 @@
 									</StackPanel>
 								</StackPanel>
 								<StackPanel Spacing="4">
+									<TextBlock>Donate URL</TextBlock>
+									<TextBox Text="{x:Bind VM.LocalProfile.Meta.DonateURL, Mode=TwoWay}" />
+								</StackPanel>
+								<StackPanel Spacing="4">
 									<TextBlock>Remarks (max 128 chars)</TextBlock>
 									<TextBox Text="{x:Bind VM.LocalProfile.Meta.Remarks, Mode=TwoWay}" MaxLength="128" />
 								</StackPanel>

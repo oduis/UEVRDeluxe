@@ -1,4 +1,5 @@
 ﻿#region Usings
+using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using UEVRDeluxe.Code;
@@ -16,7 +17,8 @@ public class GamePageVM : VMBase {
 		set => Set(ref localProfile, value, [nameof(VisibleIfProfile), nameof(VisibleIfNoProfile),
 			nameof(UEVRVersionWarning), nameof(UEVRVersionWarningVisible), nameof(InjectButtonLabel),
 			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning), nameof(VisibleLateInjectWarning),
-			nameof(StrippedProfileVisible), nameof(NoProfileVisible), nameof(VisibleIfNotRunningAndProfile)]);
+			nameof(StrippedProfileVisible), nameof(NoProfileVisible), nameof(VisibleIfNotRunningAndProfile),
+			nameof(DonateLinkUri), nameof(DonateLinkVisible)]);
 	}
 
 	int? currentUEVRNightlyNumber;
@@ -48,6 +50,16 @@ public class GamePageVM : VMBase {
 
 	public Visibility StrippedProfileVisible => LocalProfile != null && string.IsNullOrEmpty(LocalProfile.Meta.EXEName) ? Visibility.Visible : Visibility.Collapsed;
 	public Visibility NoProfileVisible => LocalProfile == null ? Visibility.Visible : Visibility.Collapsed;
+
+	public Uri DonateLinkUri {
+		get {
+			var url = LocalProfile?.Meta?.DonateURL;
+			if (string.IsNullOrWhiteSpace(url)) return null;
+			return Uri.TryCreate(url, UriKind.Absolute, out var uri) ? uri : null;
+		}
+	}
+
+	public Visibility DonateLinkVisible => DonateLinkUri != null ? Visibility.Visible : Visibility.Collapsed;
 
 
 	public string Warning {
