@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.4.1.0",
-	"releaseNotes": "OpenXR/OpenVR setting is globally saved now. Better profile options description.",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2410"
+	"version": "2.4.2.0",
+	"releaseNotes": "EPIC Store fixes by Hazre, Links to profile authors donation pages",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2420"
 }
