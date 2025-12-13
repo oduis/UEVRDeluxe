@@ -231,7 +231,7 @@ public static class GameStoreManager {
 		try {
 			var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-			string appDataPath = ReadWin32RegistryValue("SOFTWARE\\Epic Games\\EpicGamesLauncher", "AppDataPath");
+			string appDataPath = ReadRegistryValue(@"SOFTWARE\Epic Games\EpicGamesLauncher", "AppDataPath");
 			if (string.IsNullOrEmpty(appDataPath)) {
 				Logger.Log.LogTrace("EPIC not installed");
 				return allGames;
@@ -309,7 +309,7 @@ public static class GameStoreManager {
 
 		try {
 			// Find Steam Root dir
-			string steamInstallDir = ReadWin32RegistryValue(@"SOFTWARE\Valve\Steam", "InstallPath");
+			string steamInstallDir = ReadRegistryValue(@"SOFTWARE\Valve\Steam", "InstallPath");
 			if (string.IsNullOrEmpty(steamInstallDir)) {
 				Logger.Log.LogTrace("STEAM not installed");
 				return allGames;
@@ -388,7 +388,7 @@ public static class GameStoreManager {
 
 		try {
 			// Find GOG launcher
-			string gogExeName = ReadWin32RegistryValue(@"SOFTWARE\GOG.com\GalaxyClient", "clientExecutable");
+			string gogExeName = ReadRegistryValue(@"SOFTWARE\GOG.com\GalaxyClient", "clientExecutable");
 			if (string.IsNullOrEmpty(gogExeName)) {
 				Logger.Log.LogTrace("GOG not installed");
 				return allGames;
@@ -560,8 +560,16 @@ public static class GameStoreManager {
 	#endregion
 
 	#region * Helpers
-	static string ReadWin32RegistryValue(string keyPath, string valueName) {
-		using (var regRoot = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
+	/// <summary>Read registry value, checking both 32-bit and 64-bit views</summary>
+	static string ReadRegistryValue(string keyPath, string valueName) {
+		string result = ReadRegistryValueFromView(keyPath, valueName, RegistryView.Registry32);
+		if (result != null) return result;
+
+		return ReadRegistryValueFromView(keyPath, valueName, RegistryView.Registry64);
+	}
+
+	static string ReadRegistryValueFromView(string keyPath, string valueName, RegistryView view) {
+		using (var regRoot = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view))
 		using (var regKey = regRoot.OpenSubKey(keyPath, false)) {
 			if (regKey == null) return null;  // not installed
 
