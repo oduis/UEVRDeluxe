@@ -48,7 +48,7 @@ public class GamePageVM : VMBase {
 
 	public Visibility ProfileDescriptionVisible => Warning == null && !string.IsNullOrWhiteSpace(LocalProfile?.DescriptionMD) ? Visibility.Visible : Visibility.Collapsed;
 
-	public Visibility StrippedProfileVisible => LocalProfile != null && string.IsNullOrEmpty(LocalProfile.Meta.EXEName) ? Visibility.Visible : Visibility.Collapsed;
+	public Visibility StrippedProfileVisible => LocalProfile != null && string.IsNullOrEmpty(LocalProfile.Meta?.EXEName) ? Visibility.Visible : Visibility.Collapsed;
 	public Visibility NoProfileVisible => LocalProfile == null ? Visibility.Visible : Visibility.Collapsed;
 
 	public Uri DonateLinkUri {
@@ -59,8 +59,7 @@ public class GamePageVM : VMBase {
 		}
 	}
 
-	public Visibility DonateLinkVisible => DonateLinkUri != null ? Visibility.Visible : Visibility.Collapsed;
-
+	public Visibility DonateLinkVisible =>  DonateLinkUri != null ? Visibility.Visible : Visibility.Collapsed;
 
 	public string Warning {
 		get {

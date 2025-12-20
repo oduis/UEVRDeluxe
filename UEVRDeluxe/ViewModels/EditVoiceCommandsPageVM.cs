@@ -24,9 +24,6 @@ public class EditVoiceCommandsPageVM : VMBase {
 	string injectText;
 	public string InjectText { get => injectText; set => Set(ref injectText, value); }
 
-	bool stopAfterInjected;
-	public bool StopAfterInjected { get => stopAfterInjected; set => Set(ref stopAfterInjected, value); }
-
 	ObservableCollection<VoiceCommandEx> voiceCommands;
 	public ObservableCollection<VoiceCommandEx> VoiceCommands { get => voiceCommands; set => Set(ref voiceCommands, value); }
 }

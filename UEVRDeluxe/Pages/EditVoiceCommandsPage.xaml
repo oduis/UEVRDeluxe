@@ -57,8 +57,6 @@
 				<TextBlock VerticalAlignment="Center">When I say</TextBlock>
 				<TextBox Text="{x:Bind VM.InjectText, Mode=TwoWay}" Width="240" MaxLength="96" />
 				<TextBlock VerticalAlignment="Center" Margin="0,0,10,0" TextWrapping="WrapWholeWords">then inject UEVR while I'm in the game.</TextBlock>
-				<CheckBox IsChecked="{x:Bind VM.StopAfterInjected, Mode=TwoWay}" 
-						  ToolTipService.ToolTip="To safe processing power or prevent accidental recognitions">Stop all voice recognitions after injection</CheckBox>
 			</StackPanel>
 			<TextBlock Style="{StaticResource styHelpText}">( Only on late injection profiles when game was launched from UEVR Easy )</TextBlock>
 

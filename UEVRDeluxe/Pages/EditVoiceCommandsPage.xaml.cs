@@ -72,7 +72,7 @@ public sealed partial class EditVoiceCommandsPage : Page {
 
 				VM.SelectedLanguage = VM.Languages.FirstOrDefault(l => l.LanguageTag == profile.LanguageTag) ?? VM.Languages[0];
 
-				VM.InjectText = profile.InjectText; VM.StopAfterInjected = profile.StopAfterInjected;
+				VM.InjectText = profile.InjectText;
 				VM.VoiceCommands = [.. profile.Commands.Select(c => new VoiceCommandEx { Text = c.Text, VKKeyCode = c.VKKeyCode })];
 
 				foreach (var command in VM.VoiceCommands) {
@@ -165,7 +165,7 @@ public sealed partial class EditVoiceCommandsPage : Page {
 		var profile = new VoiceCommandProfile {
 			EXEName = VM.EXEName,
 			MinConfidence = (float)(slMinConfidence.Value / 100f),
-			InjectText = VM.InjectText?.Trim(), StopAfterInjected = VM.StopAfterInjected,
+			InjectText = VM.InjectText?.Trim(),
 			LanguageTag = VM.SelectedLanguage.LanguageTag,
 			Commands = [.. VM.VoiceCommands.Select(c => new VoiceCommand { Text = c.Text, VKKeyCode = c.VKKeyCode })]
 		};

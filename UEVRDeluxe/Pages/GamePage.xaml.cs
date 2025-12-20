@@ -201,11 +201,6 @@ public sealed partial class GamePage : Page {
 			// Stop voice commands
 			if (speechRecognizer != null) {
 				speechRecognizer.InjectRequested -= OnInjectRequested;
-
-				if (speechRecognizer.StopAfterInjected) {
-					VM.StatusMessage += "Stopping voice commands after injecting";
-					speechRecognizer.Stop(); speechRecognizer = null;
-				}
 			}
 
 			VM.StatusMessage = "Game is running! You may see a black screen while the intro movies are playing. The UEVR in-game window will open. Press 'Ins' on keyboard or both controller joysticks to close it.";

@@ -18,6 +18,7 @@ public class VoiceCommandRecognizer {
 
 	Dictionary<string, int> mapCommand2KeyCode;
 	float minConfidence;
+	bool stopAfterInjected;
 
 	const int DUMMYKEYCODE_INJECT = 0xffffff;
 
@@ -26,7 +27,6 @@ public class VoiceCommandRecognizer {
 
 	/// <summary>No keypress, but injection</summary>
 	public event Action InjectRequested;
-	public bool StopAfterInjected { get; private set; }
 
 	/// <summary>Start without file/exe integrtation</summary>
 	public void Start(VoiceCommandProfile profile) {
@@ -54,7 +54,9 @@ public class VoiceCommandRecognizer {
 
 	void StartWorker(VoiceCommandProfile profile) {
 		minConfidence = profile.MinConfidence;
-		StopAfterInjected = profile.StopAfterInjected && !string.IsNullOrWhiteSpace(profile.InjectText);
+
+		bool hasCommands = profile.Commands?.Any() ?? false;
+		stopAfterInjected = !hasCommands && !string.IsNullOrWhiteSpace(profile.InjectText);
 
 		// Build a list of expected phrases (they must start with the keyword)
 		mapCommand2KeyCode = new();
@@ -122,6 +124,7 @@ public class VoiceCommandRecognizer {
 			if (process.ProcessName.Equals(exeName, StringComparison.OrdinalIgnoreCase)) {
 				if (vk == DUMMYKEYCODE_INJECT) {
 					InjectRequested?.Invoke();
+					if (stopAfterInjected) Stop();
 				} else {
 					// Simulate a key press and release
 					var inputs = new INPUT[] {
@@ -164,10 +167,6 @@ public class VoiceCommandProfile {
 
 	/// <summary>Text to say to inject (for late injection scenarios)</summary>
 	public string InjectText { get; set; }
-
-	/// <summary>Should the void recognition stop after injecting?</summary>
-	/// <remarks>E.g. to safe compute power or to not pick up unintentional commands</remarks>
-	public bool StopAfterInjected { get; set; }
 
 	/// <summary>Commands (may include keywords)</summary>
 	public List<VoiceCommand> Commands { get; set; }
