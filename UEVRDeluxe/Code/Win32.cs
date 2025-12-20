@@ -49,8 +49,21 @@ public static partial class Win32 {
 	[LibraryImport("user32.dll")]
 	internal static partial uint GetDpiForWindow(IntPtr hwnd);
 
-	[DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
-	public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, WindowLongIndexFlags nIndex, IntPtr dwNewLong);
+	[LibraryImport("user32.dll", SetLastError = true)]
+	internal static partial IntPtr MonitorFromWindow(IntPtr hwnd, MonitorFromWindowFlags dwFlags);
+
+	[LibraryImport("user32.dll",EntryPoint ="GetMonitorInfoW",  SetLastError = true)]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	internal static partial bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+	[LibraryImport("user32.dll", SetLastError = true)]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	internal static partial bool EnumThreadWindows(uint dwThreadId, EnumThreadWindowsProc lpfn, IntPtr lParam);
+
+	public delegate bool EnumThreadWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+	[LibraryImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
+	internal static partial IntPtr SetWindowLongPtr(IntPtr hWnd, WindowLongIndexFlags nIndex, IntPtr dwNewLong);
 
 	public delegate IntPtr WNDPROC(IntPtr hwnd, uint message, IntPtr wParam, IntPtr lParam);
 
@@ -181,6 +194,22 @@ public enum SetWindowLongFlags : uint {
 }
 
 [StructLayout(LayoutKind.Sequential)]
+internal struct RECT {
+	public int left;
+	public int top;
+	public int right;
+	public int bottom;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct MONITORINFO {
+	public int cbSize;
+	public RECT rcMonitor;
+	public RECT rcWork;
+	public uint dwFlags;
+}
+
+[StructLayout(LayoutKind.Sequential)]
 internal struct INPUT {
 	public uint type;
 	public InputUnion u;
@@ -217,4 +246,11 @@ internal struct HARDWAREINPUT {
 	public uint uMsg;
 	public ushort wParamL;
 	public ushort wParamH;
+}
+
+// MonitorFromWindow flags - use an enum to be consistent with other Win32 flags
+public enum MonitorFromWindowFlags : uint {
+	MONITOR_DEFAULTTONULL = 0x00000000,
+	MONITOR_DEFAULTTOPRIMARY = 0x00000001,
+	MONITOR_DEFAULTTONEAREST = 0x00000002,
 }
