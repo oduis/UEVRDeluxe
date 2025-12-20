@@ -24,6 +24,7 @@
 		"gamelaunchhelper.exe",
 		"UnrealCEFSubProcess",
 		"UninstallHelper",
-		"-crash-helper"
+		"-crash-helper",
+		"d3dconfig"
 	]
 }
