@@ -43,14 +43,16 @@ public sealed partial class MainPage : Page {
 
 	async void Page_Loaded(object sender, RoutedEventArgs e) {
 		try {
-			VM.IsLoading = true;
+			VM.IsLoading = true; VM.PleaseWaitVisible = Visibility.Visible;
 			await Task.Delay(60);  // Give the UI a chance to update
 
 			await CheckVersionAsync();
 
 			InitSort();
+
 			VM.Games = new System.Collections.ObjectModel.ObservableCollection<GameInstallation>(
 				await GameStoreManager.FindAllUEVRGamesAsync(false));
+			VM.PleaseWaitVisible = Visibility.Collapsed;
 			SortGames();
 
 			// Check if hardware scheduling is enabled and warn the user
@@ -69,6 +71,8 @@ public sealed partial class MainPage : Page {
 			await RefreshUpdateButtonLabelAsync();
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Startup");
+		} finally {
+			VM.PleaseWaitVisible = Visibility.Collapsed;
 		}
 
 		VM.IsLoading = false;
@@ -144,12 +148,14 @@ public sealed partial class MainPage : Page {
 	async void Rescan_Click(object sender, RoutedEventArgs e) {
 		try {
 			VM.IsLoading = true;
+			VM.PleaseWaitVisible = Visibility.Visible;
 			await Task.Delay(60);  // Give the UI a chance to update
 
 			InitSort();
 			VM.Games.Clear();
 			var games = await GameStoreManager.FindAllUEVRGamesAsync(true);
 			foreach (var game in games) VM.Games.Add(game);
+			VM.PleaseWaitVisible = Visibility.Collapsed;
 			SortGames();
 
 			await new ContentDialog {
@@ -158,6 +164,8 @@ public sealed partial class MainPage : Page {
 			}.ShowAsync();
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Rescan");
+		} finally {
+			VM.PleaseWaitVisible = Visibility.Collapsed;
 		}
 
 		VM.IsLoading = false;

@@ -48,6 +48,10 @@
 			<RadioButton Grid.Column="3" MinWidth="64" x:Name="rbSortName" Checked="SortNameChecked" Content="Name" />
 		</Grid>
 
+		<TextBlock Grid.Row="1" Visibility="{x:Bind VM.PleaseWaitVisible, Mode=OneWay}"
+				   HorizontalAlignment="Center" Margin="36" TextWrapping="WrapWholeWords" FontSize="16"
+				   Text="Searching for games. This might take a while if you have many games installed..." />
+
 		<GridView x:Name="gvGames" Grid.Row="1" Margin="0,16" ItemsSource="{x:Bind VM.Games, Mode=OneWay}" ItemTemplate="{StaticResource GameDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single"
 				  Background="{StaticResource SolidBackgroundFillColorTransparent}" ItemClick="GamesView_ItemClick">
 			<GridView.ItemContainerStyle>

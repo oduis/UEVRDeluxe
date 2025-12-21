@@ -16,6 +16,10 @@ public class MainPageVM : VMBase {
 	public string Warning { get => warning; set => Set(ref warning, value, [nameof(WarningVisible)]); }
 	public Visibility WarningVisible => string.IsNullOrWhiteSpace(warning) ? Visibility.Collapsed : Visibility.Visible;
 
+
+	Visibility pleaseWaitVisible = Visibility.Collapsed;
+	public Visibility PleaseWaitVisible { get => pleaseWaitVisible; set => Set(ref pleaseWaitVisible, value); }
+
 	public Visibility VisibleIfAdmin => !string.IsNullOrWhiteSpace(AzureManager.GetCloudAdminPasskey()) ? Visibility.Visible : Visibility.Collapsed;
 
 	string downloadButtonLabel = "Update UEVR version";
