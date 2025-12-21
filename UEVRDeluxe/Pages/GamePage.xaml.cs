@@ -18,6 +18,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Enumeration;
 using Windows.Media.Devices;
 using Windows.System;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace UEVRDeluxe.Pages;
@@ -147,9 +148,31 @@ public sealed partial class GamePage : Page {
 			var gameProcess = Injector.FindInjectableProcess(VM.GameInstallation.EXEName);
 
 			if (gameProcess == null) {
-				VM.StatusMessage = "Game not started yet. Launching via Steam...";
+				VM.StatusMessage = "Game not started yet. Launching...";
 
-				Process.Start(new ProcessStartInfo { FileName = VM.GameInstallation.ShellLaunchPath, UseShellExecute = true });
+				var psi = new ProcessStartInfo { UseShellExecute = true };
+
+				string launchCmd = VM.GameInstallation.ShellLaunchPath;
+				// launchCmd is always provided; try to handle URIs and executable+args robustly
+				if (Uri.TryCreate(launchCmd, UriKind.Absolute, out var launchUri) &&
+					!string.Equals(launchUri.Scheme, Uri.UriSchemeFile, StringComparison.OrdinalIgnoreCase)) {
+					// Non-file URI schemes (steam://, ms-settings:, http(s)://, etc.)
+					psi.FileName = launchCmd;
+				} else {
+					// Parse command line into arguments using Windows API for correctness
+					var (exe, args) = SplitExeAndArgs(launchCmd);
+
+					if (!string.IsNullOrEmpty(exe)) {
+						psi.FileName = exe;
+						foreach (var a in args ?? Array.Empty<string>()) psi.ArgumentList.Add(a);
+					} else {
+						// fallback
+						psi.FileName = launchCmd;
+					}
+				}
+
+				Logger.Log.LogInformation($"Launching game with command: {psi.FileName} and args: {string.Join(" ", psi.ArgumentList.ToArray() ?? Array.Empty<string>())}");
+				Process.Start(psi);
 
 				if (VM.LocalProfile?.Meta?.LateInjection == true) {
 					VM.StatusMessage = "Manual injection needed";
@@ -385,5 +408,34 @@ public sealed partial class GamePage : Page {
 		=> Frame.Navigate(typeof(SettingsPage), null, new DrillInNavigationTransitionInfo());
 
 	void Back_Click(object sender, RoutedEventArgs e) { if (!VM.IsRunning) Frame.GoBack(); }
+
+	#region * Command line path helpers
+	/// <summary>Robust helper to split an executable path (possibly quoted) from arguments using CommandLineToArgvW</summary>
+	static (string exe, string[] args) SplitExeAndArgs(string commandLine) {
+		if (string.IsNullOrWhiteSpace(commandLine)) return (null, Array.Empty<string>());
+		int argc;
+		IntPtr argv = Win32.CommandLineToArgv(commandLine, out argc);
+		if (argv == IntPtr.Zero || argc == 0) return (commandLine, Array.Empty<string>());
+
+		try {
+			var parts = new string[argc];
+			for (int i = 0; i < argc; i++) {
+				IntPtr p = Marshal.ReadIntPtr(argv, i * IntPtr.Size);
+				parts[i] = Marshal.PtrToStringUni(p) ?? string.Empty;
+			}
+
+			string exe = parts[0];
+			string[] args = Array.Empty<string>();
+			if (argc > 1) {
+				// Return raw argument parts without additional escaping
+				args = parts.Skip(1).ToArray();
+			}
+
+			return (exe, args);
+		} finally {
+			Win32.LocalFree(argv);
+		}
+	}
+	#endregion
 }
 

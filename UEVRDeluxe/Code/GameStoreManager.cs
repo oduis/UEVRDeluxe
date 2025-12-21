@@ -199,7 +199,7 @@ public static class GameStoreManager {
 			}
 		}
 
-#if DEBUG
+#if DEBUGx
 		// For testing purposes
 		allGames.Add(new GameInstallation {
 			Name = "Test App",
@@ -353,7 +353,9 @@ public static class GameStoreManager {
 									if (!IGNORE_GAME_NAMES.Contains(game.Name)) {
 										game.FolderPath = Path.GetFullPath(Path.Join("steamapps", "common", relativeDirectoryName), vtoken_libPath);
 										game.IconURL = $"https://cdn.cloudflare.steamstatic.com/steam/apps/{game.SteamID}/capsule_231x87.jpg"; //$"steam://install/{game.SteamID}";
-										game.ShellLaunchPath = $"steam://rungameid/{game.SteamID}";
+										// this does not allow to pass params $"steam://rungameid/{game.SteamID}";
+										// nohmd is required for practically all UEVR4 games
+										game.ShellLaunchPath = $"\"{Path.Combine(steamInstallDir,"steam.exe")}\" -applaunch {game.SteamID} -nohmd";
 
 										// Sometimes guys manually delete the game folders
 										if (Directory.Exists(game.FolderPath))
