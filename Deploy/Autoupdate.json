@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.4.2.0",
-	"releaseNotes": "EPIC Store fixes by Hazre, Links to profile authors donation pages",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2420"
+	"version": "2.5.0.0",
+	"releaseNotes": "Multiple key presses per voice commands; auto add nohmd to Steam; UI improvements",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2500"
 }
