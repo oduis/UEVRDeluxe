@@ -93,6 +93,12 @@ public static partial class Win32 {
 	[return: MarshalAs(UnmanagedType.Bool)]
 	internal static partial bool IsUserAnAdmin();
 
+	[LibraryImport("shell32.dll", EntryPoint = "CommandLineToArgvW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+	internal static partial IntPtr CommandLineToArgv(string lpCmdLine, out int pNumArgs);
+
+	[LibraryImport("kernel32.dll")]
+	internal static partial IntPtr LocalFree(IntPtr hMem);
+
 	[LibraryImport("user32.dll")]
 	internal static partial uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray), In] INPUT[] pInputs, int cbSize);
 

@@ -40,19 +40,38 @@
 				</StackPanel>
 			</StackPanel>
 
-			<StackPanel Margin="0,16,0,0">
-				<TextBlock Style="{StaticResource stySubHeader}">Minimum Confidence Level for Recognition</TextBlock>
+			<Grid Margin="0,16,0,0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
 
-				<StackPanel Orientation="Horizontal">
-					<Slider x:Name="slMinConfidence" Minimum="0" Maximum="100" TickFrequency="5" 
+				<StackPanel Margin="0,0,48,0">
+					<TextBlock Style="{StaticResource stySubHeader}">Minimum Confidence Level for Recognition</TextBlock>
+
+					<StackPanel Orientation="Horizontal">
+						<Slider x:Name="slMinConfidence" Minimum="0" Maximum="100" TickFrequency="5" 
 							TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
 
-					<TextBlock Text="{x:Bind slMinConfidence.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
-					<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+						<TextBlock Text="{x:Bind slMinConfidence.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
+						<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
+					</StackPanel>
 				</StackPanel>
-			</StackPanel>
 
-			<TextBlock Style="{StaticResource stySubHeader}" Margin="0,16,0,8">Inject Voice Command</TextBlock>
+				<StackPanel Grid.Column="1">
+					<TextBlock Style="{StaticResource stySubHeader}" Margin="0,0,0,8">Key Press Delay</TextBlock>
+
+					<StackPanel Orientation="Horizontal">
+						<NumberBox Value="{x:Bind VM.KeyPressDelayMS, Mode=TwoWay}" 
+							   Minimum="0" Maximum="1000" SpinButtonPlacementMode="Inline"
+							   Width="160" Margin="0,0,16,0" />
+						<TextBlock VerticalAlignment="Center" Text="ms" />
+					</StackPanel>
+					<TextBlock Style="{StaticResource styHelpText}">When multiple keys are pressed in sequence.</TextBlock>
+				</StackPanel>
+			</Grid>
+
+			<TextBlock Style="{StaticResource stySubHeader}" Margin="0,0,0,8">Inject Voice Command</TextBlock>
 			<StackPanel Orientation="Horizontal" Spacing="12">
 				<TextBlock VerticalAlignment="Center">When I say</TextBlock>
 				<TextBox Text="{x:Bind VM.InjectText, Mode=TwoWay}" Width="240" MaxLength="96" />
@@ -97,7 +116,7 @@
 				</Button>
 			</StackPanel>
 
-			<TextBlock Style="{StaticResource styHelpText}">You can explicitly write e.g. "Tab", "F12", "Enter", "PgUp", "Ins" etc. in the key to press field</TextBlock>
+			<TextBlock Style="{StaticResource styHelpText}">You can explicitly write e.g. "Tab", "F12", "Enter", "PgUp", "Ins" etc. in the key to press field. Separate multiple keys with spaces (e.g. "I 3" to press I, wait, then 3).</TextBlock>
 
 			<StackPanel Spacing="12" Orientation="Horizontal" Margin="0,24,0,0">
 				<Button Click="Save_Click" Style="{StaticResource styButton}">

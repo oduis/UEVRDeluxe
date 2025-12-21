@@ -68,24 +68,18 @@ public sealed partial class EditVoiceCommandsPage : Page {
 				var profile = JsonSerializer.Deserialize<VoiceCommandProfile>(File.ReadAllText(profilePath),
 					new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
+				profile.Migrate();
+
 				slMinConfidence.Value = (int)(profile.MinConfidence * 100);
+				VM.KeyPressDelayMS = profile.KeyPressDelayMS > 0 ? profile.KeyPressDelayMS : VoiceCommandProfile.DEFAULT_KEYPRESS_DELAY_MS;
 
 				VM.SelectedLanguage = VM.Languages.FirstOrDefault(l => l.LanguageTag == profile.LanguageTag) ?? VM.Languages[0];
 
 				VM.InjectText = profile.InjectText;
-				VM.VoiceCommands = [.. profile.Commands.Select(c => new VoiceCommandEx { Text = c.Text, VKKeyCode = c.VKKeyCode })];
-
-				foreach (var command in VM.VoiceCommands) {
-					var dict = MAP_KEYNAME_VKKEYCODE.Where(v => v.Value == command.VKKeyCode);
-
-					if (dict.Any()) {
-						command.TextKeyCode = dict.First().Key;
-					} else {
-						command.TextKeyCode = ((char)command.VKKeyCode).ToString();
-					}
-				}
+				VM.VoiceCommands = [.. profile.Commands.Select(c => new VoiceCommandEx(c))];
 			} else {
 				slMinConfidence.Value = 75;
+				VM.KeyPressDelayMS = VoiceCommandProfile.DEFAULT_KEYPRESS_DELAY_MS;
 				VM.SelectedLanguage = VM.Languages[0];
 				VM.VoiceCommands = [];
 			}
@@ -106,16 +100,32 @@ public sealed partial class EditVoiceCommandsPage : Page {
 			if (string.IsNullOrWhiteSpace(VM.TextKeyCode))
 				throw new Exception("Please enter a character or function key to invoke, e.g. 'A' or 'F7' or 'Tab'");
 
-			var newCommand = new VoiceCommandEx { Text = VM.Text.Trim(), TextKeyCode = VM.TextKeyCode.Trim() };
+			var newCommand = new VoiceCommandEx { Text = VM.Text.Trim() };
 
-			if (VM.TextKeyCode.Length == 1) {
-				newCommand.VKKeyCode = Win32.VkKeyScanExW(VM.TextKeyCode[0], keyboardLayout);
-				newCommand.TextKeyCode = newCommand.TextKeyCode.ToUpper();
-			} else {
-				if (!MAP_KEYNAME_VKKEYCODE.TryGetValue(VM.TextKeyCode, out int vkKeyCode)) throw new Exception("Unkown key code");
-				newCommand.VKKeyCode = vkKeyCode;
-				newCommand.TextKeyCode = char.ToUpper(VM.TextKeyCode[0]) + VM.TextKeyCode.Substring(1).ToLower();
+			// Clean up multiple spaces and split by space to get individual keys
+			var keyTexts = VM.TextKeyCode.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			var keyCodes = new List<int>();
+			var displayTexts = new List<string>();
+
+			foreach (var keyText in keyTexts) {
+				int vkCode;
+				string displayText;
+
+				if (keyText.Length == 1) {
+					vkCode = Win32.VkKeyScanExW(keyText[0], keyboardLayout);
+					displayText = keyText.ToUpper();
+				} else {
+					if (!MAP_KEYNAME_VKKEYCODE.TryGetValue(keyText, out vkCode))
+						throw new Exception($"Unknown key code: {keyText}");
+					displayText = char.ToUpper(keyText[0]) + keyText.Substring(1).ToLower();
+				}
+
+				keyCodes.Add(vkCode);
+				displayTexts.Add(displayText);
 			}
+
+			newCommand.VKKeyCodes = [.. keyCodes];
+			newCommand.TextKeyCode = string.Join(" ", displayTexts);
 
 			RemoveCommand(newCommand.Text);
 			VM.VoiceCommands.Add(newCommand);
@@ -165,9 +175,13 @@ public sealed partial class EditVoiceCommandsPage : Page {
 		var profile = new VoiceCommandProfile {
 			EXEName = VM.EXEName,
 			MinConfidence = (float)(slMinConfidence.Value / 100f),
+			KeyPressDelayMS = VM.KeyPressDelayMS,
 			InjectText = VM.InjectText?.Trim(),
 			LanguageTag = VM.SelectedLanguage.LanguageTag,
-			Commands = [.. VM.VoiceCommands.Select(c => new VoiceCommand { Text = c.Text, VKKeyCode = c.VKKeyCode })]
+			Commands = [.. VM.VoiceCommands.Select(c => new VoiceCommand {
+				Text = c.Text,
+				VKKeyCodes = c.VKKeyCodes
+			})]
 		};
 		return profile;
 	}
