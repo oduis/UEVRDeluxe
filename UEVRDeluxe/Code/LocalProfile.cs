@@ -21,6 +21,13 @@ public class LocalProfile {
 	const string CONFIG_FILENAME = "config.txt";
 	const string CVARS_STANDARD_FILENAME = "cvars_standard.txt";
 
+	/// <summary>These temporary developer files will be auto-deleted on upload</summary>
+	static readonly string[] TEMP_FILENAMES = [
+		"log.txt",
+		"crash.dmp",
+		"cvardump.json",
+	];
+
 	/// <summary>Default settings if no file is found. More fail save synced sequential.</summary>
 	const string CONFIG_DEFAULT = """
 		VR_RenderingMethod=1
@@ -213,11 +220,10 @@ public class LocalProfile {
 			throw new Exception("This is not a UEVR profile folder");
 
 		// Delete temporary files
-		string logFile = Path.Combine(FolderPath, "log.txt");
-		if (File.Exists(logFile)) File.Delete(logFile);
-
-		string crashdumpFile = Path.Combine(FolderPath, "crash.dmp");
-		if (File.Exists(crashdumpFile)) File.Delete(crashdumpFile);
+		foreach (string tempFile in TEMP_FILENAMES) {
+			string tempFilePath = Path.Combine(FolderPath, tempFile);
+			if (File.Exists(tempFilePath)) File.Delete(tempFilePath);
+		}
 
 		if (string.IsNullOrWhiteSpace(Meta.EXEName)) {
 			Meta.EXEName = installation?.EXEName ?? FolderPath.Substring(FolderPath.TrimEnd('\\').LastIndexOf(Path.DirectorySeparatorChar) + 1);
