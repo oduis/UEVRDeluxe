@@ -61,6 +61,14 @@ public sealed partial class EditProfilePage : Page {
 			}
 
 			slScreenPercentage.Value = Math.Round(double.Parse(VM.LocalProfile.CVarsStandard.Global["Core_r.ScreenPercentage"] ?? "80.0", CultureInfo.InvariantCulture));
+
+			// Load CVarsData settings
+			string oneFrameThreadLag = VM.LocalProfile.CVarsData.Global["Engine_r.OneFrameThreadLag"];
+			if (string.IsNullOrEmpty(oneFrameThreadLag)) {
+				cbOneFrameThreadLag.IsChecked = null;
+			} else {
+				cbOneFrameThreadLag.IsChecked = oneFrameThreadLag == "1";
+			}
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
@@ -106,6 +114,13 @@ public sealed partial class EditProfilePage : Page {
 				VM.LocalProfile.CVarsStandard.Global.RemoveKey("Core_r.ScreenPercentage");
 				VM.LocalProfile.CVarsStandard.Global.RemoveKey("Renderer_r.Upscale.Quality");
 			}
+		}
+
+		// Save CVarsData settings
+		if (cbOneFrameThreadLag.IsChecked.HasValue) {
+			VM.LocalProfile.CVarsData.Global["Engine_r.OneFrameThreadLag"] = cbOneFrameThreadLag.IsChecked.Value ? "1" : "0";
+		} else {
+			VM.LocalProfile.CVarsData.Global.RemoveKey("Engine_r.OneFrameThreadLag");
 		}
 
 		if (VM.DescriptionMD != null && VM.DescriptionMD != LocalProfile.DUMMY_DESCRIPTION_MD) {
@@ -185,7 +200,7 @@ public sealed partial class EditProfilePage : Page {
 			VM.IsLoading = true;
 
 			// If the profile meta declares files to be copied to the game folder, try to uninstall them first
-			if (VM.LocalProfile?.Meta?.FileCopies?.Any()==true && !string.IsNullOrWhiteSpace(VM.GameInstallation?.EXEPath)) {
+			if (VM.LocalProfile?.Meta?.FileCopies?.Any() == true && !string.IsNullOrWhiteSpace(VM.GameInstallation?.EXEPath)) {
 				try {
 					await CmdManager.UninstallAsync(VM.LocalProfile.FolderPath, Path.GetDirectoryName(VM.GameInstallation.EXEPath));
 				} catch (Exception exUninstall) {

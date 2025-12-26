@@ -19,7 +19,10 @@ public class LocalProfile {
 	const int DEFAULT_MIN_UEVR_VERSION_NUMBER = 1098;
 
 	const string CONFIG_FILENAME = "config.txt";
+
+	// They both contain different ini settings. Check UEVR\src\mods\vr\CVarManager.hpp for details
 	const string CVARS_STANDARD_FILENAME = "cvars_standard.txt";
+	const string CVARS_DATA_FILENAME = "cvars_data.txt";
 
 	/// <summary>These temporary developer files will be auto-deleted on upload</summary>
 	static readonly string[] TEMP_FILENAMES = [
@@ -74,6 +77,9 @@ public class LocalProfile {
 	/// <summary>Content of the cvars_standard.txt</summary>
 	public IniData CVarsStandard { get; private set; }
 
+	/// <summary>Content of the cvars_data.txt</summary>
+	public IniData CVarsData { get; private set; }
+
 	/// <summary>Content of the ProfileDescription.md</summary>
 	public string DescriptionMD { get; set; }
 
@@ -127,6 +133,7 @@ public class LocalProfile {
 
 	string ConfigFilePath => Path.Combine(FolderPath, CONFIG_FILENAME);
 	string CVarStandardFilePath => Path.Combine(FolderPath, CVARS_STANDARD_FILENAME);
+	string CVarDataFilePath => Path.Combine(FolderPath, CVARS_DATA_FILENAME);
 
 	string ProfileMetaPath => Path.Combine(FolderPath, ProfileMeta.FILENAME);
 	string ProfileDescriptionPath => Path.Combine(FolderPath, ProfileMeta.DESCRIPTION_FILENAME);
@@ -170,6 +177,16 @@ public class LocalProfile {
 			CVarsStandard = new IniData();
 		}
 
+		if (File.Exists(CVarDataFilePath)) {
+			try {
+				CVarsData = parser.ReadFile(CVarDataFilePath, Encoding.UTF8);
+			} catch (Exception ex) {
+				throw new Exception($"Incorrect CVARData {CVarDataFilePath}: {ex.Message}");
+			}
+		} else {
+			CVarsData = new IniData();
+		}
+
 		if (File.Exists(ProfileMetaPath)) {
 			try {
 				this.Meta = JsonSerializer.Deserialize<ProfileMeta>(File.ReadAllText(ProfileMetaPath));
@@ -192,6 +209,7 @@ public class LocalProfile {
 
 		await WriteTextFileIfChangedAsync(ConfigFilePath, CleanedIni(Config));
 		await WriteTextFileIfChangedAsync(CVarStandardFilePath, CleanedIni(CVarsStandard));
+		await WriteTextFileIfChangedAsync(CVarDataFilePath, CleanedIni(CVarsData));
 
 		await WriteTextFileIfChangedAsync(ProfileMetaPath, JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
 		await WriteTextFileIfChangedAsync(ProfileDescriptionPath, DescriptionMD);

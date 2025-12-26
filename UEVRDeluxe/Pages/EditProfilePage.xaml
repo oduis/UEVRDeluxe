@@ -85,10 +85,27 @@
 							</RadioButton>
 						</StackPanel>
 
-						<StackPanel>
-							<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
-							<CheckBox x:Name="cbGhostingFix">Eliminates faint ghost images around game characters. Helpful when using Synced Sequential or Native Stereo Fix. May cause crashes in some games.</CheckBox>
-						</StackPanel>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="32" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
+
+							<StackPanel>
+								<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
+								<CheckBox x:Name="cbGhostingFix">
+									<TextBlock TextWrapping="WrapWholeWords" Text="Eliminates faint ghost images around game characters. Helpful when using Synced Sequential or Native Stereo Fix. May cause crashes in some games." />
+								</CheckBox>
+							</StackPanel>
+
+							<StackPanel Grid.Column="2">
+								<TextBlock Style="{StaticResource stySubHeader}">Override One Frame Thread Lag</TextBlock>
+								<CheckBox x:Name="cbOneFrameThreadLag" IsThreeState="True">
+									<TextBlock TextWrapping="WrapWholeWords" Text="Toggle this setting to see if it reduces latency or stuttering. For SteamVR connections and games using Native Fix, set this to OFF." />
+								</CheckBox>
+							</StackPanel>
+						</Grid>
 
 						<StackPanel>
 							<TextBlock Style="{StaticResource stySubHeader}">Resolution Scale</TextBlock>
