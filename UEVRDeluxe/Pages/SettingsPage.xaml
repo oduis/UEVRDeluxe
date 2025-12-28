@@ -17,6 +17,10 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
 		<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
@@ -27,14 +31,14 @@
 		</StackPanel>
 
 		<TextBlock Grid.Row="1" Style="{StaticResource stySubHeader}" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}">Select Application to link your Headset to this PC</TextBlock>
-		<StackPanel Grid.Row="2" Orientation="Horizontal" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}" Margin="0,6,0,20">
+		<StackPanel Grid.Row="2" Orientation="Horizontal" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}" Margin="0,6,0,0">
 			<TextBlock VerticalAlignment="Center">OpenXR Runtime:</TextBlock>
 			<ComboBox DisplayMemberPath="Name" ItemsSource="{x:Bind VM.OpenXRRuntimes, Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedRuntime, Mode=TwoWay}" Margin="8,0,32,0"
 					 SelectionChanged="OpenXRRuntimes_SelectionChanged" />
 			<TextBlock Style="{StaticResource styHelpText}">( Applies globally to all apps using OpenXR )</TextBlock>
 		</StackPanel>
 
-		<TextBlock Grid.Row="3" Style="{StaticResource stySubHeader}" Margin="0,12,0,10">Delay before injection</TextBlock>
+		<TextBlock Grid.Row="3" Style="{StaticResource stySubHeader}" Margin="0,36,0,10">Delay before injection</TextBlock>
 		<StackPanel Grid.Row="4" Orientation="Horizontal">
 			<NumberBox Width="104" Value="{x:Bind VM.DelayBeforeInjection, Mode=TwoWay}" Minimum="0" Maximum="100" SpinButtonPlacementMode="Inline"
 				SmallChange="1" LargeChange="10" />
@@ -44,6 +48,51 @@
 			</TextBlock>
 		</StackPanel>
 
-		<ContentControl Grid.RowSpan="5" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+		<TextBlock Grid.Row="5" Style="{StaticResource stySubHeader}" Margin="0,36,0,10">Virtual Desktop Pipeline Resolution Calculator</TextBlock>
+		<StackPanel Grid.Row="6" Orientation="Horizontal">
+			<TextBlock VerticalAlignment="Center" Margin="0,0,8,0">Headset:</TextBlock>
+			<ComboBox DisplayMemberPath="Name" ItemsSource="{x:Bind VM.VRHeadsets, Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedVRHeadset, Mode=TwoWay}" />
+			<TextBlock VerticalAlignment="Center" Margin="32,0,8,0">Virtual Desktop Graphics Preset:</TextBlock>
+			<ComboBox DisplayMemberPath="Name" ItemsSource="{x:Bind VM.VDGraphicsPresets, Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedVDGraphicsPreset, Mode=TwoWay}" />
+			<TextBlock VerticalAlignment="Center" Margin="32,0,8,0">DLSS 4 Mode:</TextBlock>
+			<ComboBox DisplayMemberPath="Name" ItemsSource="{x:Bind VM.DLSS4Settings, Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedDLSS4Setting, Mode=TwoWay}" />
+			<TextBlock VerticalAlignment="Center" Margin="32,0,8,0">Resolution Factor:</TextBlock>
+			<NumberBox x:Name="nbResolutionFactor" Width="90" Value="{x:Bind VM.ResolutionFactor, Mode=TwoWay}" Minimum="0.5" Maximum="1.5" SpinButtonPlacementMode="Hidden"
+				SmallChange="0.01" LargeChange="0.05" NumberFormatter="{x:Bind VM.DecimalFormatter, Mode=OneTime}" ValueChanged="ResolutionFactor_ValueChanged" />
+		</StackPanel>
+
+		<TextBlock Grid.Row="7" Style="{StaticResource styHelpText}" Margin="0,8,0,24" Text="{x:Bind VM.ResolutionHelp, Mode=OneWay}" />
+
+		<Border Grid.Row="8" Background="{ThemeResource SystemControlForegroundBaseLowBrush}" CornerRadius="12" HorizontalAlignment="Left">
+			<Grid Margin="22,14,22,22">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+
+				<TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,0,8" FontSize="18">Game rendered at</TextBlock>
+				<TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap" Text="{x:Bind VM.RenderedResolutionText, Mode=OneWay}" />
+
+				<TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Center" Margin="32,0,34,0" FontFamily="Segoe UI Symbol" FontSize="48" Text="&#x21D2;" />
+
+				<TextBlock Grid.Row="0" Grid.Column="2" Margin="0,0,0,8" FontSize="18">DLSS upscaled to</TextBlock>
+				<TextBlock Grid.Row="1" Grid.Column="2" TextWrapping="Wrap" Text="{x:Bind VM.UpscaledResolutionText, Mode=OneWay}" />
+
+				<TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" VerticalAlignment="Center" Margin="32,0,34,0" FontFamily="Segoe UI Symbol" FontSize="48" Text="&#x21D2;" />
+
+				<TextBlock Grid.Row="0" Grid.Column="4" Margin="0,0,0,8" FontSize="18">Streamed to headset at</TextBlock>
+				<TextBlock Grid.Row="1" Grid.Column="4" TextWrapping="Wrap" Text="{x:Bind VM.StreamedResolutionText, Mode=OneWay}" />
+			</Grid>
+		</Border>
+
+		<ContentControl Grid.RowSpan="9" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 	</Grid>
 </Page>

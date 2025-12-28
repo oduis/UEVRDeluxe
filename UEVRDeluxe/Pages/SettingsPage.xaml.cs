@@ -59,5 +59,13 @@ public sealed partial class SettingsPage : Page {
 	#endregion
 
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
+
+	void ResolutionFactor_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args) {
+		// x:Bind TwoWay should update VM, but ensure VM updates when NumberBox changes
+		if (VM == null) return;
+		if (double.IsNaN(args.NewValue)) return;
+
+		VM.ResolutionFactor = args.NewValue;
+	}
 }
 
