@@ -92,40 +92,41 @@ public class SettingsPageVM : VMBase {
 	}
 
 	public string ResolutionHelp
-		=> $"The {selectedVRHeadset.Name} panels at {selectedVRHeadset.PanelResolution.Width}x{selectedVRHeadset.PanelResolution.Height} require a scaling of {selectedVRHeadset.OpticalCorrectionUpscalingFactor:N2} times its panel size to compensate for pixels lost from optical distortions.\n"
-				+ "You can change the default resolution factor (1.0) either in UEVR or in the Virtual Desktop's Advanced tab";
+		=> $"The {selectedVRHeadset.Name} has a panel resolution of {selectedVRHeadset.PanelResolution.Width}x{selectedVRHeadset.PanelResolution.Height}, "
+			+ "but you need a higher resolution than panel (around 1.5x) to compensate for pixels lost from optical distortions.\n"
+			+ "You can change the default resolution factor (1.0) either in UEVR or in the Virtual Desktop's Advanced tab, but it may look blurry.";
 	#endregion
 
 	#region * VD/VR constants
 	public static readonly VRHeadset[] VR_HEADSETS = [
-		new() { Name = "Meta Quest", PanelResolution = new(1832, 1920), OpticalCorrectionUpscalingFactor = 1.35f },
-		new() { Name = "Meta Quest 2", PanelResolution = new(1832, 1920), OpticalCorrectionUpscalingFactor = 1.35f },
-		new() { Name = "Meta Quest Pro", PanelResolution = new(1800, 1920), OpticalCorrectionUpscalingFactor = 1.6f },
-		new() { Name = "Meta Quest 3", PanelResolution = new(2064, 2208), OpticalCorrectionUpscalingFactor = 1.35f },
-		new() { Name = "Meta Quest 3S", PanelResolution = new(1832, 1920), OpticalCorrectionUpscalingFactor = 1.35f },
+		new() { Name = "Meta Quest", PanelResolution = new(1440, 1600) },
+		new() { Name = "Meta Quest 2", PanelResolution = new(1832, 1920) },
+		new() { Name = "Meta Quest Pro", PanelResolution = new(1800, 1920) },
+		new() { Name = "Meta Quest 3", PanelResolution = new(2064, 2208) },
+		new() { Name = "Meta Quest 3S", PanelResolution = new(1832, 1920) },
 
 		// Correction factors currently unknown for these two headsets
-		new() { Name = "Galaxy XR", PanelResolution = new(3552, 3840), OpticalCorrectionUpscalingFactor = 1.0f },
-		new() { Name = "Play For Dream", PanelResolution = new(3840, 3552), OpticalCorrectionUpscalingFactor = 1.0f },
+		new() { Name = "Galaxy XR", PanelResolution = new(3552, 3840) },
+		new() { Name = "Play For Dream", PanelResolution = new(3840, 3552) },
 
-		new() { Name = "PICO 4", PanelResolution = new(2160, 2160), OpticalCorrectionUpscalingFactor = 1.45f },
-		new() { Name = "PICO 4 Ultra", PanelResolution = new(2160, 2160), OpticalCorrectionUpscalingFactor = 1.45f },
-		new() { Name = "PICO Neo 3 Link", PanelResolution = new(1832, 1920), OpticalCorrectionUpscalingFactor = 1.5f },
+		new() { Name = "PICO 4", PanelResolution = new(2160, 2160) },
+		new() { Name = "PICO 4 Ultra", PanelResolution = new(2160, 2160) },
+		new() { Name = "PICO Neo 3 Link", PanelResolution = new(1832, 1920) },
 
-		new() { Name = "HTC Vive Focus 3", PanelResolution = new(2448, 2448), OpticalCorrectionUpscalingFactor = 1.2f },
-		new() { Name = "HTC Vive XR Elite", PanelResolution = new(1920, 1920), OpticalCorrectionUpscalingFactor = 1.2f },
+		new() { Name = "HTC Vive Focus 3", PanelResolution = new(2448, 2448) },
+		new() { Name = "HTC Vive XR Elite", PanelResolution = new(1920, 1920) },
 
-		new() { Name = "Valve Index", PanelResolution = new(1440, 1600), OpticalCorrectionUpscalingFactor = 1.4f },
-		new() { Name = "HTC Vive", PanelResolution = new(1080, 1200), OpticalCorrectionUpscalingFactor = 1.4f },
-		new() { Name = "HTC Vive Pro", PanelResolution = new(1440, 1600), OpticalCorrectionUpscalingFactor = 1.4f },
-		new() { Name = "HTC Vive Pro 2", PanelResolution = new(2448, 2448), OpticalCorrectionUpscalingFactor = 1.4f },
+		new() { Name = "Valve Index", PanelResolution = new(1440, 1600) },
+		new() { Name = "HTC Vive", PanelResolution = new(1080, 1200) },
+		new() { Name = "HTC Vive Pro", PanelResolution = new(1440, 1600) },
+		new() { Name = "HTC Vive Pro 2", PanelResolution = new(2448, 2448) },
 
-		new() { Name = "HP Reverb G2", PanelResolution = new(2160, 2160), OpticalCorrectionUpscalingFactor = 1.45f },
-		new() { Name = "Pimax Crystal / Light", PanelResolution = new(2880, 2880), OpticalCorrectionUpscalingFactor = 1.3f },
-		new() { Name = "Pimax Crystal Super", PanelResolution = new(3840, 3840), OpticalCorrectionUpscalingFactor = 1.3f },
-		new() { Name = "Pimax 8K X", PanelResolution = new(3840, 2160), OpticalCorrectionUpscalingFactor = 1.9f },
-		new() { Name = "Bigscreen Beyond", PanelResolution = new(2560, 2560), OpticalCorrectionUpscalingFactor = 1.4f },
-		new() { Name = "Varjo Aero", PanelResolution = new(2880, 2720), OpticalCorrectionUpscalingFactor = 1.4f },
+		new() { Name = "HP Reverb G2", PanelResolution = new(2160, 2160) },
+		new() { Name = "Pimax Crystal Light", PanelResolution = new(2880, 2880) },
+		new() { Name = "Pimax Crystal Super", PanelResolution = new(3840, 3840) },
+		new() { Name = "Pimax 8K X/Plus", PanelResolution = new(3840, 2160) },
+		new() { Name = "Bigscreen Beyond", PanelResolution = new(2560, 2560) },
+		new() { Name = "Varjo Aero", PanelResolution = new(2880, 2720) },
 	];
 
 
@@ -257,13 +258,11 @@ public class DLSSSetting {
 public class VRHeadset {
 	public string Name { get; set; }
 	public Resolution PanelResolution { get; set; }
-	public float OpticalCorrectionUpscalingFactor { get; set; }
 
 	public string ResolutionText(Resolution res)
 		=> $"{res.Width} x {res.Height} pixels\n"
-		+ $"{(res.Width * res.Height / 1_000_000f):F2} megapixels\n"
-		+ $"{((res.Width / (float)PanelResolution.Width + res.Height / (float)PanelResolution.Height) * 50f):F0}% panel resolution\n"
-		+ $"{((res.Width / (float)(PanelResolution.Width * OpticalCorrectionUpscalingFactor) + res.Height / (float)(PanelResolution.Height * OpticalCorrectionUpscalingFactor)) * 50f):F0}% corrected resolution";
+		+ $"{(res.Width * res.Height / 1_000_000f):F1} megapixels\n"
+		+ $"{((res.Width / (float)PanelResolution.Width + res.Height / (float)PanelResolution.Height) * 0.5f):N2}x panel resolution";
 }
 
 /// <summary>Virtual Desktop graphics preset</summary>

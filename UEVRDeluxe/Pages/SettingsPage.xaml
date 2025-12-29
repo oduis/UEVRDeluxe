@@ -61,7 +61,7 @@
 				SmallChange="0.01" LargeChange="0.05" NumberFormatter="{x:Bind VM.DecimalFormatter, Mode=OneTime}" ValueChanged="ResolutionFactor_ValueChanged" />
 		</StackPanel>
 
-		<TextBlock Grid.Row="7" Style="{StaticResource styHelpText}" Margin="0,8,0,24" Text="{x:Bind VM.ResolutionHelp, Mode=OneWay}" />
+		<TextBlock Grid.Row="7" Margin="0,8,0,24" TextWrapping="WrapWholeWords" Text="{x:Bind VM.ResolutionHelp, Mode=OneWay}" />
 
 		<Border Grid.Row="8" Background="{ThemeResource SystemControlForegroundBaseLowBrush}" CornerRadius="12" HorizontalAlignment="Left">
 			<Grid Margin="22,14,22,22">
