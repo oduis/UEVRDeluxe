@@ -161,7 +161,7 @@ public sealed partial class EditProfilePage : Page {
 				}
 
 				await new ContentDialog {
-					Title = "Publish success", Content = "Profile is now packed and ready to submit on Discord #ue-general, if it was tested by some users", CloseButtonText = "OK", XamlRoot = this.XamlRoot
+					Title = "Publish success", Content = "Profile is now packed and ready to submit on Discord to the ue-games channel", CloseButtonText = "OK", XamlRoot = this.XamlRoot
 				}.ShowAsync();
 			}
 		} catch (Exception ex) {
