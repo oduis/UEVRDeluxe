@@ -162,7 +162,7 @@ public class FileCopy {
 	[JsonPropertyName("sourceFileRelProfile")]
 	public string SourceFileRelProfile { get; set; }
 
-	/// <summary>Folder relative to the folder of the game EXE where the file should be copied to</summary>
+	/// <summary>Folder relative to the folder of the game EXE where the file should be copied to. Can start with %LOCALAPPDATA% or %USERPROFILE% to be absolute.</summary>
 	[JsonPropertyName("destinationFolderRelGameEXE")]
 	public string DestinationFolderRelGameEXE { get; set; }
 }

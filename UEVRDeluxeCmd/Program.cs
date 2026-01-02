@@ -49,7 +49,7 @@ class Program {
 		}
 
 		return resultCode;
-	} 
+	}
 	#endregion
 
 	#region UpdateBackend
@@ -101,10 +101,14 @@ class Program {
 		}
 
 		File.WriteAllText(VersionFilePath, zipUrl);
-	} 
+	}
 	#endregion
 
 	#region InstallProfile
+	/// <summary>Some games use paks in this subfolder as to load after the standard mods.</summary>
+	const string MOD_SUBFOLDER = "~mods";
+
+
 	/// <summary>Install a profile into the game folder by copying files defined in ProfileMeta.json</summary>
 	public static async Task InstallProfileAsync(string profileRootFolder, string gameExeFolder) {
 		if (string.IsNullOrWhiteSpace(profileRootFolder)) throw new ArgumentException("profileRootFolder is required");
@@ -121,7 +125,16 @@ class Program {
 			string sourcePath = Path.Combine(profileRootFolder, fc.SourceFileRelProfile);
 			if (!File.Exists(sourcePath)) throw new Exception($"Source file does not exist: {sourcePath}");
 
-			string destFolder = Path.Combine(gameExeFolder, fc.DestinationFolderRelGameEXE ?? string.Empty);
+			string destFolder = GetResolvedPath(gameExeFolder, fc.DestinationFolderRelGameEXE);
+			if (destFolder.EndsWith(@"\" + MOD_SUBFOLDER)) {
+				// make sure the root mod folder exists
+				string rootDestFolder = Directory.GetParent(destFolder)?.FullName;
+				if (!Directory.Exists(rootDestFolder)) throw new Exception($"Root folder for {MOD_SUBFOLDER} does not exist: {rootDestFolder}");
+
+				// Create ~mods folder, as it is usually not created by the game
+				if (!Directory.Exists(destFolder)) Directory.CreateDirectory(destFolder);
+			}
+
 			if (!Directory.Exists(destFolder)) throw new Exception($"Game folder does not exist: {destFolder}");
 
 			string destFilePath = Path.Combine(destFolder, Path.GetFileName(sourcePath));
@@ -150,7 +163,7 @@ class Program {
 		}
 
 		foreach (var fc in meta.FileCopies) {
-			string destFolder = Path.Combine(gameExeFolder, fc.DestinationFolderRelGameEXE);
+			string destFolder = GetResolvedPath(gameExeFolder, fc.DestinationFolderRelGameEXE);
 			string destFilePath = Path.Combine(destFolder, Path.GetFileName(fc.SourceFileRelProfile));
 
 			if (File.Exists(destFilePath)) {
@@ -181,6 +194,25 @@ class Program {
 		if (check != null) throw new Exception($"Profile meta check failed: {check}");
 
 		return meta;
+	}
+
+	const string LOCAL_APP_DATA = "%LOCALAPPDATA%";
+	const string USER_PROFILE = "%USERPROFILE%";
+
+	static string GetResolvedPath(string gameExeFolder, string relFolder) {
+		if (string.IsNullOrWhiteSpace(relFolder)) return gameExeFolder;
+
+		if (relFolder.StartsWith(LOCAL_APP_DATA, StringComparison.OrdinalIgnoreCase)) {
+			string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+			relFolder = relFolder.Substring(LOCAL_APP_DATA.Length).TrimStart('\\', '/');
+			return Path.Combine(localAppData, relFolder);
+		} else if (relFolder.StartsWith(USER_PROFILE, StringComparison.OrdinalIgnoreCase)) {
+			string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+			relFolder = relFolder.Substring(USER_PROFILE.Length).TrimStart('\\', '/');
+			return Path.Combine(userProfile, relFolder);
+		}
+
+		return Path.Combine(gameExeFolder, relFolder);
 	}
 	#endregion
 }

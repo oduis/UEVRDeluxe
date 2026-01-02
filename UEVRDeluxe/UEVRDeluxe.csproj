@@ -168,8 +168,8 @@
     <Folder Include="Cmd\" />
   </ItemGroup>
 	<PropertyGroup>
-		<PreBuildEvent Condition="'$(Configuration)' == 'Debug'">copy "$(SolutionDir)UEVRDeluxeCmd\bin\Debug\net8.0\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
-		<PreBuildEvent Condition="'$(Configuration)' == 'Release'">copy "$(SolutionDir)UEVRDeluxeCmd\bin\Release\net8.0\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
+		<PreBuildEvent Condition="'$(Configuration)' == 'Debug'">copy "$(SolutionDir)UEVRDeluxeCmd\bin\Debug\net10.0\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
+		<PreBuildEvent Condition="'$(Configuration)' == 'Release'">copy "$(SolutionDir)UEVRDeluxeCmd\bin\Release\net10.0\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
 	</PropertyGroup>
   <PropertyGroup Label="Globals">
     <WebView2EnableCsWinRTProjection>True</WebView2EnableCsWinRTProjection>
