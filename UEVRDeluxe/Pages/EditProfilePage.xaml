@@ -107,6 +107,28 @@
 							</StackPanel>
 						</Grid>
 
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="32" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
+
+							<StackPanel>
+								<TextBlock Style="{StaticResource stySubHeader}">Override Propagate Alpha</TextBlock>
+								<CheckBox x:Name="cbOverridePropagateAlpha" IsThreeState="True">
+									<TextBlock TextWrapping="WrapWholeWords" Text="Enabling this explicitly allows some games to run using Native Stereo. May cause issues." />
+								</CheckBox>
+							</StackPanel>
+
+							<StackPanel Grid.Column="2">
+								<TextBlock Style="{StaticResource stySubHeader}">Override Disable Materials</TextBlock>
+								<CheckBox x:Name="cbOverrideDisableMaterials" IsThreeState="True">
+									<TextBlock TextWrapping="WrapWholeWords" Text="Enabling this explictly often improves VR performance at the expense of visual quality." />
+								</CheckBox>
+							</StackPanel>
+						</Grid>
+
 						<StackPanel>
 							<TextBlock Style="{StaticResource stySubHeader}">Resolution Scale</TextBlock>
 

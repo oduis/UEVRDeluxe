@@ -24,6 +24,10 @@ public class LocalProfile {
 	const string CVARS_STANDARD_FILENAME = "cvars_standard.txt";
 	const string CVARS_DATA_FILENAME = "cvars_data.txt";
 
+	/// <summary>This contains console commands executed after the game is fully loeded.</summary>
+	/// <remarks>Some setting might be seen as belonging to CVARs, but they are better set after init.</remarks>
+	const string USER_SCRIPT_FILENAME = "user_script.txt";
+
 	/// <summary>These temporary developer files will be auto-deleted on upload</summary>
 	static readonly string[] TEMP_FILENAMES = [
 		"log.txt",
@@ -80,6 +84,9 @@ public class LocalProfile {
 	/// <summary>Content of the cvars_data.txt</summary>
 	public IniData CVarsData { get; private set; }
 
+	/// <summary>Content of the user_script.txt (space assignment)</summary>
+	public IniData UserScript { get; private set; }
+
 	/// <summary>Content of the ProfileDescription.md</summary>
 	public string DescriptionMD { get; set; }
 
@@ -134,6 +141,7 @@ public class LocalProfile {
 	string ConfigFilePath => Path.Combine(FolderPath, CONFIG_FILENAME);
 	string CVarStandardFilePath => Path.Combine(FolderPath, CVARS_STANDARD_FILENAME);
 	string CVarDataFilePath => Path.Combine(FolderPath, CVARS_DATA_FILENAME);
+	string UserScriptFilePath => Path.Combine(FolderPath, USER_SCRIPT_FILENAME);
 
 	string ProfileMetaPath => Path.Combine(FolderPath, ProfileMeta.FILENAME);
 	string ProfileDescriptionPath => Path.Combine(FolderPath, ProfileMeta.DESCRIPTION_FILENAME);
@@ -187,6 +195,22 @@ public class LocalProfile {
 			CVarsData = new IniData();
 		}
 
+		// user_script uses space as key/value assignment char. Create a custom parser configuration
+		if (File.Exists(UserScriptFilePath)) {
+			try {
+				var cfg = new IniParser.Model.Configuration.IniParserConfiguration();
+				cfg.KeyValueAssigmentChar = ' ';
+				cfg.AssigmentSpacer = string.Empty;
+				var innerParser = new IniParser.Parser.IniDataParser(cfg);
+				var userParser = new FileIniDataParser(innerParser);
+				UserScript = userParser.ReadFile(UserScriptFilePath, Encoding.UTF8);
+			} catch (Exception ex) {
+				throw new Exception($"Incorrect UserScript {UserScriptFilePath}: {ex.Message}");
+			}
+		} else {
+			UserScript = new IniData();
+		}
+
 		if (File.Exists(ProfileMetaPath)) {
 			try {
 				this.Meta = JsonSerializer.Deserialize<ProfileMeta>(File.ReadAllText(ProfileMetaPath));
@@ -210,6 +234,7 @@ public class LocalProfile {
 		await WriteTextFileIfChangedAsync(ConfigFilePath, CleanedIni(Config));
 		await WriteTextFileIfChangedAsync(CVarStandardFilePath, CleanedIni(CVarsStandard));
 		await WriteTextFileIfChangedAsync(CVarDataFilePath, CleanedIni(CVarsData));
+		await WriteTextFileIfChangedAsync(UserScriptFilePath, CleanedIniSpace(UserScript));
 
 		await WriteTextFileIfChangedAsync(ProfileMetaPath, JsonSerializer.Serialize(Meta, new JsonSerializerOptions { WriteIndented = true }));
 		await WriteTextFileIfChangedAsync(ProfileDescriptionPath, DescriptionMD);
@@ -340,4 +365,10 @@ public class LocalProfile {
 	}
 
 	static string CleanedIni(IniData data) => data.ToString().Replace(" = ", "=");
+
+	static string CleanedIniSpace(IniData data) {
+		// Format key/value assignment with a single space instead of '='. We start from the standard ToString and replace " = " and "=" with a single space.
+		// This is a pragmatic approach assuming section headers remain unchanged.
+		return data.ToString().Replace(" = ", " ").Replace("=", " ");
+	}
 }

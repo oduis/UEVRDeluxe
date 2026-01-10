@@ -69,6 +69,16 @@ public sealed partial class EditProfilePage : Page {
 			} else {
 				cbOneFrameThreadLag.IsChecked = oneFrameThreadLag == "1";
 			}
+
+			// Load UserScript overrides (three-state). Null -> not present, true->1, false->0
+			string propagateAlpha = VM.LocalProfile.UserScript.Global["r.PostProcessing.PropagateAlpha"];
+			if (string.IsNullOrEmpty(propagateAlpha)) cbOverridePropagateAlpha.IsChecked = null;
+			else cbOverridePropagateAlpha.IsChecked = propagateAlpha == "1";
+
+			string disableMaterials = VM.LocalProfile.UserScript.Global["r.PostProcessing.DisableMaterials"];
+			if (string.IsNullOrEmpty(disableMaterials)) cbOverrideDisableMaterials.IsChecked = null;
+			else cbOverrideDisableMaterials.IsChecked = disableMaterials == "1";
+
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}
@@ -121,6 +131,19 @@ public sealed partial class EditProfilePage : Page {
 			VM.LocalProfile.CVarsData.Global["Engine_r.OneFrameThreadLag"] = cbOneFrameThreadLag.IsChecked.Value ? "1" : "0";
 		} else {
 			VM.LocalProfile.CVarsData.Global.RemoveKey("Engine_r.OneFrameThreadLag");
+		}
+
+		// Save UserScript overrides: r.PostProcessing.PropagateAlpha and r.PostProcessing.DisableMaterials
+		if (cbOverridePropagateAlpha.IsChecked.HasValue) {
+			VM.LocalProfile.UserScript.Global["r.PostProcessing.PropagateAlpha"] = cbOverridePropagateAlpha.IsChecked.Value ? "1" : "0";
+		} else {
+			VM.LocalProfile.UserScript.Global.RemoveKey("r.PostProcessing.PropagateAlpha");
+		}
+
+		if (cbOverrideDisableMaterials.IsChecked.HasValue) {
+			VM.LocalProfile.UserScript.Global["r.PostProcessing.DisableMaterials"] = cbOverrideDisableMaterials.IsChecked.Value ? "1" : "0";
+		} else {
+			VM.LocalProfile.UserScript.Global.RemoveKey("r.PostProcessing.DisableMaterials");
 		}
 
 		if (VM.DescriptionMD != null && VM.DescriptionMD != LocalProfile.DUMMY_DESCRIPTION_MD) {
