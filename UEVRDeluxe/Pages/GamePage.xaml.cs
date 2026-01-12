@@ -23,9 +23,16 @@ using System.Runtime.InteropServices;
 
 namespace UEVRDeluxe.Pages;
 
+public class GameNavigationArgs {
+	public GameInstallation Game { get; set; }
+	public bool AutoLaunch { get; set; }
+}
+
 public sealed partial class GamePage : Page {
 	readonly GamePageVM VM = new();
 	VoiceCommandRecognizer speechRecognizer;
+	bool autoLaunchRequested;
+	bool autoLaunchTriggered;  // prevents multiple auto-launches
 
 	#region * Init
 	public GamePage() {
@@ -40,7 +47,13 @@ public sealed partial class GamePage : Page {
 	protected override void OnNavigatedTo(NavigationEventArgs e) {
 		base.OnNavigatedTo(e);
 
-		VM.GameInstallation = e.Parameter as GameInstallation;
+		if (e.Parameter is GameNavigationArgs navArgs) {
+			VM.GameInstallation = navArgs.Game;
+			autoLaunchRequested = navArgs.AutoLaunch;
+		} else {
+			VM.GameInstallation = e.Parameter as GameInstallation;
+			autoLaunchRequested = false;
+		}
 	}
 
 	protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
@@ -87,6 +100,15 @@ public sealed partial class GamePage : Page {
 			btnEdit.Focus(FocusState.Programmatic);
 		else
 			btnLaunch.Focus(FocusState.Programmatic);  // WInUI selects links otherwise
+
+		if (autoLaunchRequested && !autoLaunchTriggered) {
+			autoLaunchTriggered = true;
+
+			if (VM.LocalProfile != null)
+				DispatcherQueue.TryEnqueue(() => Launch_Click(btnLaunch, null));
+			else
+				Logger.Log.LogWarning("Auto-launch requested but no local profile found; skipping");
+		}
 	}
 	#endregion
 

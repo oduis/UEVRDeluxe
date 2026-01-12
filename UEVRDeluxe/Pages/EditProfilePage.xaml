@@ -220,7 +220,7 @@
 								<LineBreak/>
 								<Run>- View/head bobbing: OFF</Run>
 								<LineBreak/>
-								<Run>- DLSS/FSR: OFF if the game does not support Native Stereo rendering</Run>
+								<Run>- DLSS/FSR: Set DLSS to K (not L or M)</Run>
 								<LineBreak/>
 								<Run>- Post processing: typically looks better on LOW</Run>
 								<LineBreak/>

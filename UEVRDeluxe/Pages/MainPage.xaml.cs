@@ -55,6 +55,23 @@ public sealed partial class MainPage : Page {
 			VM.PleaseWaitVisible = Visibility.Collapsed;
 			SortGames();
 
+			// Auto-Launch game?
+			string launchId = App.ConsumeLaunchGameId();
+			if (!string.IsNullOrWhiteSpace(launchId)) {
+				var gameToLaunch = VM.Games?.FirstOrDefault(g => g.ID==launchId);
+
+				if (gameToLaunch != null) {
+					Logger.Log.LogInformation($"Auto-launching game {gameToLaunch.Name} ({launchId}) from command line");
+
+					VM.IsLoading = false;
+					Frame.Navigate(typeof(GamePage), new GameNavigationArgs { Game = gameToLaunch, AutoLaunch = true });
+
+					return;
+				} else {
+					Logger.Log.LogWarning($"Launch argument game not found: {launchId}");
+				}
+			}
+
 			// Check if hardware scheduling is enabled and warn the user
 			var warnings = new List<string>();
 
@@ -352,4 +369,20 @@ public sealed partial class MainPage : Page {
 		}
 	}
 	#endregion
+
+	bool TryHandleAutoLaunch() {
+		string launchId = App.ConsumeLaunchGameId();
+		if (string.IsNullOrWhiteSpace(launchId) || VM.Games == null) return false;
+
+		var gameToLaunch = VM.Games.FirstOrDefault(g => string.Equals(g.ID, launchId, StringComparison.OrdinalIgnoreCase));
+		if (gameToLaunch == null) {
+			Logger.Log.LogWarning($"Launch argument game not found: {launchId}");
+			return false;
+		}
+
+		Logger.Log.LogInformation($"Auto-launching game {gameToLaunch.Name} ({launchId}) from command line");
+
+		Frame.Navigate(typeof(GamePage), new GameNavigationArgs { Game = gameToLaunch, AutoLaunch = true });
+		return true;
+	}
 }

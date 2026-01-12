@@ -1,6 +1,8 @@
 ﻿#region Usings
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UEVRDeluxe.Code;
 #endregion
@@ -14,6 +16,8 @@ public partial class App : Application {
 	/// <summary>Invoked when the application is launched.</summary>
 	/// <param name="args">Details about the launch request and process.</param>
 	protected override void OnLaunched(LaunchActivatedEventArgs args) {
+		ParseCommandLine();
+
 		var m_window = new MainWindow();
 
 		var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(m_window);
@@ -46,5 +50,19 @@ public partial class App : Application {
 		}
 
 		m_window.Activate();
+	}
+
+	static string launchGameId;
+	internal static string ConsumeLaunchGameId() {
+		string id = launchGameId;
+		launchGameId = null;
+		return id;
+	}
+
+	static void ParseCommandLine() {
+		string[] args = Environment.GetCommandLineArgs();
+		string launchArg = args?.FirstOrDefault(a => a.StartsWith("/launch:", StringComparison.OrdinalIgnoreCase));
+		if (launchArg == null) return;
+		launchGameId = launchArg.Substring(launchArg.IndexOf(':') + 1);
 	}
 }
