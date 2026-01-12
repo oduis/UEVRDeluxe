@@ -18,7 +18,7 @@ public class GamePageVM : VMBase {
 			nameof(UEVRVersionWarning), nameof(UEVRVersionWarningVisible), nameof(InjectButtonLabel),
 			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning), nameof(VisibleLateInjectWarning),
 			nameof(StrippedProfileVisible), nameof(NoProfileVisible), nameof(VisibleIfNotRunningAndProfile),
-			nameof(DonateLinkUri), nameof(DonateLinkVisible)]);
+			nameof(DonateLinkUri), nameof(DonateLinkVisible), nameof(CreateShortcutVisible), nameof(DeleteShortcutVisible)]);
 	}
 
 	int? currentUEVRNightlyNumber;
@@ -59,7 +59,7 @@ public class GamePageVM : VMBase {
 		}
 	}
 
-	public Visibility DonateLinkVisible =>  DonateLinkUri != null ? Visibility.Visible : Visibility.Collapsed;
+	public Visibility DonateLinkVisible => DonateLinkUri != null ? Visibility.Visible : Visibility.Collapsed;
 
 	public string Warning {
 		get {
@@ -75,6 +75,14 @@ public class GamePageVM : VMBase {
 
 	public Visibility VisibleIfProfile => LocalProfile != null ? Visibility.Visible : Visibility.Collapsed;
 	public Visibility VisibleIfNoProfile => LocalProfile == null ? Visibility.Visible : Visibility.Collapsed;
+
+
+	bool shortcutExists;
+	public bool ShortcutExists { get => shortcutExists; set => Set(ref shortcutExists, value, [nameof(CreateShortcutVisible), nameof(DeleteShortcutVisible)]); }
+
+	public Visibility CreateShortcutVisible => LocalProfile != null && !ShortcutExists ? Visibility.Visible : Visibility.Collapsed;
+	public Visibility DeleteShortcutVisible => LocalProfile != null && ShortcutExists ? Visibility.Visible : Visibility.Collapsed;
+
 
 	bool isGameProcessRunning = false;
 	public bool IsGameProcessRunning {

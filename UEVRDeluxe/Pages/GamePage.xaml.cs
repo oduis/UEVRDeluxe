@@ -31,8 +31,11 @@ public class GameNavigationArgs {
 public sealed partial class GamePage : Page {
 	readonly GamePageVM VM = new();
 	VoiceCommandRecognizer speechRecognizer;
+
 	bool autoLaunchRequested;
 	bool autoLaunchTriggered;  // prevents multiple auto-launches
+
+	ShortcutHandler shortcutHandler;
 
 	#region * Init
 	public GamePage() {
@@ -54,6 +57,10 @@ public sealed partial class GamePage : Page {
 			VM.GameInstallation = e.Parameter as GameInstallation;
 			autoLaunchRequested = false;
 		}
+
+		shortcutHandler = new ShortcutHandler(Environment.ProcessPath,
+			$"/launch:{VM.GameInstallation.ID}", $"UEVR Easy - {VM.GameInstallation.Name}");
+		VM.ShortcutExists = shortcutHandler.GetExists();
 	}
 
 	protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
@@ -360,6 +367,33 @@ public sealed partial class GamePage : Page {
 		} else {
 			VM.DefaultInputDeviceName = "( no default audio input )";
 			VM.EnableVoiceCommands = false;
+		}
+	}
+	#endregion
+
+	#region * Shortcut commands
+	async void CreateShortcut_Click(object sender, RoutedEventArgs e) {
+		try {
+			shortcutHandler.CreateOrReplace();
+			VM.ShortcutExists = shortcutHandler.GetExists();
+
+			await new ContentDialog {
+				Title = "Desktop shortcut created",
+				CloseButtonText = "OK",
+				XamlRoot = this.XamlRoot,
+				Content = "A desktop shortcut to launch this game directly has been created."
+			}.ShowAsync();
+		} catch (Exception ex) {
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Create shortcut error");
+		}
+	}
+
+	async void DeleteShortcut_Click(object sender, RoutedEventArgs e) {
+		try {
+			shortcutHandler.Delete();
+			VM.ShortcutExists = shortcutHandler.GetExists();
+		} catch (Exception ex) {
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Remove shortcut error");
 		}
 	}
 	#endregion
