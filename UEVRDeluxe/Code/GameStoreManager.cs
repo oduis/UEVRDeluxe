@@ -22,7 +22,16 @@ namespace UEVRDeluxe.Code;
 
 public static class GameStoreManager {
 	readonly static string[] IGNORE_GAME_NAMES = [
-	"Steamworks Common Redistributables", "SteamVR", "PlayStation\u00AEVR2 App", "Godot Engine", "Unreal Engine", "Blender"];
+		"Steamworks Common Redistributables", "SteamVR", "PlayStation\u00AEVR2 App", "Godot Engine", "Unreal Engine", "Blender",
+		"Ubisoft Connect", "REDlauncher", "Epic Games Launcher", "Epic Online Services"];
+
+	/// <summary>Publishers allowed to be considered as games from native Windows uninstall entries, checked with containing</summary>
+	/// <remarks>We want to avoid scanning directories of non games</remarks>
+	readonly static string[] ALLOWED_PUBLISHERS_CONTAINS = [ "2K", "BANDAI NAMCO Entertainment",
+		"CD PROJEKT RED", "Deep Silver", "Electronic Arts", "Epic Games", "Focus Entertainment",
+		"Focus Home", "Gameloft", "Gearbox Publishing", "KRAFTON", "NEXON Korea",
+		"People Can Fly", "SQUARE ENIX", "Sony Interactive", "THQ Nordic",
+		"Ubisoft", "Warner Bros", "WB Games" ];
 
 	#region FindAllUEVRGames
 	static List<GameInstallation> gameInstallations;
@@ -50,7 +59,30 @@ public static class GameStoreManager {
 		allGames.AddRange(FindAllSteamGames());
 		allGames.AddRange(FindAllEPICGames(cache?.AllInstallations));
 		allGames.AddRange(FindAllGOGGames());
-		allGames.AddRange(FindAllEAGames()); // Add EA games here
+		allGames.AddRange(FindAllEAGames());
+		allGames.AddRange(FindAllWindowsUninstalls());
+
+		// Remove all games already VR by name. They are often on Unreal engine...
+		allGames.RemoveAll(g => g.Name.EndsWith(" VR", StringComparison.OrdinalIgnoreCase) || g.Name.Contains(" VR ", StringComparison.OrdinalIgnoreCase));
+
+		// Remove Windows uninstall entries if another store already contains that folder (give priority to regular stores)
+		try {
+			var nonWindows = allGames.Where(g => g.StoreType != GameStoreType.Windows && !string.IsNullOrEmpty(g.FolderPath)).ToList();
+			var windows = allGames.Where(g => g.StoreType == GameStoreType.Windows && !string.IsNullOrEmpty(g.FolderPath)).ToList();
+
+			foreach (var win in windows) {
+				string winPath = Path.GetFullPath(win.FolderPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+				if (nonWindows.Any(n => {
+					string nPath = Path.GetFullPath(n.FolderPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+					return winPath.StartsWith(nPath, StringComparison.OrdinalIgnoreCase);
+				})) {
+					Logger.Log.LogTrace($"Removing Windows uninstall entry {win.Name} because another store already contains it");
+					allGames.Remove(win);
+				}
+			}
+		} catch (Exception ex) {
+			Logger.Log.LogWarning(ex, "Failed to filter Windows uninstall entries");
+		}
 
 		// Check if cache is still valid
 		if (!forceRescan && cache != null && cache.AllInstallations.Count == allGames.Count
@@ -140,7 +172,8 @@ public static class GameStoreManager {
 					exe.isInBinariesFolder = folder == "binaries";  // Not as good, but...
 
 					// Check for typical UE DLLs. But this does not work on e.g. XBox, since they are security boxed
-					if (!exe.filePath.Contains(@"\Program Files\WindowsApps\", StringComparison.OrdinalIgnoreCase)) {
+					// Since this is performance intensive, only if its not clear from the file name
+					if (!exe.isShipping && !exe.filePath.Contains(@"\Program Files\WindowsApps\", StringComparison.OrdinalIgnoreCase)) {
 						try {
 							var peFile = new PeFile(exe.filePath);
 							// Not UE engine links, but all UE exes seem to reference these ones
@@ -157,21 +190,21 @@ public static class GameStoreManager {
 				// Heuristic to find the best executable. DLLImport is the best checker,
 				// however sometimes there are EXE als launchers next to them, so we may not throw away all non-DLLImport exes.
 				// And sometimes PE-Check fails for security reasons, so we need to have a fallback.
-				static ExecutableProp GetBestEXEProp(IEnumerable<ExecutableProp> exeProps)
-					=> exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInWinFolder)
+				ExecutableProp bestProps = exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInWinFolder)
 						?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping && g.isInBinariesFolder)
 						?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isShipping)
 						?? exeProps.FirstOrDefault(g => g.isShipping && g.isInWinFolder)
 						?? exeProps.FirstOrDefault(g => g.isShipping && g.isInBinariesFolder)
 						?? exeProps.FirstOrDefault(g => g.isShipping)
+						?? exeProps.FirstOrDefault(g => g.isPESignatureOK && g.isSimilarName && g.isInWinFolder)
+						?? exeProps.FirstOrDefault(g => g.isPESignatureOK && g.isSimilarName && g.isInBinariesFolder)
+						?? exeProps.FirstOrDefault(g => g.isPESignatureOK && g.isInWinFolder)
+						?? exeProps.FirstOrDefault(g => g.isPESignatureOK && g.isInBinariesFolder)
 						?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInWinFolder)
 						?? exeProps.FirstOrDefault(g => g.isSimilarName && g.isInBinariesFolder)
 						?? exeProps.FirstOrDefault(g => g.isInWinFolder)
 						?? exeProps.FirstOrDefault(g => g.isInBinariesFolder)
 						?? exeProps.OrderBy(g => g.directoryCount).FirstOrDefault();
-
-				ExecutableProp bestProps = GetBestEXEProp(exeProps.Where(p => p.isPESignatureOK))
-					?? GetBestEXEProp(exeProps.Where(p => !p.isPESignatureOK));
 
 				if (bestProps != null) {
 					// in Steam there are sometimes exes next to the shipping exe, like in Star Wars fallen order.
@@ -247,9 +280,9 @@ public static class GameStoreManager {
 					try {
 						var manifest = JsonSerializer.Deserialize<EpicManifest>(File.ReadAllText(manifestPath), jsonOptions);
 						if (!Directory.Exists(manifest.InstallLocation)  // Might be delete manually
-							|| IGNORE_GAME_NAMES.Contains(manifest.DisplayName)) continue;  // e.g. "Unreal Engine"
+							|| IGNORE_GAME_NAMES.Contains(manifest.DisplayName, StringComparer.OrdinalIgnoreCase)) continue;  // e.g. "Unreal Engine"
 
-						Logger.Log.LogTrace($"Game {manifest.DisplayName}");
+						Logger.Log.LogTrace($"EPIC Game {manifest.DisplayName}");
 
 						// IconURL later
 						var game = new GameInstallation {
@@ -345,7 +378,7 @@ public static class GameStoreManager {
 									var game = new GameInstallation { SteamID = gameAppId, StoreType = GameStoreType.Steam };
 									game.Name = gameManifestDefinition.Value<string>("name");
 
-									Logger.Log.LogTrace($"Game {game.Name}");
+									Logger.Log.LogTrace($"Steam Game {game.Name}");
 
 									long lastPlayed = gameManifestDefinition.Value<long>("LastPlayed");
 									if (lastPlayed > 0) game.LastPlayed = DateTimeOffset.FromUnixTimeSeconds(lastPlayed).DateTime;
@@ -353,9 +386,9 @@ public static class GameStoreManager {
 									if (!IGNORE_GAME_NAMES.Contains(game.Name)) {
 										game.FolderPath = Path.GetFullPath(Path.Join("steamapps", "common", relativeDirectoryName), vtoken_libPath);
 										game.IconURL = $"https://cdn.cloudflare.steamstatic.com/steam/apps/{game.SteamID}/capsule_231x87.jpg"; //$"steam://install/{game.SteamID}";
-										// this does not allow to pass params $"steam://rungameid/{game.SteamID}";
-										// nohmd is required for practically all UEVR4 games
-										game.ShellLaunchPath = $"\"{Path.Combine(steamInstallDir,"steam.exe")}\" -applaunch {game.SteamID} -nohmd";
+																																			   // this does not allow to pass params $"steam://rungameid/{game.SteamID}";
+																																			   // nohmd is required for practically all UEVR4 games
+										game.ShellLaunchPath = $"\"{Path.Combine(steamInstallDir, "steam.exe")}\" -applaunch {game.SteamID} -nohmd";
 
 										// Sometimes guys manually delete the game folders
 										if (Directory.Exists(game.FolderPath))
@@ -375,6 +408,8 @@ public static class GameStoreManager {
 					Logger.Log.LogWarning($"Failed to read Steam Library {steamLibDirDefinition.Key}: {ex}");
 				}
 			}
+
+			Logger.Log.LogTrace($"Found {allGames.Count} installed Steam games");
 		} catch (Exception ex) {
 			// Show must go on if an installation of one store is flawed
 			Logger.Log.LogCritical(ex, "Failed to scan Steam");
@@ -406,9 +441,9 @@ public static class GameStoreManager {
 					using var gameKey = keyGames.OpenSubKey(subkeyName, false);
 
 					string gameName = gameKey.GetValue("gameName") as string;
-					if (string.IsNullOrEmpty(gameName)) continue;
+					if (string.IsNullOrEmpty(gameName) || IGNORE_GAME_NAMES.Contains(gameName, StringComparer.OrdinalIgnoreCase)) continue;
 
-					Logger.Log.LogTrace($"Found GOG game {gameName}");
+					Logger.Log.LogTrace($"GOG Game {gameName}");
 					var game = new GameInstallation {
 						GOGID = long.Parse(subkeyName),
 						StoreType = GameStoreType.GOG,
@@ -427,6 +462,8 @@ public static class GameStoreManager {
 					Logger.Log.LogWarning($"Failed to read XBox game key {subkeyName}: {ex}");
 				}
 			}
+
+			Logger.Log.LogTrace($"Found {allGames.Count} installed GOG games");
 		} catch (Exception ex) {
 			// Show must go on if an installation of one store is flawed
 			Logger.Log.LogCritical(ex, "Failed to scan GOG");
@@ -501,13 +538,18 @@ public static class GameStoreManager {
 					// Get display name from packages key
 					using (var pkgKey = userPackagesKey?.OpenSubKey(packageId)) {
 						game.Name = (pkgKey?.GetValue("DisplayName") as string)
-							?? game.EXEName;
+																		?? game.EXEName;
 					}
 
+					// Skip well-known non-game entries
+					if (string.IsNullOrEmpty(game.Name) || IGNORE_GAME_NAMES.Contains(game.Name, StringComparer.OrdinalIgnoreCase)) continue;
+
 					allGames.Add(game);
-					Logger.Log.LogTrace($"Found Xbox game: {game.Name} at {game.FolderPath}");
+					Logger.Log.LogTrace($"Xbox Game: {game.Name} at {game.FolderPath}");
 				}
 			}
+
+			Logger.Log.LogTrace($"Found {allGames.Count} installed Xbox games");
 		} catch (Exception ex) {
 			Logger.Log.LogCritical(ex, "Failed to scan Xbox games");
 		}
@@ -521,7 +563,7 @@ public static class GameStoreManager {
 		var allGames = new List<GameInstallation>();
 
 		try {
-			// Not way to find the root installation dir. Simple search all drivers for the common name.
+			// No way to find the root installation dir. Simple search all drivers for the common name.
 			var drives = DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Fixed);
 
 			foreach (var drive in drives) {
@@ -543,6 +585,9 @@ public static class GameStoreManager {
 						IconURL = "/Assets/EALogo.jpg"
 					};
 
+					// Skip well-known non-game entries
+					if (IGNORE_GAME_NAMES.Contains(game.Name, StringComparer.OrdinalIgnoreCase)) continue;
+
 					game.EAContentIDs = installerData.Descendants()
 						.Where(e => e.Name.LocalName == "contentIDs").First().Elements().Select(e => e.Value.Trim()).Order().ToArray();
 
@@ -555,6 +600,61 @@ public static class GameStoreManager {
 			Logger.Log.LogTrace($"Found {allGames.Count} installed EA games");
 		} catch (Exception ex) {
 			Logger.Log.LogCritical(ex, "Failed to scan EA games");
+		}
+
+		return allGames.OrderBy(g => g.Name).ToList();
+	}
+	#endregion
+
+	#region FindAllWindowsUninstalls
+	/// <summary>Typical Windows uninstall entries. Fallback option.</summary>
+	static List<GameInstallation> FindAllWindowsUninstalls() {
+		var allGames = new List<GameInstallation>();
+
+		try {
+			string uninstallRoot = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+
+			// Check both registry views (32-bit and 64-bit)
+			foreach (var view in new[] { RegistryView.Registry64, RegistryView.Registry32 }) {
+				using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+				using var uninstallKey = hklm.OpenSubKey(uninstallRoot, false);
+				if (uninstallKey == null) continue;
+
+				foreach (string subkeyName in uninstallKey.GetSubKeyNames()) {
+					try {
+						using var appKey = uninstallKey.OpenSubKey(subkeyName, false);
+						if (appKey == null) continue;
+
+						string publisher = appKey.GetValue("Publisher") as string;
+						string displayName = appKey.GetValue("DisplayName") as string;
+						string installLocation = appKey.GetValue("InstallLocation") as string;
+						if (string.IsNullOrEmpty(publisher) || string.IsNullOrEmpty(installLocation) || string.IsNullOrEmpty(displayName)
+							|| !ALLOWED_PUBLISHERS_CONTAINS.Any(p => publisher.Contains(p, StringComparison.OrdinalIgnoreCase))
+							|| IGNORE_GAME_NAMES.Contains(displayName, StringComparer.OrdinalIgnoreCase)) continue;
+
+						if (!Directory.Exists(installLocation)) {
+							Logger.Log.LogWarning($"Uninstall entry {displayName} has no valid install location {installLocation}");
+							continue;
+						}
+
+						var game = new GameInstallation {
+							StoreType = GameStoreType.Windows,
+							Name = displayName,
+							FolderPath = installLocation,
+							IconURL = "/Assets/GenericGameLogo.jpg"
+						};
+
+						allGames.Add(game);
+						Logger.Log.LogTrace($"Windows Game: {game.Name} at {game.FolderPath}");
+					} catch (Exception ex) {
+						Logger.Log.LogWarning(ex, $"Failed to read uninstall key {subkeyName}");
+					}
+				}
+			}
+
+			Logger.Log.LogTrace($"Found {allGames.Count} in Windows Uninstall");
+		} catch (Exception ex) {
+			Logger.Log.LogCritical(ex, "Failed to scan Windows uninstall entries");
 		}
 
 		return allGames.OrderBy(g => g.Name).ToList();
@@ -594,6 +694,7 @@ public class GameInstallation {
 		GameStoreType.GOG => $"G{GOGID}",
 		GameStoreType.XBox => $"X{XBoxID}",
 		GameStoreType.EA => $"EA{string.Join('|', EAContentIDs)}",
+		GameStoreType.Windows => $"W{FolderPath}",
 		_ => throw new NotImplementedException()
 	};
 
@@ -633,7 +734,8 @@ public enum GameStoreType {
 	Epic,
 	GOG,
 	XBox,
-	EA
+	EA,
+	Windows
 }
 
 /// <summary>Disk representation.</summary>
