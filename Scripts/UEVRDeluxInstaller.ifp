@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <InstallForgeProject>
-  <Metadata productVersion="1.6.0" projectFileVersion="2.0"/>
+  <Metadata productVersion="1.6.1" projectFileVersion="2.0"/>
   <ProductInformation>
     <Name>Unreal VR Easy Injector</Name>
-    <Version>2.5.0.0</Version>
+    <Version>2.6.0.0</Version>
     <CompanyName>UEVR Team</CompanyName>
     <WebURI>https://uevrdeluxe.org</WebURI>
   </ProductInformation>

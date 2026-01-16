@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.5.0.0",
-	"releaseNotes": "Multiple key presses per voice commands; auto add nohmd to Steam; UI improvements",
-	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2500"
+	"version": "2.6.0.0",
+	"releaseNotes": "Add game deep links desktop shortcuts; Store manager finds more games, filters better and scans faster; New options in profile editor; Resolution calculator in settings",
+	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/tag/V2600"
 }
