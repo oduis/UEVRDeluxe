@@ -18,7 +18,7 @@
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
-				<Image Source="{x:Bind IconURL}" Width="116" Height="44" Stretch="UniformToFill" />
+				<Image Source="{x:Bind IconURL}" Width="116" Height="44" Stretch="UniformToFill" ImageFailed="GameIcon_ImageFailed" />
 				<TextBlock Grid.Column="1" Text="{x:Bind Name}" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="18" Margin="12,0,3,3" />
 			</Grid>
 		</DataTemplate>

@@ -34,6 +34,11 @@ public sealed partial class MainPage : Page {
 		hotKeyCheckTimer.Tick += HotKeyCheckTimer_Tick;
 	}
 
+	void GameIcon_ImageFailed(object sender, ExceptionRoutedEventArgs e) {
+		var image = (Image)sender;
+		image.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri("ms-appx:///Assets/GenericGameLogo.jpg"));
+	}
+
 	protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
 		base.OnNavigatingFrom(e);
 
