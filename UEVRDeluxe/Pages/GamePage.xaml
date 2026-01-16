@@ -157,7 +157,7 @@
 		</Grid>
 
 		<Border Grid.Row="6" Visibility="{x:Bind VM.VisibleLateInjectWarning, Mode=OneWay}" Background="{ThemeResource SystemFillColorCautionBackgroundBrush}" Padding="10" Margin="1,0,1,8">
-			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords">Inject into this game while it is already started. Come back here or use keyboard shortcut.</TextBlock>
+			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords">Inject into this game while it is already started. Come back here or use keyboard shortcut Ctrl+Alt+U.</TextBlock>
 		</Border>
 
 		<Grid Grid.Row="7"
@@ -219,7 +219,7 @@
 			</Button>
 
 			<Button Grid.Column="4" x:Name="btnLaunch" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Launch_Click" Style="{StaticResource styButton}" HorizontalAlignment="Stretch"
-                    ToolTipService.ToolTip="Starts game from Steam if not already running. Injects UEVR into game if already running. Configure delay in the settings page.">
+                    ToolTipService.ToolTip="Starts game if not already running. Injects UEVR into game if already running. Configure delay in the settings page.">
 				<Grid>
 					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE768;" />
 					<TextBlock Style="{StaticResource styButtonIconText}" Text="{x:Bind VM.InjectButtonLabel, Mode=OneWay}" />

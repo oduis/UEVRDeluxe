@@ -154,6 +154,7 @@ public sealed partial class GamePage : Page {
 
 			shouldStop = false;
 			VM.IsRunning = true; hotKeyCheckTimer?.Stop();
+			await Task.Delay(60);  // Allow UI to update
 
 			#region Setup voice recognition
 			if (VM.EnableVoiceCommands) {
@@ -204,7 +205,10 @@ public sealed partial class GamePage : Page {
 				Process.Start(psi);
 
 				if (VM.LocalProfile?.Meta?.LateInjection == true) {
-					VM.StatusMessage = "Manual injection needed";
+					VM.StatusMessage = "Inject manually while already in the 3D game, here or with Ctrl+Alt+U";
+					VM.IsGameProcessRunning = true;
+
+					await Task.Delay(5000);  // so it does not look like it failed immediately. Afterwards the time will take care
 					return;
 				}
 
