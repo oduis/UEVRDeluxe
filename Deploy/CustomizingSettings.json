@@ -7,7 +7,8 @@
 		"starwarsjedifallenorder",
 		"StillWakesTheDeep",
 		"Wonderlands",
-		"LittleNightmaresIII"
+		"LittleNightmaresIII",
+		"ConanSandbox"
 	],
 	"exeNamePartsToIgnore": [
 		"crashpad_handler",
