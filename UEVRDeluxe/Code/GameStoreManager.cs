@@ -504,48 +504,52 @@ public static class GameStoreManager {
 
 					if (string.IsNullOrEmpty(packageId) || string.IsNullOrEmpty(rootPath))
 						continue;
+					try {
+						var game = new GameInstallation {
+							XBoxID = packageId,
+							FolderPath = Path.GetDirectoryName(rootPath),
+							StoreType = GameStoreType.XBox
+						};
 
-					var game = new GameInstallation {
-						XBoxID = packageId,
-						FolderPath = Path.GetDirectoryName(rootPath),
-						StoreType = GameStoreType.XBox
-					};
+						// DOS style folder name sometime disturb in other function
+						/* if (game.FolderPath.StartsWith(@"\\.\") || game.FolderPath.StartsWith(@"\\?\"))
+							game.FolderPath = game.FolderPath[4..]; */
 
-					// DOS style folder name sometime disturb in other function
-					/* if (game.FolderPath.StartsWith(@"\\.\") || game.FolderPath.StartsWith(@"\\?\"))
-						game.FolderPath = game.FolderPath[4..]; */
+						// Get the AppID from the PackageID (no versions)
+						var package = packageManager.FindPackageForUser(string.Empty, packageId);
+						if (package != null) {
+							string manifestPath = Path.Combine(package.InstalledLocation.Path, "AppxManifest.xml");
+							var manifest = XDocument.Parse(File.ReadAllText(manifestPath));
 
-					// Get the AppID from the PackageID (no versions)
-					var package = packageManager.FindPackageForUser(string.Empty, packageId);
-					if (package != null) {
-						string manifestPath = Path.Combine(package.InstalledLocation.Path, "AppxManifest.xml");
-						var manifest = XDocument.Parse(File.ReadAllText(manifestPath));
+							string applicationId = manifest.Descendants()
+												   .Where(e => e.Name.LocalName == "Application")
+												   .Select(app => app.Attribute("Id")?.Value)
+												   .FirstOrDefault() ?? "App";
 
-						string applicationId = manifest.Descendants()
-											   .Where(e => e.Name.LocalName == "Application")
-											   .Select(app => app.Attribute("Id")?.Value)
-											   .FirstOrDefault() ?? "App";
+							game.ShellLaunchPath = $"shell:AppsFolder\\{package.Id.FamilyName}!{applicationId}";
+						}
 
-						game.ShellLaunchPath = $"shell:AppsFolder\\{package.Id.FamilyName}!{applicationId}";
+						/* Often not a real logo of the game
+						game.IconURL=Path.Combine(game.FolderPath, "GraphicsLogo.png");
+						if (!File.Exists(game.IconURL)) Path.Combine(game.FolderPath, "StoreLogo.png");
+						if (!File.Exists(game.IconURL)) */
+						game.IconURL = "/Assets/XBoxLogo.png";
+
+						// Get display name from packages key
+						using (var pkgKey = userPackagesKey?.OpenSubKey(packageId)) {
+							game.Name = (pkgKey?.GetValue("DisplayName") as string)
+																			?? game.EXEName;
+						}
+
+						// Skip well-known non-game entries
+						if (string.IsNullOrEmpty(game.Name) || IGNORE_GAME_NAMES.Contains(game.Name, StringComparer.OrdinalIgnoreCase)) continue;
+
+						allGames.Add(game);
+						Logger.Log.LogTrace($"Xbox Game: {game.Name} at {game.FolderPath}");
+					} catch (Exception ex) {
+						// For the guys still running their corrupted hard drives... show must go on
+						Logger.Log.LogWarning(ex, $"Failed to read XBox game key {packageId} in {rootPath}");
 					}
-
-					/* Often not a real logo of the game
-					game.IconURL=Path.Combine(game.FolderPath, "GraphicsLogo.png");
-					if (!File.Exists(game.IconURL)) Path.Combine(game.FolderPath, "StoreLogo.png");
-					if (!File.Exists(game.IconURL)) */
-					game.IconURL = "/Assets/XBoxLogo.png";
-
-					// Get display name from packages key
-					using (var pkgKey = userPackagesKey?.OpenSubKey(packageId)) {
-						game.Name = (pkgKey?.GetValue("DisplayName") as string)
-																		?? game.EXEName;
-					}
-
-					// Skip well-known non-game entries
-					if (string.IsNullOrEmpty(game.Name) || IGNORE_GAME_NAMES.Contains(game.Name, StringComparer.OrdinalIgnoreCase)) continue;
-
-					allGames.Add(game);
-					Logger.Log.LogTrace($"Xbox Game: {game.Name} at {game.FolderPath}");
 				}
 			}
 

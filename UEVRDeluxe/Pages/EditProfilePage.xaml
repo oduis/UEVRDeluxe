@@ -140,7 +140,8 @@
 								<TextBlock Text="%" FontSize="16" VerticalAlignment="Center" />
 							</StackPanel>
 
-							<TextBlock Style="{StaticResource styHelpText}">100% means full resolution of headset display. Higher scale gives more sharpness (since optical distortion is reduced), lower scale more performance. OpenXR only.</TextBlock>
+							<TextBlock Style="{StaticResource styHelpText}">100% means full resolution of headset display. Higher scale gives more sharpness (since optical distortion is reduced), lower scale more performance. 
+								OpenXR only. Do NOT use anything other than 100% when connected via Virtual Desktop.</TextBlock>
 						</StackPanel>
 
 						<StackPanel>
