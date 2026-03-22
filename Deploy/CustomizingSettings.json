@@ -26,6 +26,7 @@
 		"UnrealCEFSubProcess",
 		"UninstallHelper",
 		"-crash-helper",
-		"d3dconfig"
+		"d3dconfig",
+		"Vampyr-Win64-Shipping"
 	]
 }
