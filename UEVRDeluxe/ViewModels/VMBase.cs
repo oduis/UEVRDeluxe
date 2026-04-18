@@ -7,7 +7,8 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Threading.Tasks;
-using UEVRDeluxe.Code; 
+using UEVRDeluxe.Code;
+using WinRT.Interop;
 #endregion
 
 namespace UEVRDeluxe.ViewModels;
@@ -67,9 +68,16 @@ public abstract class VMBase : INotifyPropertyChanged {
 		string message = ex.Message;
 		if (ex is SecurityException) message = $"Security error: {message}\r\nPlease start UEVR Easy Injector as administrator";
 
-		await new ContentDialog {
+		var dlg = new ContentDialog {
 			Title = title, CloseButtonText = "OK", XamlRoot = xamlRoot,
 			Content = string.IsNullOrEmpty(message) ? ex.ToString() : message
-		}.ShowAsync();
+		};
+
+		// Prevents crashes in Debugger in Admin mode
+		try {
+			InitializeWithWindow.Initialize(dlg, MainWindow.hWnd);
+		} catch { }
+
+		await dlg.ShowAsync();
 	}
 }

@@ -34,21 +34,31 @@ public sealed partial class EditProfilePage : Page {
 		try {
 			Logger.Log.LogTrace($"Opening profile page {VM.GameInstallation?.Name}");
 
-			VM.LocalProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName, true);
+			var localProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName, true);
 
-			SetRadioButtonValue(spRenderingMethod, VM.LocalProfile.Config.Global["VR_RenderingMethod"]);
-			SetRadioButtonValue(spSyncedSequentialMethod, VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"]);
-			cbNativeStereoFix.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_NativeStereoFix"] ?? "false");
-			cbNativeStereoFixSamePass.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_NativeStereoFixSamePass"] ?? "false");
-			cbGhostingFix.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_GhostingFix"] ?? "false");
-			cbAimMPSupport.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_AimMPSupport"] ?? "false");
-			cbEnableDepth.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_EnableDepth"] ?? "false");
-			cbSnapTurn.IsChecked = bool.Parse(VM.LocalProfile.Config.Global["VR_SnapTurn"] ?? "false");
-			slSnapturnTurnAngle.Value = int.Parse(VM.LocalProfile.Config.Global["VR_SnapturnTurnAngle"] ?? "45");
-			slResolutionScale.Value = Math.Round(double.Parse(VM.LocalProfile.Config.Global["OpenXR_ResolutionScale"] ?? "1.0", CultureInfo.InvariantCulture) * 100);
+			// If we just created a new local profile, prepopulate the metadata from the detected game
+			if (localProfile?.Meta != null && string.IsNullOrWhiteSpace(localProfile.Meta.EXEName)) {
+				localProfile.Meta.EXEName = VM.GameInstallation?.EXEName;
+				localProfile.Meta.GameName = VM.GameInstallation?.Name;
+				localProfile.Meta.AuthorName ??= Environment.UserName ?? string.Empty;
+				if (localProfile.Meta.ModifiedDate == default) localProfile.Meta.ModifiedDate = DateTime.Today;
+			}
+
+			VM.LocalProfile = localProfile;
+
+			SetRadioButtonValue(spRenderingMethod, localProfile.Config.Global["VR_RenderingMethod"]);
+			SetRadioButtonValue(spSyncedSequentialMethod, localProfile.Config.Global["VR_SyncedSequentialMethod"]);
+			cbNativeStereoFix.IsChecked = bool.Parse(localProfile.Config.Global["VR_NativeStereoFix"] ?? "false");
+			cbNativeStereoFixSamePass.IsChecked = bool.Parse(localProfile.Config.Global["VR_NativeStereoFixSamePass"] ?? "false");
+			cbGhostingFix.IsChecked = bool.Parse(localProfile.Config.Global["VR_GhostingFix"] ?? "false");
+			cbAimMPSupport.IsChecked = bool.Parse(localProfile.Config.Global["VR_AimMPSupport"] ?? "false");
+			cbEnableDepth.IsChecked = bool.Parse(localProfile.Config.Global["VR_EnableDepth"] ?? "false");
+			cbSnapTurn.IsChecked = bool.Parse(localProfile.Config.Global["VR_SnapTurn"] ?? "false");
+			slSnapturnTurnAngle.Value = int.Parse(localProfile.Config.Global["VR_SnapturnTurnAngle"] ?? "45");
+			slResolutionScale.Value = Math.Round(double.Parse(localProfile.Config.Global["OpenXR_ResolutionScale"] ?? "1.0", CultureInfo.InvariantCulture) * 100);
 
 			// AntiAlias is special, since a set of values must be used. And it may be configured manually
-			string antiAliasingMethod = VM.LocalProfile.CVarsStandard.Global["Renderer_r.AntiAliasingMethod"];
+			string antiAliasingMethod = localProfile.CVarsStandard.Global["Renderer_r.AntiAliasingMethod"];
 			if (antiAliasingMethod == "4") {
 				SetRadioButtonValue(spUpscaler, "1");
 				spUpscaler.Visibility = Visibility.Visible;
@@ -60,10 +70,10 @@ public sealed partial class EditProfilePage : Page {
 				spUpscaler.Visibility = Visibility.Collapsed;
 			}
 
-			slScreenPercentage.Value = Math.Round(double.Parse(VM.LocalProfile.CVarsStandard.Global["Core_r.ScreenPercentage"] ?? "80.0", CultureInfo.InvariantCulture));
+			slScreenPercentage.Value = Math.Round(double.Parse(localProfile.CVarsStandard.Global["Core_r.ScreenPercentage"] ?? "80.0", CultureInfo.InvariantCulture));
 
 			// Load CVarsData settings
-			string oneFrameThreadLag = VM.LocalProfile.CVarsData.Global["Engine_r.OneFrameThreadLag"];
+			string oneFrameThreadLag = localProfile.CVarsData.Global["Engine_r.OneFrameThreadLag"];
 			if (string.IsNullOrEmpty(oneFrameThreadLag)) {
 				cbOneFrameThreadLag.IsChecked = null;
 			} else {
@@ -71,14 +81,13 @@ public sealed partial class EditProfilePage : Page {
 			}
 
 			// Load UserScript overrides (three-state). Null -> not present, true->1, false->0
-			string propagateAlpha = VM.LocalProfile.UserScript.Global["r.PostProcessing.PropagateAlpha"];
+			string propagateAlpha = localProfile.UserScript.Global["r.PostProcessing.PropagateAlpha"];
 			if (string.IsNullOrEmpty(propagateAlpha)) cbOverridePropagateAlpha.IsChecked = null;
 			else cbOverridePropagateAlpha.IsChecked = propagateAlpha == "1";
 
-			string disableMaterials = VM.LocalProfile.UserScript.Global["r.PostProcessing.DisableMaterials"];
+			string disableMaterials = localProfile.UserScript.Global["r.PostProcessing.DisableMaterials"];
 			if (string.IsNullOrEmpty(disableMaterials)) cbOverrideDisableMaterials.IsChecked = null;
 			else cbOverrideDisableMaterials.IsChecked = disableMaterials == "1";
-
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Load profile error");
 		}

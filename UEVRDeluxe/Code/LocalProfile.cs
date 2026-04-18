@@ -3,8 +3,6 @@ using IniParser;
 using IniParser.Model;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -45,14 +43,11 @@ public class LocalProfile {
 		OpenXR_ResolutionScale=1.000000
 		""";
 
-	/// <summary>These config settings are overwritten with default when packing for submit</summary>
+	/// <summary>These config settings are overwritten with headset neutral defaults when packing for submit</summary>
 	const string CONFIG_OVERRIDE_SUBMIT = """
-		FrameworkConfig_AdvancedMode=false
-		FrameworkConfig_EnableL3R3Toggle=true
 		FrameworkConfig_FontSize=16
 		FrameworkConfig_ImGuiTheme=0
 		FrameworkConfig_LogLevel=3
-		OpenXR_IgnoreVirtualDesktopChecks=true
 		OpenXR_ResolutionScale=1.000000
 		VR_PassDepthToRuntime=false
 		VR_ShowFPSOverlay=false
