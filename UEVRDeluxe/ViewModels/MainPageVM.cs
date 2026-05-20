@@ -24,4 +24,7 @@ public class MainPageVM : VMBase {
 
 	string downloadButtonLabel = "Update UEVR version";
 	public string DownloadButtonLabel { get => downloadButtonLabel; set => Set(ref downloadButtonLabel, value); }
+
+	string downloadButtonJoeyHodgeLabel = "Update UEVR JoeyHodge version";
+	public string DownloadButtonJoeyHodgeLabel { get => downloadButtonJoeyHodgeLabel; set => Set(ref downloadButtonJoeyHodgeLabel, value); }
 }

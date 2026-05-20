@@ -6,6 +6,7 @@
 - UEVRDeluxeFunc is an Azure Function backend for managing UEVR profiles in an Azure Storage. Follow Azure Functions patterns as seen in FunctionsBase.
 - 
 ## Coding Standards
+** IMPORTANT: Try to preserve the original code and the logic of the original code as much as possible **
 - Simplicity & Modularity: Keep code simple and modular. Use helper classes and regions to organize related logic.
 - .NET & C# Best Practices: Follow .NET 8 and C# conventions, including async/await for asynchronous operations.
 - Tabs: Use tabs for indentation, not spaces.

@@ -230,7 +230,7 @@
 					</StackPanel>
 				</ScrollViewer>
 			</TabViewItem>
-			<TabViewItem Header="&#x25A0;  Profile Information" IsClosable="False">
+			<TabViewItem Header="&#x25A0;  Profile Settings" IsClosable="False">
 				<ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
 					<StackPanel Spacing="26" HorizontalAlignment="Stretch" Margin="0,6,0,0">
 						<StackPanel Spacing="6">
@@ -276,6 +276,9 @@
 							</StackPanel>
 
 							<CheckBox Content="Late Injection (For stability, requires injection when the game is already running and in 3D)" IsChecked="{x:Bind VM.LocalProfile.Meta.LateInjection, Mode=TwoWay}" />
+
+							<CheckBox Content="Use JoeyHodge Backend (for games using very new Unreal engine versions)" IsChecked="{x:Bind VM.UseJoeyHodgeBackend, Mode=TwoWay}" />
+
 						</StackPanel>
 
 						<Grid>

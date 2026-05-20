@@ -2,6 +2,7 @@
 using System.IO.Compression;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Web;
 using UEVRDeluxe.Common;
 #endregion
 
@@ -19,16 +20,20 @@ class Program {
 			resultFilePathPath = args[0];
 
 			switch (args[1].ToUpperInvariant()) {
-				case "UPDATEBACKEND":
+				case UEVRCmdArgs.UPDATEBACKEND:
 					await UpdateBackendAsync(int.Parse(args[2]));
 					break;
 
-				case "INSTALLPROFILE":
+				case UEVRCmdArgs.UPDATEJOEYHODGEBACKEND:
+					await UpdateJoeyHodgeBackendAsync(args[2]);
+					break;
+
+				case UEVRCmdArgs.INSTALLPROFILE:
 					if (args.Length < 4) throw new Exception("INSTALLPROFILE requires profileRootFolder and gameExeFolder parameters");
 					await InstallProfileAsync(args[2], args[3]);
 					break;
 
-				case "UNINSTALLPROFILE":
+				case UEVRCmdArgs.UNINSTALLPROFILE:
 					if (args.Length < 4) throw new Exception("UNINSTALLPROFILE requires profileRootFolder and gameExeFolder parameters");
 					await UninstallProfileAsync(args[2], args[3]);
 					break;
@@ -53,22 +58,19 @@ class Program {
 	#endregion
 
 	#region UpdateBackend
-	const string UEVR_SEARCH_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases?q=Nightly+{0}&expanded=true";
-	const string UEVR_VERSION_FILENAME = "UEVRLink.txt";
-
 	/// <summary>Update UEVR backend from GitHub</summary>
 	public static async Task UpdateBackendAsync(int nightlyNumber) {
 		string zipUrl, sNightlyNumber, commitHash;
 
 		string UEVRBaseDir = Path.Combine(AppContext.BaseDirectory, "..\\UEVR");
-		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVR_VERSION_FILENAME);
+		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.UEVR_VERSION_PRAYDOG_FILENAME);
 
 		byte[] zipData;
 		using (var client = new HttpClient()) {
 			sNightlyNumber = nightlyNumber.ToString("D5");
 			Console.WriteLine($"Checking for UEVR nightly {sNightlyNumber}");
 
-			string searchUrl = string.Format(UEVR_SEARCH_NIGHTLY_URL, sNightlyNumber);
+			string searchUrl = string.Format(UEVRBackendConstants.UEVR_SEARCH_NIGHTLY_URL, sNightlyNumber);
 
 			string html = await client.GetStringAsync(searchUrl);
 
@@ -104,10 +106,29 @@ class Program {
 	}
 	#endregion
 
+	#region UpdateJoeyHodgeBackendAsync
+	/// <summary>Update UEVR backend from GitHub</summary>
+	public static async Task UpdateJoeyHodgeBackendAsync(string name) {
+		string UEVRBaseDir = Path.Combine(AppContext.BaseDirectory, "..\\UEVR");
+		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.UEVR_VERSION_JOEYHODGE_FILENAME);
+
+		using (var client = new HttpClient()) {
+			string fullUrl = string.Format(UEVRBackendConstants.UEVR_DOWNLOAD_JOEYHODGE_URL, HttpUtility.UrlEncode(name));
+			
+			if (File.Exists(VersionFilePath) && string.Equals(File.ReadAllText(VersionFilePath).Trim(), fullUrl)) {
+				Console.WriteLine("UEVR backend is already up to date");
+				return;
+			}
+
+			File.WriteAllBytes(Path.Combine(UEVRBaseDir, UEVRBackendConstants.UEVR_BACKEND_DLL_JOEYHODGE), await client.GetByteArrayAsync(fullUrl));
+			File.WriteAllText(VersionFilePath, fullUrl);
+		}
+	}
+	#endregion
+
 	#region InstallProfile
 	/// <summary>Some games use paks in this subfolder as to load after the standard mods.</summary>
 	const string MOD_SUBFOLDER = "~mods";
-
 
 	/// <summary>Install a profile into the game folder by copying files defined in ProfileMeta.json</summary>
 	public static async Task InstallProfileAsync(string profileRootFolder, string gameExeFolder) {

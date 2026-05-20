@@ -13,6 +13,9 @@
 		<Compile Include="..\UEVRDeluxeCommon\ProfileMeta.cs">
 			<Link>Common\ProfileMeta.cs</Link>
 		</Compile>
+		<Compile Include="..\UEVRDeluxeCommon\Constants.cs">
+			<Link>Common\Constants.cs</Link>
+		</Compile>
 	</ItemGroup>
 
 </Project>

@@ -251,8 +251,9 @@ public sealed partial class GamePage : Page {
 			VM.StatusMessage = "Injecting protocol DLL...";
 			Injector.InjectDll(gameProcess.Id, (VM.LinkProtocol_XR ? "openxr_loader.dll" : "openvr_api.dll"));
 
-			VM.StatusMessage = "Injecting backend DLL...";
-			Injector.InjectDll(gameProcess.Id, "UEVRBackend.dll");
+			VM.StatusMessage = $"Injecting backend DLL {VM.LocalProfile.Meta.UEVRBackendName ?? "Praydog"}...";
+			Injector.InjectDll(gameProcess.Id, VM.LocalProfile.Meta.UEVRBackendName == "JoeyHodge"
+				? UEVRBackendConstants.UEVR_BACKEND_DLL_JOEYHODGE : UEVRBackendConstants.UEVR_BACKEND_DLL);
 
 			// Stop voice commands
 			if (speechRecognizer != null) {

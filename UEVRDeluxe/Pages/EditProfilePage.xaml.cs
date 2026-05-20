@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UEVRDeluxe.Code;
+using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
 using Windows.Storage.Pickers;
 #endregion
@@ -160,6 +161,8 @@ public sealed partial class EditProfilePage : Page {
 		} else {
 			VM.LocalProfile.DescriptionMD = null;  // Remove the dummy description
 		}
+
+		VM.LocalProfile.Meta.UEVRBackendName = VM.UseJoeyHodgeBackend ? UEVRBackendConstants.UEVR_BACKEND_NAME_JOEYHODGE : null;
 
 		await VM.LocalProfile.SaveAsync();
 	}

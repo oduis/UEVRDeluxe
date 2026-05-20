@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using UEVRDeluxe.Common;
 #endregion
 
 namespace UEVRDeluxe.Code;
@@ -14,7 +15,13 @@ static class CmdManager {
 	/// <param name="nightlyNumber">Nightly number to update to. Use a positive integer.</param>
 	public static Task UpdateBackendAsync(int nightlyNumber) {
 		if (nightlyNumber <= 0) throw new ArgumentException("nightlyNumber must be a positive integer", nameof(nightlyNumber));
-		return RunAsync($"UPDATEBACKEND {nightlyNumber}");
+		return RunAsync($"{UEVRCmdArgs.UPDATEBACKEND} {nightlyNumber}");
+	}
+
+	/// <summary>Wrapper to update the backend for Joey Hodge using the elevated helper command.</summary>
+	/// <param name="nightlyNumber">Nightly number/identifier to update to. Use a positive integer.</param>
+	public static Task UpdateJoeyHodgeBackendAsync(string name) {
+		return RunAsync($"{UEVRCmdArgs.UPDATEJOEYHODGEBACKEND} {name}");
 	}
 
 	/// <summary>Install a profile by calling the elevated helper command.</summary>
@@ -23,7 +30,7 @@ static class CmdManager {
 		if (string.IsNullOrWhiteSpace(gameExeFolder)) throw new ArgumentException("gameExeFolder is required", nameof(gameExeFolder));
 
 		// Quote paths to preserve spaces when passed to the helper
-		string args = $"INSTALLPROFILE \"{profileRootFolder}\" \"{gameExeFolder}\"";
+		string args = $"{UEVRCmdArgs.INSTALLPROFILE} \"{profileRootFolder}\" \"{gameExeFolder}\"";
 		return RunAsync(args);
 	}
 
@@ -32,7 +39,7 @@ static class CmdManager {
 		if (string.IsNullOrWhiteSpace(profileRootFolder)) throw new ArgumentException("profileRootFolder is required", nameof(profileRootFolder));
 		if (string.IsNullOrWhiteSpace(gameExeFolder)) throw new ArgumentException("gameExeFolder is required", nameof(gameExeFolder));
 
-		string args = $"UNINSTALLPROFILE \"{profileRootFolder}\" \"{gameExeFolder}\"";
+		string args = $"{UEVRCmdArgs.UNINSTALLPROFILE} \"{profileRootFolder}\" \"{gameExeFolder}\"";
 		return RunAsync(args);
 	}
 	#endregion

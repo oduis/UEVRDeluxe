@@ -61,25 +61,40 @@
 			</GridView.ItemContainerStyle>
 		</GridView>
 
-		<StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12">
-			<Button Click="UpdateUEVR_Click" Style="{StaticResource styButton}"
+		<Grid Grid.Row="2">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+			<StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12">
+				<Button Click="UpdateUEVR_Click" Style="{StaticResource styButton}"
 				ToolTipService.ToolTip="Download and install latest UEVR nightly backend version. Antivirus might block this.">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
-					<TextBlock Style="{StaticResource styButtonIconText}" Text="{x:Bind VM.DownloadButtonLabel, Mode=OneWay}" />
-				</Grid>
-			</Button>
-			<Button Click="Rescan_Click" Style="{StaticResource styButton}"
+					<Grid>
+						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
+						<TextBlock Style="{StaticResource styButtonIconText}" Text="{x:Bind VM.DownloadButtonLabel, Mode=OneWay}" />
+					</Grid>
+				</Button>
+
+				<Button Click="UpdateUEVRJoeyHodge_Click" Style="{StaticResource styButton}"
+				ToolTipService.ToolTip="Download and install latest UEVR JoeyHodge backend version. Antivirus might block this.">
+					<Grid>
+						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
+						<TextBlock Style="{StaticResource styButtonIconText}" Text="{x:Bind VM.DownloadButtonJoeyHodgeLabel, Mode=OneWay}" />
+					</Grid>
+				</Button>
+
+				<Button Click="Rescan_Click" Style="{StaticResource styButton}"
 			ToolTipService.ToolTip="If your games is not shown, try to rescan the library. This may take a while, if you have many games installed.">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE72C;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Rescan game library</TextBlock>
-				</Grid>
-			</Button>
-		</StackPanel>
-		<TextBlock Grid.Row="2" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
+					<Grid>
+						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE72C;" />
+						<TextBlock Style="{StaticResource styButtonIconText}">Rescan game library</TextBlock>
+					</Grid>
+				</Button>
+			</StackPanel>
+			<TextBlock Grid.Column="1" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
 			( While in game, hit Ctrl+Alt+U to inject directly )
-		</TextBlock>
+			</TextBlock>
+		</Grid>
 
 		<Border Grid.Row="3" Visibility="{x:Bind VM.WarningVisible, Mode=OneWay}" Style="{StaticResource styWarning}" Margin="0,8,0,0">
 			<TextBlock HorizontalTextAlignment="Center" TextWrapping="WrapWholeWords" Text="{x:Bind VM.Warning, Mode=OneWay}" FontWeight="Bold" />

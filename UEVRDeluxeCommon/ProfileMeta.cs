@@ -33,6 +33,10 @@ public class ProfileMeta {
 	[JsonPropertyName("authorName")]
 	public string AuthorName { get; set; }
 
+	/// <summary>If empty: default praydog. Otherwise can be "JoeyHodge"</summary>
+	[JsonPropertyName("uevrBackendName")]
+	public string UEVRBackendName { get; set; }
+
 	/// <summary>If set, minimum version number</summary>
 	[JsonPropertyName("minUEVRNightlyNumber")]
 	public int? MinUEVRNightlyNumber { get; set; }

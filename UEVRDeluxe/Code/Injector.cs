@@ -7,6 +7,8 @@ using System.Net.Http;
 using HtmlAgilityPack;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using UEVRDeluxe.Common;
+using System.Web;
 #endregion
 
 namespace UEVRDeluxe.Code;
@@ -109,21 +111,16 @@ class Injector {
 	}
 	#endregion
 
-	#region * UpdateBackend
-	const string UEVR_LATEST_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases/latest";
-
-	/// <summary>Contains the URL of the version successfully downloaded.</summary>
-	/// <remarks>WARNING: Also change in Cmd</remarks>
-	const string UEVR_VERSION_FILENAME = "UEVRLink.txt";
-
+	#region * UpdateBackend Praydog's UEVR Nightly
 	/// <summary>We don't want a web request on every entering to the main page.</summary>
-	static string cachedLatestNightlyNumber, cachedLatestCommitHash;
+	static int? cachedLatestNightlyNumber = null;
 
-	static async Task<(string nightlyNumber, string commitHash)> ReadLatestUEVRNightlyVersionAsync(HttpClient client) {
-		if (cachedLatestNightlyNumber != null && cachedLatestCommitHash != null)
-			return (cachedLatestNightlyNumber, cachedLatestCommitHash);
+	public static async Task<int> ReadLatestUEVRNightlyNumberAsync() {
+		using var client = new HttpClient();
 
-		string html = await client.GetStringAsync(UEVR_LATEST_NIGHTLY_URL);
+		if (cachedLatestNightlyNumber.HasValue) return cachedLatestNightlyNumber.Value;
+
+		string html = await client.GetStringAsync(UEVRBackendConstants.UEVR_LATEST_NIGHTLY_URL);
 		var doc = new HtmlDocument();
 		doc.LoadHtml(html);
 		var title = doc.DocumentNode.SelectSingleNode("//title");
@@ -131,22 +128,17 @@ class Injector {
 		// Parse and convert to to link: https://github.com/praydog/UEVR-nightly/releases/download/nightly-01036-f97cc4ad910351521e8e2031f63bebc754673e26/uevr.zip
 
 		var match = Regex.Match(title.InnerText, @"Release UEVR Nightly (\d+) \(([\da-f]+)\)");
-		if (!match.Success) throw new Exception("Invalid release title format: {title}");
+		if (!match.Success) throw new Exception($"Invalid release title format: {title.InnerText}");
 
-		cachedLatestNightlyNumber = match.Groups[1].Value;
-		cachedLatestCommitHash = match.Groups[2].Value;
-		return (cachedLatestNightlyNumber, cachedLatestCommitHash);
-	}
-
-	public static async Task<int> ReadLatestUEVRNightlyNumberAsync() {
-		using var client = new HttpClient();
-		var (nightlyNumber, _) = await ReadLatestUEVRNightlyVersionAsync(client);
-		return int.Parse(nightlyNumber);
+		cachedLatestNightlyNumber = int.Parse(match.Groups[1].Value);
+		//cachedLatestCommitHash = match.Groups[2].Value;
+		return cachedLatestNightlyNumber.Value;
 	}
 
 	/// <summary>Currently installed nightly UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
 	public static int? GetInstalledUEVRNightlyNumber() {
+		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.UEVR_VERSION_PRAYDOG_FILENAME);
 		if (!File.Exists(VersionFilePath)) return null;
 		string version = File.ReadAllText(VersionFilePath).Trim();
 
@@ -158,9 +150,41 @@ class Injector {
 	}
 	#endregion
 
+	#region * UpdateBackend JoeyHodge's UEVR
+	/// <summary>We don't want a web request on every entering to the main page.</summary>
+	static string cachedLatestJoeyHodgeName;
+
+	public static async Task<string> ReadLatestUEVRJoeyHodgeVersionAsync() {
+		using var client = new HttpClient();
+
+		if (cachedLatestJoeyHodgeName != null) return cachedLatestJoeyHodgeName;
+
+		string html = await client.GetStringAsync(UEVRBackendConstants.UEVR_LATEST_JOEYHODGE_URL);
+
+		var match = Regex.Match(html, @"UEVR/tree/([^\""]+)");
+		if (!match.Success) throw new Exception("Invalid release tree format");
+
+		cachedLatestJoeyHodgeName = HttpUtility.UrlDecode(match.Groups[1].Value);
+		return cachedLatestJoeyHodgeName;
+	}
+
+	/// <summary>Currently installed JoeyHodge UEVR version</summary>
+	/// <returns>Returns NULL if not downloaded yet</returns>
+	public static string GetInstalledUEVRJoeyHodgeName() {
+		string VersionJoeyHodgeFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.UEVR_VERSION_JOEYHODGE_FILENAME);
+		if (!File.Exists(VersionJoeyHodgeFilePath)) return null;
+		string version = File.ReadAllText(VersionJoeyHodgeFilePath).Trim();
+
+		// Parse the nighly number from a URL like https://github.com/joeyhodge/UEVR/releases/download/daysgonenomoreuevr/UEVRBackend.dll
+		var match = Regex.Match(version, @"download/(?<Name>.+)/");
+		if (!match.Success) return null;
+
+		return HttpUtility.UrlDecode(match.Groups["Name"].Value);
+	}
+	#endregion
+
 	#region * Directory paths
 	static string UEVRBaseDir => Path.Combine(AppContext.BaseDirectory, "UEVR");
-	static string VersionFilePath => Path.Combine(UEVRBaseDir, UEVR_VERSION_FILENAME);
 
 	static string GetFullDLLPath(string dllName) {
 		var fullPath = Path.Combine(UEVRBaseDir, dllName);

@@ -1,6 +1,7 @@
 ﻿#region Usings
 using Microsoft.UI.Xaml;
 using UEVRDeluxe.Code;
+using UEVRDeluxe.Common;
 #endregion
 
 namespace UEVRDeluxe.ViewModels;
@@ -18,12 +19,18 @@ public class EditProfilePageVM : VMBase {
 
 			DescriptionMD = string.IsNullOrWhiteSpace(value.DescriptionMD)
 				? LocalProfile.DUMMY_DESCRIPTION_MD : value.DescriptionMD;
+
+			UseJoeyHodgeBackend = value?.Meta?.UEVRBackendName == UEVRBackendConstants.UEVR_BACKEND_NAME_JOEYHODGE;
 		}
 	}
 
 	string descriptionMD;
 	/// <summary>Might contain a dummy description that should not be changed or saved</summary>
 	public string DescriptionMD { get => descriptionMD; set => Set(ref descriptionMD, value); }
+
+	bool useJoeyHodgeBackend;
+	public bool UseJoeyHodgeBackend { get => useJoeyHodgeBackend; set => Set(ref useJoeyHodgeBackend, value); }
+
 
 	public Visibility VisibleIfProfile;
 }
