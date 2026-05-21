@@ -30,7 +30,7 @@ public class GamePageVM : VMBase {
 
 	public string UEVRVersionWarning {
 		get {
-			if (currentUEVRNightlyNumber.HasValue &&
+			if (LocalProfile?.Meta?.UEVRBackendName == null && currentUEVRNightlyNumber.HasValue &&
 				((LocalProfile?.Meta?.MinUEVRNightlyNumber ?? int.MinValue) > CurrentUEVRNightlyNumber
 				|| (LocalProfile?.Meta?.MaxUEVRNightlyNumber ?? int.MaxValue) < CurrentUEVRNightlyNumber))
 				return $"Currently installed UEVR backend version {CurrentUEVRNightlyNumber} might not be compatible";
@@ -39,7 +39,6 @@ public class GamePageVM : VMBase {
 		}
 	}
 	public Visibility UEVRVersionWarningVisible => !string.IsNullOrEmpty(UEVRVersionWarning) ? Visibility.Visible : Visibility.Collapsed;
-
 
 	string currentOpenXRRuntime;
 	public string CurrentOpenXRRuntime { get => currentOpenXRRuntime; set => Set(ref currentOpenXRRuntime, value); }

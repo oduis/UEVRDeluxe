@@ -46,8 +46,10 @@ public class ProfileMeta {
 	public int? MaxUEVRNightlyNumber { get; set; }
 
 	[JsonIgnore]
-	public string MinMaxUEVRNightlyNumberText {
+	public string RequiredUEVRVersionText {
 		get {
+			if (UEVRBackendName != null) return UEVRBackendName;
+
 			if (MinUEVRNightlyNumber.HasValue && MaxUEVRNightlyNumber.HasValue)
 				return $"{MinUEVRNightlyNumber} to {MaxUEVRNightlyNumber}";
 

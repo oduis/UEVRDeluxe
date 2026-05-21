@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "2.6.0.0",
-	"releaseNotes": "Add game deep links desktop shortcuts; Store manager finds more games, filters better and scans faster; New options in profile editor; Resolution calculator in settings",
+	"version": "3.0.0.0",
+	"releaseNotes": "Install and update JoeyHodge alternative UEVR backend in parallel",
 	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/"
 }
