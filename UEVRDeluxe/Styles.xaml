@@ -14,7 +14,7 @@
 				<ControlTemplate TargetType="ContentControl">
 					<Border>
 						<Border.Background>
-							<SolidColorBrush Color="{ThemeResource SmokeFillColorDefaultBrush}" Opacity="0.5" />
+							<SolidColorBrush Color="{ThemeResource SolidBackgroundFillColorBase}" Opacity="0.5" />
 						</Border.Background>
 
 						<ProgressRing IsActive="True" Height="96" Width="96" HorizontalAlignment="Center" VerticalAlignment="Center" />
