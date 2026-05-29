@@ -223,6 +223,9 @@ public static class GameStoreManager {
 
 					game.EXEPath = bestProps.filePath;
 
+					// Just for Windows Uninstall, guess the exe name. Not 100%, but Windows Uninstall is a fallback anyway, so better than nothing
+					game.ShellLaunchPath ??= bestProps.filePath;
+
 					Logger.Log.LogTrace($"{game.Name} best executable: {bestProps.filePath}");
 				} else {
 					Logger.Log.LogTrace($"No executable found for {game.Name}");
@@ -567,14 +570,33 @@ public static class GameStoreManager {
 		var allGames = new List<GameInstallation>();
 
 		try {
-			// No way to find the root installation dir. Simple search all drivers for the common name.
+			var gameInstallDirs = new List<string>();
+
+			// 1. the ini file directory
+			string eaDesktopDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Electronic Arts", "EA Desktop");
+			if (Directory.Exists(eaDesktopDir)) {
+				string iniFile = Directory.GetFiles(eaDesktopDir, "user_*.ini", SearchOption.TopDirectoryOnly).FirstOrDefault();
+				if (iniFile != null) {
+					// Entry like this: user.downloadinplacedir=C:\Program Files\EA Games\
+					string gameInstallDir = File.ReadAllLines(iniFile)
+						.FirstOrDefault(f => f.StartsWith("user.downloadinplacedir="))?.Split('=')?[1]?.Trim([' ', '\\']);
+					if (!string.IsNullOrEmpty(gameInstallDir)) gameInstallDirs.Add(gameInstallDir);
+				}
+			}
+
+			// 2. Any installation root paths (they are the default)
 			var drives = DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Fixed);
 
 			foreach (var drive in drives) {
-				string programDir = Path.Combine(drive.RootDirectory.FullName, "Program Files\\EA Games");
-				if (!Directory.Exists(programDir)) continue;
+				string programDir = Path.Combine(drive.RootDirectory.FullName, "Program Files", "EA Games");
+				if (Directory.Exists(programDir) && !gameInstallDirs.Any(g => string.Equals(g, programDir, StringComparison.OrdinalIgnoreCase)))
+					gameInstallDirs.Add(programDir);
+			}
 
-				foreach (string gameDir in Directory.GetDirectories(programDir, "*", SearchOption.TopDirectoryOnly)) {
+			foreach (string gameInstallDir in gameInstallDirs) {
+				Logger.Log.LogTrace($"Scanning for EA games in {gameInstallDir}");
+
+				foreach (string gameDir in Directory.GetDirectories(gameInstallDir, "*", SearchOption.TopDirectoryOnly)) {
 					string installerPath = Path.Combine(gameDir, "__Installer\\installerdata.xml");
 					if (!File.Exists(installerPath)) continue;
 
@@ -647,6 +669,8 @@ public static class GameStoreManager {
 							FolderPath = installLocation,
 							IconURL = "/Assets/GenericGameLogo.jpg"
 						};
+
+						// No ShellLaunchPath, since we don't know the EXE yet
 
 						allGames.Add(game);
 						Logger.Log.LogTrace($"Windows Game: {game.Name} at {game.FolderPath}");
