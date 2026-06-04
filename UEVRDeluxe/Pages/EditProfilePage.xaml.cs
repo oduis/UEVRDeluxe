@@ -208,12 +208,10 @@ public sealed partial class EditProfilePage : Page {
 		try {
 			if (!Directory.Exists(VM.LocalProfile.FolderPath)) return;
 
-			var folderUri = new Uri(VM.LocalProfile.FolderPath);
-
 			var startInfo = new ProcessStartInfo {
-				FileName = folderUri.AbsoluteUri,
+				FileName = "explorer.exe",
+				Arguments = VM.LocalProfile.FolderPath,
 				UseShellExecute = true,
-				Verb = "open"
 			};
 			Process.Start(startInfo);
 		} catch (Exception ex) {

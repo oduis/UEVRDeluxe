@@ -1,10 +1,11 @@
 # Copilot Instructions for UEVR Easy Injector (UEVRDeluxe) Solution
+Be brief.
 
 ## Project Structure
 - Ignore the UEVRDeluxePackage project, it is currently unused
 - UEVRDeluxe is the main WinUI3 application
 - UEVRDeluxeFunc is an Azure Function backend for managing UEVR profiles in an Azure Storage. Follow Azure Functions patterns as seen in FunctionsBase.
-- 
+
 ## Coding Standards
 ** IMPORTANT: Try to preserve the original code and the logic of the original code as much as possible **
 - Simplicity & Modularity: Keep code simple and modular. Use helper classes and regions to organize related logic.
@@ -17,7 +18,8 @@
 - Logging: Use the provided ILogger for logging in backend code.
 - Comments: Do not remove existing comments. Add comments only where necessary for clarity.
 - Consistency: Follow the existing code style and structure, including region usage and file organization.
-- Framework: Projects target .NET 8. Use compatible libraries and APIs.
+- Framework: Projects target .NET 10. Use compatible libraries and APIs.
+- Tools: Prefer Copilot tools like "file_search", "write_file", "find_symbol", "code_search", "run_build" and others instead of Powershell or terminal
 
 ## Security
 - Secrets & Configs: Do not check in secrets, licenses, or developer-specific configs (e.g., local.settings.json).

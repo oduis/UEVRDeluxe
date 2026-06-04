@@ -451,12 +451,10 @@ public sealed partial class GamePage : Page {
 			string profileRoot = LocalProfile.GetDirectoryName(null);
 			if (!Directory.Exists(profileRoot)) Directory.CreateDirectory(profileRoot);
 
-			var folderUri = new Uri(profileRoot);
-
 			var startInfo = new ProcessStartInfo {
-				FileName = folderUri.AbsoluteUri,
+				FileName = "explorer.exe",
+				Arguments = profileRoot,
 				UseShellExecute = true,
-				Verb = "open"
 			};
 			Process.Start(startInfo);
 		} catch (Exception ex) {
