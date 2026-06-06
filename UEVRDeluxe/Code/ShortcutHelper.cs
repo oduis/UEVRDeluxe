@@ -1,6 +1,7 @@
 ﻿#region Usings
 using System;
 using System.IO;
+using System.Linq;
 #endregion
 
 namespace UEVRDeluxe.Code;
@@ -21,7 +22,12 @@ public sealed class ShortcutHandler {
 	}
 
 	string GetDesktopFolder() => Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-	string GetShortcutPath() => Path.Combine(GetDesktopFolder(), shortcutName + ".lnk");
+
+	string GetShortcutPath() {
+		// Replace invalid path/file characters (like ':') with an underscore or remove them.
+		string safeName = string.Concat(shortcutName.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+		return Path.Combine(GetDesktopFolder(), safeName + ".lnk");
+	}
 
 	Type GetWshShellType() => Type.GetTypeFromProgID("WScript.Shell");
 
