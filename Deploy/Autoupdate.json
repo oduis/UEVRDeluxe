@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "3.0.0.0",
-	"releaseNotes": "Install and update JoeyHodge alternative UEVR backend in parallel",
+	"version": "3.0.2.0",
+	"releaseNotes": "Small bug fixes",
 	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/"
 }

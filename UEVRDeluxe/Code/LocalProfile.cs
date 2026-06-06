@@ -156,8 +156,20 @@ public class LocalProfile {
 		return null;
 	}
 
+	static FileIniDataParser CreateFileIniDataParserAllowDuplicates() {
+		var cfg = new IniParser.Model.Configuration.IniParserConfiguration {
+			AllowDuplicateKeys = true,
+			AllowDuplicateSections = true,
+			OverrideDuplicateKeys = false,
+		};
+
+		var parser = new IniParser.Parser.IniDataParser(cfg);
+		return new FileIniDataParser(parser);
+	}
+
 	public void Load() {
-		var parser = new FileIniDataParser();
+
+		var parser = CreateFileIniDataParserAllowDuplicates();
 
 		if (File.Exists(ConfigFilePath)) {
 			try {
@@ -193,9 +205,13 @@ public class LocalProfile {
 		// user_script uses space as key/value assignment char. Create a custom parser configuration
 		if (File.Exists(UserScriptFilePath)) {
 			try {
-				var cfg = new IniParser.Model.Configuration.IniParserConfiguration();
-				cfg.KeyValueAssigmentChar = ' ';
-				cfg.AssigmentSpacer = string.Empty;
+				var cfg = new IniParser.Model.Configuration.IniParserConfiguration {
+					AllowDuplicateKeys = true,
+					AllowDuplicateSections = true,
+					OverrideDuplicateKeys = false,
+					KeyValueAssigmentChar = ' ',
+					AssigmentSpacer = string.Empty,
+				};
 				var innerParser = new IniParser.Parser.IniDataParser(cfg);
 				var userParser = new FileIniDataParser(innerParser);
 				UserScript = userParser.ReadFile(UserScriptFilePath, Encoding.UTF8);
@@ -314,7 +330,7 @@ public class LocalProfile {
 				var entry = archive.CreateEntry(Path.GetRelativePath(FolderPath, directoryPath) + "/", CompressionLevel.NoCompression);
 			}
 
-			var parser = new FileIniDataParser();
+			var parser = CreateFileIniDataParserAllowDuplicates();
 			foreach (string filePath in Directory.GetFiles(FolderPath, "*", SearchOption.AllDirectories)) {
 				var entry = archive.CreateEntry(Path.GetRelativePath(FolderPath, filePath), CompressionLevel.SmallestSize);
 				using var entryStream = entry.Open();
