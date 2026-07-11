@@ -1,0 +1,21 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/copilot-instructions.md" />
+    <File Path="Deploy/Autoupdate.json" />
+    <File Path="Deploy/CustomizingSettings.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="UEVRDeluxe/UEVRDeluxe.csproj">
+    <BuildDependency Project="UEVRDeluxeCmd/UEVRDeluxeCmd.csproj" />
+    <Platform Project="x64" />
+    <Deploy />
+  </Project>
+  <Project Path="UEVRDeluxeCmd/UEVRDeluxeCmd.csproj" />
+  <Project Path="UEVRDeluxeFunc/UEVRDeluxeFunc.csproj" />
+</Solution>
