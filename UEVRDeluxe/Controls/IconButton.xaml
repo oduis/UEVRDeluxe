@@ -1,0 +1,10 @@
+<Button
+    x:Class="UEVRDeluxe.Controls.IconButton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Style="{StaticResource styButton}">
+	<Grid>
+		<FontIcon Style="{StaticResource styButtonIcon}" Glyph="{x:Bind Glyph, Mode=OneWay}" />
+		<TextBlock Style="{StaticResource styButtonIconText}" Text="{x:Bind Label, Mode=OneWay}" />
+	</Grid>
+</Button>

@@ -4,11 +4,13 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:UEVRDeluxe.Pages"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:vm="using:UEVRDeluxe.ViewModels"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:ctl="using:UEVRDeluxe.Controls"
+	xmlns:vm="using:UEVRDeluxe.ViewModels"
 	xmlns:tv="using:WinUI.TableView"
 	mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
 	<Grid Margin="20,8,20,20">
 		<Grid.RowDefinitions>
@@ -108,37 +110,17 @@
 				<TextBox Text="{x:Bind VM.Text, Mode=TwoWay}" Width="240" MaxLength="96" />
 				<TextBlock VerticalAlignment="Center">press keyboard key</TextBlock>
 				<TextBox Text="{x:Bind VM.TextKeyCode, Mode=TwoWay}" Width="100" MaxLength="16" />
-				<Button Click="AddCommand_Click" Style="{StaticResource styButton}">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE710;" />
-						<TextBlock Style="{StaticResource styButtonIconText}">Add command</TextBlock>
-					</Grid>
-				</Button>
+				<ctl:IconButton Click="AddCommand_Click" Glyph="&#xE710;" Label="Add command" />
 			</StackPanel>
 
 			<TextBlock Style="{StaticResource styHelpText}">You can explicitly write e.g. "Tab", "F12", "Enter", "PgUp", "Ins" etc. in the key to press field. Separate multiple keys with spaces (e.g. "I 3" to press I, wait, then 3).</TextBlock>
 
 			<StackPanel Spacing="12" Orientation="Horizontal" Margin="0,24,0,0">
-				<Button Click="Save_Click" Style="{StaticResource styButton}">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
-						<TextBlock Style="{StaticResource styButtonIconText}">Save</TextBlock>
-					</Grid>
-				</Button>
+				<ctl:IconButton Click="Save_Click" Glyph="&#xE74e;" Label="Save" />
 
-				<Button Click="Test_Click" Style="{StaticResource styButton}">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE720;" />
-						<TextBlock Style="{StaticResource styButtonIconText}">Test</TextBlock>
-					</Grid>
-				</Button>
+				<ctl:IconButton Click="Test_Click" Glyph="&#xE720;" Label="Test" />
 
-				<Button Click="Back_Click" Style="{StaticResource styButton}">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
-						<TextBlock Style="{StaticResource styButtonIconText}">Cancel</TextBlock>
-					</Grid>
-				</Button>
+				<ctl:IconButton Click="Back_Click" Glyph="&#xE711;" Label="Cancel" />
 			</StackPanel>
 		</StackPanel>
 
@@ -169,14 +151,9 @@
 					Try saying some commands now. Speak clearly and without an accent to enhance recognition. Adjust confidence level or change text commands to improve reliability.
 				</TextBlock>
 
-				<Button Grid.Row="3" HorizontalAlignment="Center" 
-						Click="CloseTestOverlay_Click" 
-                        Style="{StaticResource styButton}">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
-						<TextBlock Style="{StaticResource styButtonIconText}">Close</TextBlock>
-					</Grid>
-				</Button>
+				<ctl:IconButton Grid.Row="3" HorizontalAlignment="Center" 
+						Click="CloseTestOverlay_Click"
+						Glyph="&#xE711;" Label="Close" />
 			</Grid>
 		</Border>
 	</Grid>

@@ -4,9 +4,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:UEVRDeluxe.Pages"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:ctl="using:UEVRDeluxe.Controls"
+	mc:Ignorable="d"
 	xmlns:viewmodels="using:UEVRDeluxe.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:AdminPageVM}">
 
 	<Grid Margin="20,8,20,20">
@@ -29,12 +30,7 @@
 			<TextBlock Style="{StaticResource stySubHeader}">Upload Profile</TextBlock>
 			<TextBlock TextWrapping="WrapWholeWords">The profile must be unpacked in a folder. It should contain the profile metadata files. 
 				If not, skeleton metadata files are created.</TextBlock>
-			<Button Margin="0,6,0,16" Click="Upload_Click" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE898;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Upload</TextBlock>
-				</Grid>
-			</Button>
+			<ctl:IconButton Margin="0,6,0,16" Click="Upload_Click" Glyph="&#xE898;" Label="Upload" />
 		</StackPanel>
 
 		<StackPanel Grid.Row="2">
@@ -42,12 +38,7 @@
 			<StackPanel Orientation="Horizontal">
 				<TextBlock VerticalAlignment="Center">EXE-Name (without .exe):</TextBlock>
 				<TextBox Width="300" Text="{x:Bind VM.SearchEXEName, Mode=TwoWay}" Margin="8,0" />
-				<Button Click="Search_Click" Style="{StaticResource styButton}">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE721;" />
-						<TextBlock Style="{StaticResource styButtonIconText}">Search</TextBlock>
-					</Grid>
-				</Button>
+				<ctl:IconButton Click="Search_Click" Glyph="&#xE721;" Label="Search" />
 			</StackPanel>
 		</StackPanel>
 
@@ -55,18 +46,8 @@
                              ItemTemplate="{StaticResource styProfileMetaDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single" />
 
 		<StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="12">
-			<Button Click="Download_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Download</TextBlock>
-				</Grid>
-			</Button>
-			<Button Click="Delete_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74D;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Delete</TextBlock>
-				</Grid>
-			</Button>
+			<ctl:IconButton Click="Download_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Glyph="&#xE896;" Label="Download" />
+			<ctl:IconButton Click="Delete_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Glyph="&#xE74D;" Label="Delete" />
 		</StackPanel>
 		
 		<ContentControl Grid.RowSpan="5" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />

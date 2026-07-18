@@ -90,7 +90,9 @@ public sealed partial class MainPage : Page {
 
 			hotKeyCheckTimer.Start();
 
-			await RefreshUpdateButtonLabelAsync(); await RefreshUpdateButtonJoeyHodgeLabelAsync();
+			bool allUEVRLatest = await Injector.CheckAllUEVRBackendLatestAsync();
+			VM.UEVRBackendsLabel = MainPageVM.UEVR_BACKEND_LABEL 
+				+ " " + (allUEVRLatest ? "(all up to date)" : "- New versions available");
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Startup");
 		} finally {
@@ -113,7 +115,13 @@ public sealed partial class MainPage : Page {
 		=> Frame.Navigate(typeof(SettingsPage), null, new DrillInNavigationTransitionInfo());
 
 	void GamesView_ItemClick(object sender, ItemClickEventArgs e)
-		=> Frame.Navigate(typeof(GamePage), e.ClickedItem, new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
+		=> Frame.Navigate(typeof(GamePage), e.ClickedItem,
+			new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
+
+	void UEVRBackends_Click(object sender, RoutedEventArgs e)
+	=> Frame.Navigate(typeof(UEVRBackendsPage), null,
+		new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
+
 	#endregion
 
 	#region CheckVersionAsync
@@ -266,217 +274,6 @@ public sealed partial class MainPage : Page {
 			hotKeyCheckTimer.Stop(); // so it doesnt pick the hotkey up
 			MainWindow.HotkeyEvent.Set();  // so the next page will pick it up
 			Frame.Navigate(typeof(GamePage), foundGames.First(), new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
-		}
-	}
-	#endregion
-
-	#region UpdateUEVR
-	async Task RefreshUpdateButtonLabelAsync() {
-		int? currentNightlyNumber = Injector.GetInstalledUEVRNightlyNumber();
-
-		int? latestNightlyNumber;
-		try {
-			latestNightlyNumber = await Injector.ReadLatestUEVRNightlyNumberAsync();
-		} catch (Exception ex) {
-			Logger.Log.LogError(ex, "Failed to read latest UEVR nightly number");
-			latestNightlyNumber = null;
-		}
-
-
-		if (latestNightlyNumber.HasValue && currentNightlyNumber.HasValue)
-			if (latestNightlyNumber == currentNightlyNumber) {
-				VM.DownloadButtonLabel = $"Change UEVR version ({latestNightlyNumber} [latest] installed)";
-			} else {
-				VM.DownloadButtonLabel = $"Upgrade UEVR to version {latestNightlyNumber} ({currentNightlyNumber} installed)";
-			}
-		else if (currentNightlyNumber.HasValue) {
-			VM.DownloadButtonLabel = $"Upgrade UEVR version ({currentNightlyNumber} installed)";
-		} else VM.DownloadButtonLabel = "Upgrade UEVR version";
-	}
-
-	async Task<int?> ShowUpdateNightlyDialogAsync(int? installedNightlyNumber, int latestNightlyNumber) {
-		bool latestInstalled = installedNightlyNumber == latestNightlyNumber;
-		var radioLatest = new RadioButton {
-			Content = $"Latest version ({latestNightlyNumber}{(latestInstalled ? ", already installed" : "")})", IsChecked = !latestInstalled
-		};
-		var radioSpecific = new RadioButton {
-			Content = "Specific nightly number:", IsChecked = latestInstalled
-		};
-
-		// not in the same parent, so do it manually
-		radioLatest.Checked += (object s, RoutedEventArgs e) => radioSpecific.IsChecked = false;
-		radioSpecific.Checked += (s, e) => radioLatest.IsChecked = false;
-
-		var nightlyBox = new TextBox { PlaceholderText = "e.g. 1036", Width = 120 };
-		nightlyBox.TextChanged += (s, e) => { if (!string.IsNullOrEmpty(nightlyBox.Text)) radioSpecific.IsChecked = true; };
-
-		var spSpecific = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-		spSpecific.Children.Add(radioSpecific);
-		spSpecific.Children.Add(nightlyBox);
-
-		var errorText = new TextBlock {
-			Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red), Visibility = Visibility.Collapsed
-		};
-
-		var spMain = new StackPanel { Spacing = 8 };
-		spMain.Children.Add(radioLatest);
-		spMain.Children.Add(spSpecific);
-		spMain.Children.Add(errorText);
-
-		var dialog = new ContentDialog {
-			Title = "Update UEVR Backend to", XamlRoot = this.XamlRoot,
-			PrimaryButtonText = "Update", CloseButtonText = "Cancel",
-			Content = spMain
-		};
-
-		int? resultNightly = null;
-		dialog.PrimaryButtonClick += (s, e) => {
-			if (radioLatest.IsChecked == true) {
-				resultNightly = null;
-			} else if (radioSpecific.IsChecked == true && int.TryParse(nightlyBox.Text, out int nightlyNumber) && nightlyNumber > 0) {
-				resultNightly = nightlyNumber;
-			} else {
-				errorText.Text = "Please enter a valid nightly number";
-				errorText.Visibility = Visibility.Visible;
-				e.Cancel = true;
-			}
-		};
-
-		var result = await dialog.ShowAsync();
-		if (result != ContentDialogResult.Primary) return -1; // Cancelled
-		return resultNightly;
-	}
-
-	async void UpdateUEVR_Click(object sender, RoutedEventArgs e) {
-		try {
-			VM.IsLoading = true;
-
-			int latestNightlyNumber = await Injector.ReadLatestUEVRNightlyNumberAsync();
-			int? installedNightlyNumber = Injector.GetInstalledUEVRNightlyNumber();
-
-			int? nightlyNumber = await ShowUpdateNightlyDialogAsync(installedNightlyNumber, latestNightlyNumber);
-			if (nightlyNumber == -1) { VM.IsLoading = false; return; }
-
-			Logger.Log.LogInformation($"Starting UEVR Nightly update (nightly: {nightlyNumber?.ToString() ?? "latest"})");
-
-			await CmdManager.UpdateBackendAsync(nightlyNumber ?? latestNightlyNumber);
-
-			await RefreshUpdateButtonLabelAsync();
-
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "UEVR Nightly", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
-				Content = "Updated successfully"
-			}.ShowAsync();
-		} catch (Exception ex) {
-			VM.IsLoading = false;
-			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Download UEVR Nightly");
-		}
-	}
-
-	async Task RefreshUpdateButtonJoeyHodgeLabelAsync() {
-		string currentJoeyHodgeName = Injector.GetInstalledUEVRJoeyHodgeName();
-
-		string latestJoeyHodgeName;
-		try {
-			latestJoeyHodgeName = await Injector.ReadLatestUEVRJoeyHodgeVersionAsync();
-		} catch (Exception ex) {
-			Logger.Log.LogError(ex, "Failed to read latest UEVR JoeyHodge version");
-			latestJoeyHodgeName = null;
-		}
-
-		if (!string.IsNullOrWhiteSpace(latestJoeyHodgeName) && !string.IsNullOrWhiteSpace(currentJoeyHodgeName)) {
-			if (string.Equals(latestJoeyHodgeName, currentJoeyHodgeName, StringComparison.OrdinalIgnoreCase)) {
-				VM.DownloadButtonJoeyHodgeLabel = $"Change UEVR JoeyHodge version ({latestJoeyHodgeName} [latest] installed)";
-			} else {
-				VM.DownloadButtonJoeyHodgeLabel = $"Upgrade UEVR JoeyHodge to version {latestJoeyHodgeName} ({currentJoeyHodgeName} installed)";
-			}
-		} else if (!string.IsNullOrWhiteSpace(currentJoeyHodgeName)) {
-			VM.DownloadButtonJoeyHodgeLabel = $"Upgrade UEVR JoeyHodge version ({currentJoeyHodgeName} installed)";
-		} else {
-			VM.DownloadButtonJoeyHodgeLabel = "Upgrade UEVR JoeyHodge version";
-		}
-	}
-
-	async Task<string> ShowUpdateJoeyHodgeDialogAsync(string installedJoeyHodgeName, string latestJoeyHodgeName) {
-		bool latestInstalled = string.Equals(installedJoeyHodgeName, latestJoeyHodgeName, StringComparison.OrdinalIgnoreCase);
-		var radioLatest = new RadioButton {
-			Content = $"Latest version ({latestJoeyHodgeName}{(latestInstalled ? ", already installed" : "")})", IsChecked = !latestInstalled
-		};
-		var radioSpecific = new RadioButton {
-			Content = "Specific tag:", IsChecked = latestInstalled
-		};
-
-		// not in the same parent, so do it manually
-		radioLatest.Checked += (object s, RoutedEventArgs e) => radioSpecific.IsChecked = false;
-		radioSpecific.Checked += (s, e) => radioLatest.IsChecked = false;
-
-		var tagNameBox = new TextBox { PlaceholderText = "e.g. subnauticaharden", Width = 220 };
-		tagNameBox.TextChanged += (s, e) => { if (!string.IsNullOrEmpty(tagNameBox.Text)) radioSpecific.IsChecked = true; };
-
-		var spSpecific = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-		spSpecific.Children.Add(radioSpecific);
-		spSpecific.Children.Add(tagNameBox);
-
-		var errorText = new TextBlock {
-			Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red), Visibility = Visibility.Collapsed
-		};
-
-		var spMain = new StackPanel { Spacing = 8 };
-		spMain.Children.Add(radioLatest);
-		spMain.Children.Add(spSpecific);
-		spMain.Children.Add(errorText);
-
-		var dialog = new ContentDialog {
-			Title = "Update UEVR Backend to", XamlRoot = this.XamlRoot,
-			PrimaryButtonText = "Update", CloseButtonText = "Cancel",
-			Content = spMain
-		};
-
-		string resultTag = null;
-		dialog.PrimaryButtonClick += (s, e) => {
-			if (radioLatest.IsChecked == true) {
-				resultTag = latestJoeyHodgeName;
-			} else if (radioSpecific.IsChecked == true && !string.IsNullOrEmpty(tagNameBox.Text)) {
-				resultTag = tagNameBox.Text;
-			} else {
-				errorText.Text = "Please enter a valid tag";
-				errorText.Visibility = Visibility.Visible;
-				e.Cancel = true;
-			}
-		};
-
-		var result = await dialog.ShowAsync();
-		if (result != ContentDialogResult.Primary) return null; // Cancelled
-		return resultTag;
-	}
-
-	async void UpdateUEVRJoeyHodge_Click(object sender, RoutedEventArgs e) {
-		try {
-			VM.IsLoading = true;
-
-			string latestJoeyHodgeName = await Injector.ReadLatestUEVRJoeyHodgeVersionAsync();
-			string installedJoeyHodgeName = Injector.GetInstalledUEVRJoeyHodgeName();
-
-			string tagName = await ShowUpdateJoeyHodgeDialogAsync(installedJoeyHodgeName, latestJoeyHodgeName);
-			if (tagName == null) { VM.IsLoading = false; return; }
-
-			Logger.Log.LogInformation($"Starting UEVR JoeyHodge update (version: {tagName})");
-
-			await CmdManager.UpdateJoeyHodgeBackendAsync(tagName);
-
-			await RefreshUpdateButtonJoeyHodgeLabelAsync();
-
-			VM.IsLoading = false;
-
-			await new ContentDialog {
-				Title = "UEVR JoeyHodge", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
-				Content = "Updated successfully"
-			}.ShowAsync();
-		} catch (Exception ex) {
-			VM.IsLoading = false;
-			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Download UEVR JoeyHodge");
 		}
 	}
 	#endregion

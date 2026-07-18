@@ -22,9 +22,7 @@ public class MainPageVM : VMBase {
 
 	public Visibility VisibleIfAdmin => !string.IsNullOrWhiteSpace(AzureManager.GetCloudAdminPasskey()) ? Visibility.Visible : Visibility.Collapsed;
 
-	string downloadButtonLabel = "Update UEVR version";
-	public string DownloadButtonLabel { get => downloadButtonLabel; set => Set(ref downloadButtonLabel, value); }
-
-	string downloadButtonJoeyHodgeLabel = "Update UEVR JoeyHodge version";
-	public string DownloadButtonJoeyHodgeLabel { get => downloadButtonJoeyHodgeLabel; set => Set(ref downloadButtonJoeyHodgeLabel, value); }
+	public const string UEVR_BACKEND_LABEL = "Update UEVR Backends";
+	string uevrBackendsLabel = UEVR_BACKEND_LABEL;
+	public string UEVRBackendsLabel { get => uevrBackendsLabel; set => Set(ref uevrBackendsLabel, value); }
 }

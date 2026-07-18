@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="UEVRDeluxe.Pages.UEVRBackendsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UEVRDeluxe.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:ctl="using:UEVRDeluxe.Controls"
+    mc:Ignorable="d" Loaded="Page_Loaded">
+
+	<Page.Resources>
+		<Style x:Name="tbGridEntry" TargetType="TextBlock">
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="TextWrapping" Value="Wrap" />
+		</Style>
+	</Page.Resources>
+
+	<Grid Margin="20,8,20,16" RowDefinitions="Auto, Auto, *" ColumnDefinitions="*">
+		<StackPanel Orientation="Horizontal">
+			<HyperlinkButton Click="Back_Click" Padding="0">
+				<FontIcon Style="{StaticResource styBackLink}" />
+			</HyperlinkButton>
+			<TextBlock Style="{StaticResource styPageHeader}">UEVR Backends</TextBlock>
+		</StackPanel>
+
+		<TextBlock Grid.Row="1" Style="{StaticResource tbGridEntry}" Margin="0,8,0,28">
+			UEVR includes several backend engine variants, and some may deliver better performance or compatibility depending on the game.
+			You can update or change the backend here. Keep in mind that the newest version isn’t always the best for every game.
+			To choose the backend for a specific game, open the "Edit profile" page after selecting a game.
+		</TextBlock>
+
+		<Grid Grid.Row="2"
+			ColumnDefinitions="Auto, Auto, Auto, *, Auto" ColumnSpacing="16"
+			RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="20">
+			<TextBlock Grid.Column="0" Text="Backend" FontWeight="Bold" />
+			<TextBlock Grid.Column="1" Text="Installed version" FontWeight="Bold" />
+			<TextBlock Grid.Column="2" Text="Latest version" FontWeight="Bold" />
+			<TextBlock Grid.Column="3" Text="Description" FontWeight="Bold" />
+
+			<TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource tbGridEntry}" Text="Praydog" />
+			<TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PraydogInstalled, Mode=OneWay}" />
+			<TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PraydogLatest, Mode=OneWay}" />
+			<TextBlock Grid.Row="1" Grid.Column="3" Style="{StaticResource tbGridEntry}">Original UEVR version. Most widely used, but may have issues with games using the latest UNREAL engine version.</TextBlock>
+			<ctl:IconButton Grid.Row="1" Grid.Column="4" Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRPraydog_Click" />
+
+			<TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource tbGridEntry}" Text="JoeyHodge" />
+			<TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.JoeyHodgeInstalled, Mode=OneWay}" />
+			<TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.JoeyHodgeLatest, Mode=OneWay}" />
+			<TextBlock Grid.Row="2" Grid.Column="3" Style="{StaticResource tbGridEntry}">Modified version enhances compatibility with certain games using UEVR engine 5.6 or later.</TextBlock>
+			<ctl:IconButton Grid.Row="2" Grid.Column="4" Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRJoeyHodge_Click" />
+
+			<TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource tbGridEntry}" Text="AFW" />
+			<TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PureDarkInstalled, Mode=OneWay}" />
+			<TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PureDarkLatest, Mode=OneWay}" />
+			<TextBlock Grid.Row="3" Grid.Column="3" Style="{StaticResource tbGridEntry}">Modified version of both Praydog and JoeyHodge backends to add alternative frame warapping. 
+				Boost performance in games that do not support UEVR native rendering. Increases VRAM usage and may add some visual artifacts.</TextBlock>
+			<ctl:IconButton Grid.Row="3" Grid.Column="4" Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRPureDark_Click" />
+		</Grid>
+
+		<ContentControl Grid.RowSpan="2" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+	</Grid>
+</Page>

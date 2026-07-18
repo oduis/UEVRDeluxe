@@ -6,7 +6,7 @@
     xmlns:local="using:UEVRDeluxe.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls" xmlns:ctl="using:UEVRDeluxe.Controls"
     mc:Ignorable="d"
     xmlns:viewmodels="using:UEVRDeluxe.ViewModels" xmlns:conv="using:UEVRDeluxe.Code"
 	d:DataContext="{d:DesignInstance Type=viewmodels:GamePageVM}">
@@ -148,12 +148,7 @@
 				</StackPanel>
 			</HyperlinkButton>
 
-			<Button Grid.Column="2" Click="NavigateVoiceCommandsPage" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xF12E;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Edit Voice Commands</TextBlock>
-				</Grid>
-			</Button>
+			<ctl:IconButton Grid.Column="2" Click="NavigateVoiceCommandsPage" Glyph="&#xF12E;" Label="Edit Voice Commands" />
 		</Grid>
 
 		<Border Grid.Row="6" Visibility="{x:Bind VM.VisibleLateInjectWarning, Mode=OneWay}" Background="{ThemeResource SystemFillColorCautionBackgroundBrush}" Padding="10" Margin="1,0,1,8">
@@ -170,61 +165,27 @@
 				<ColumnDefinition Width="*" />
 			</Grid.ColumnDefinitions>
 
-			<Button Click="Search_Click"  IsEnabled="{x:Bind VM.SearchEnabled, Mode=OneWay}" Style="{StaticResource styButton}" Margin="0,0,12,0" MinWidth="140"
-                    ToolTipService.ToolTip="Search online for a pre-built profile">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE721;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Search profile</TextBlock>
-				</Grid>
-			</Button>
+			<ctl:IconButton Click="Search_Click" IsEnabled="{x:Bind VM.SearchEnabled, Mode=OneWay}" Margin="0,0,12,0" MinWidth="140"
+						ToolTipService.ToolTip="Search online for a pre-built profile" Glyph="&#xE721;" Label="Search profile" />
 
-			<Button Grid.Column="1" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Edit_Click" Style="{StaticResource styButton}" Margin="0,0,12,0" MinWidth="140"
-                    ToolTipService.ToolTip="Edit your local UEVR profile for this game">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE70f;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Edit profile</TextBlock>
-				</Grid>
-			</Button>
+			<ctl:IconButton Grid.Column="1" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Edit_Click" Margin="0,0,12,0" MinWidth="140"
+						ToolTipService.ToolTip="Edit your local UEVR profile for this game" Glyph="&#xE70f;" Label="Edit profile" />
 
-			<Button Grid.Column="1" x:Name="btnEdit" Visibility="{x:Bind VM.VisibleIfNoProfile, Mode=OneWay}" Click="Edit_Click" Style="{StaticResource styButton}" Margin="0,0,12,0" MinWidth="140"
-                    ToolTipService.ToolTip="Create a new local UEVR profile to run this game">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE710;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Create profile</TextBlock>
-				</Grid>
-			</Button>
-			
-			<Button Grid.Column="2" Visibility="{x:Bind VM.CreateShortcutVisible, Mode=OneWay}" Click="CreateShortcut_Click" Style="{StaticResource styButton}" Margin="0,0,12,0" MinWidth="140"
-                    ToolTipService.ToolTip="Create a desktop shortcut for launching this game directly">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE718;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Create shortcut</TextBlock>
-				</Grid>
-			</Button>
+			<ctl:IconButton Grid.Column="1" x:Name="btnEdit" Visibility="{x:Bind VM.VisibleIfNoProfile, Mode=OneWay}" Click="Edit_Click" Margin="0,0,12,0" MinWidth="140"
+						ToolTipService.ToolTip="Create a new local UEVR profile to run this game" Glyph="&#xE710;" Label="Create profile" />
 
-			<Button Grid.Column="2" Visibility="{x:Bind VM.DeleteShortcutVisible, Mode=OneWay}" Click="DeleteShortcut_Click" Style="{StaticResource styButton}" Margin="0,0,12,0" MinWidth="140"
-                    ToolTipService.ToolTip="Delete the desktop shortcut for launching this game">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE77A;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Delete shortcut</TextBlock>
-				</Grid>
-			</Button>
-			
-			<Button Grid.Column="3" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="CopySupportInfo_Click" Style="{StaticResource styButton}" Margin="0,0,12,0" MinWidth="140"
-                    ToolTipService.ToolTip="Copy support information to clipboard">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE72D;" />
-					<TextBlock Style="{StaticResource styButtonIconText}">Support info</TextBlock>
-				</Grid>
-			</Button>
+			<ctl:IconButton Grid.Column="2" Visibility="{x:Bind VM.CreateShortcutVisible, Mode=OneWay}" Click="CreateShortcut_Click" Margin="0,0,12,0" MinWidth="140"
+						ToolTipService.ToolTip="Create a desktop shortcut for launching this game directly" Glyph="&#xE718;" Label="Create shortcut" />
 
-			<Button Grid.Column="4" x:Name="btnLaunch" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Launch_Click" Style="{StaticResource styButton}" HorizontalAlignment="Stretch"
-                    ToolTipService.ToolTip="Starts game if not already running. Injects UEVR into game if already running. Configure delay in the settings page.">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE768;" />
-					<TextBlock Style="{StaticResource styButtonIconText}" Text="{x:Bind VM.InjectButtonLabel, Mode=OneWay}" />
-				</Grid>
-			</Button>
+			<ctl:IconButton Grid.Column="2" Visibility="{x:Bind VM.DeleteShortcutVisible, Mode=OneWay}" Click="DeleteShortcut_Click" Margin="0,0,12,0" MinWidth="140"
+						ToolTipService.ToolTip="Delete the desktop shortcut for launching this game" Glyph="&#xE77A;" Label="Delete shortcut" />
+
+			<ctl:IconButton Grid.Column="3" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="CopySupportInfo_Click" Margin="0,0,12,0" MinWidth="140"
+						ToolTipService.ToolTip="Copy support information to clipboard" Glyph="&#xE72D;" Label="Support info" />
+
+			<ctl:IconButton Grid.Column="4" x:Name="btnLaunch" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Launch_Click" HorizontalAlignment="Stretch"
+						ToolTipService.ToolTip="Starts game if not already running. Injects UEVR into game if already running. Configure delay in the settings page."
+						Glyph="&#xE768;" Label="{x:Bind VM.InjectButtonLabel, Mode=OneWay}" />
 		</Grid>
 
 		<Border Grid.Row="3" Grid.RowSpan="3" Visibility="{x:Bind VM.VisibleIfRunning, Mode=OneWay}"
@@ -237,12 +198,7 @@
 
 				<TextBlock Text="{x:Bind VM.StatusMessage, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black"
                            FontSize="18" Margin="0,0,24,2" TextWrapping="Wrap" />
-				<Button Grid.Column="1" Click="Stop_Click" Style="{StaticResource styButton}" MinWidth="160" VerticalAlignment="Center">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE71a;" />
-						<TextBlock Style="{StaticResource styButtonIconText}">Stop game</TextBlock>
-					</Grid>
-				</Button>
+				<ctl:IconButton Grid.Column="1" Click="Stop_Click" MinWidth="160" VerticalAlignment="Center" Glyph="&#xE71a;" Label="Stop game" />
 			</Grid>
 		</Border>
 

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using UEVRDeluxe.Common;
 using System.Web;
+using Microsoft.Extensions.Logging;
 #endregion
 
 namespace UEVRDeluxe.Code;
@@ -111,7 +112,7 @@ class Injector {
 	}
 	#endregion
 
-	#region * UpdateBackend Praydog's UEVR Nightly
+	#region * Praydog's UEVR Nightly
 	/// <summary>We don't want a web request on every entering to the main page.</summary>
 	static int? cachedLatestNightlyNumber = null;
 
@@ -150,32 +151,100 @@ class Injector {
 	}
 	#endregion
 
-	#region * UpdateBackend JoeyHodge's UEVR
+	#region * JoeyHodge's UEVR
 	/// <summary>We don't want a web request on every entering to the main page.</summary>
 	static string cachedLatestJoeyHodgeName;
 
 	public static async Task<string> ReadLatestUEVRJoeyHodgeVersionAsync() {
-		using var client = new HttpClient();
-
 		if (cachedLatestJoeyHodgeName != null) return cachedLatestJoeyHodgeName;
 
-		string html = await client.GetStringAsync(UEVRBackendConstants.UEVR_LATEST_JOEYHODGE_URL);
-
-		var match = Regex.Match(html, @"UEVR/tree/([^\""]+)");
-		if (!match.Success) throw new Exception("Invalid release tree format");
-
-		cachedLatestJoeyHodgeName = HttpUtility.UrlDecode(match.Groups[1].Value);
+		cachedLatestJoeyHodgeName = await ReadLatestUEVRReleaseVersionAsync(UEVRBackendConstants.UEVR_LATEST_JOEYHODGE_URL);
 		return cachedLatestJoeyHodgeName;
 	}
 
 	/// <summary>Currently installed JoeyHodge UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
-	public static string GetInstalledUEVRJoeyHodgeName() {
-		string VersionJoeyHodgeFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.UEVR_VERSION_JOEYHODGE_FILENAME);
-		if (!File.Exists(VersionJoeyHodgeFilePath)) return null;
-		string version = File.ReadAllText(VersionJoeyHodgeFilePath).Trim();
+	public static string GetInstalledUEVRJoeyHodgeName() 
+		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.UEVR_VERSION_JOEYHODGE_FILENAME);
+	#endregion
 
-		// Parse the nighly number from a URL like https://github.com/joeyhodge/UEVR/releases/download/daysgonenomoreuevr/UEVRBackend.dll
+	#region * PureDark's UEVRs
+	/// <summary>We don't want a web request on every entering to the main page.</summary>
+	static string cachedLatestPureDarkName;
+
+	public static async Task<string> ReadLatestUEVRPureDarkVersionAsync() {
+		if (cachedLatestPureDarkName != null) return cachedLatestPureDarkName;
+		cachedLatestPureDarkName = await ReadLatestUEVRReleaseVersionAsync(UEVRBackendConstants.UEVR_LATEST_PUREDARK_URL);
+		return cachedLatestPureDarkName;
+	}
+
+	/// <summary>Currently installed PureDark UEVR version</summary>
+	/// <returns>Returns NULL if not downloaded yet</returns>
+	public static string GetInstalledUEVRPureDarkName() 
+		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.UEVR_VERSION_PUREDARK_FILENAME);
+	#endregion
+
+	#region * Helpers
+	public static async Task<bool> CheckAllUEVRBackendLatestAsync() {
+		int? currentNightlyNumber = Injector.GetInstalledUEVRNightlyNumber();
+		if (!currentNightlyNumber.HasValue) return false;
+
+		int? latestNightlyNumber;
+		try {
+			latestNightlyNumber = await Injector.ReadLatestUEVRNightlyNumberAsync();
+		} catch (Exception ex) {
+			Logger.Log.LogError(ex, "Failed to read latest UEVR nightly number");
+			return false;
+		}
+		if (currentNightlyNumber != latestNightlyNumber) return false;
+
+
+
+		string currentJoeyHodgeName = Injector.GetInstalledUEVRJoeyHodgeName();
+		if (currentJoeyHodgeName == null) return false;
+
+		string latestJoeyHodgeName;
+		try {
+			latestJoeyHodgeName = await Injector.ReadLatestUEVRJoeyHodgeVersionAsync();
+		} catch (Exception ex) {
+			Logger.Log.LogError(ex, "Failed to read latest UEVR JoeyHodge version");
+			return false;
+		}
+
+		if (!string.Equals(currentJoeyHodgeName, latestJoeyHodgeName, StringComparison.OrdinalIgnoreCase)) return false;
+
+
+		string currentPureDarkName = Injector.GetInstalledUEVRPureDarkName();
+		if (currentPureDarkName == null) return false;
+		string latestPureDarkName;
+		try {
+			latestPureDarkName = await Injector.ReadLatestUEVRPureDarkVersionAsync();
+		} catch (Exception ex) {
+			Logger.Log.LogError(ex, "Failed to read latest UEVR PureDark version");
+			return false;
+		}
+
+		if (!string.Equals(currentPureDarkName, latestPureDarkName, StringComparison.OrdinalIgnoreCase)) return false; 
+		return true;
+	}
+
+	static async Task<string> ReadLatestUEVRReleaseVersionAsync(string url) {
+		using var client = new HttpClient();
+
+		string html = await client.GetStringAsync(url);
+
+		var match = Regex.Match(html, @"UEVR/tree/([^\""]+)");
+		if (!match.Success) throw new Exception("Invalid release tree format");
+
+		return HttpUtility.UrlDecode(match.Groups[1].Value);
+	}
+
+	static string GetInstalledUEVRReleaseName(string versionFileName) {
+		string versionFilePath = Path.Combine(UEVRBaseDir, versionFileName);
+		if (!File.Exists(versionFilePath)) return null;
+		string version = File.ReadAllText(versionFilePath).Trim();
+
+		// Parse the nighly number from a URL like https://github.com/PureDark/UEVR/releases/download/UEVR_AFW_v1.0-beta.3/UEVR-nightly_AFW_v1.0-beta.3.1.zip		var match = Regex.Match(version, @"download/(?<Name>.+)/");
 		var match = Regex.Match(version, @"download/(?<Name>.+)/");
 		if (!match.Success) return null;
 

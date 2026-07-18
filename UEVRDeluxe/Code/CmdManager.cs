@@ -13,16 +13,20 @@ static class CmdManager {
 	#region Public commands
 	/// <summary>Wrapper to update the backend using the elevated helper command.</summary>
 	/// <param name="nightlyNumber">Nightly number to update to. Use a positive integer.</param>
-	public static Task UpdateBackendAsync(int nightlyNumber) {
+	public static async Task UpdateBackendAsync(int nightlyNumber) {
 		if (nightlyNumber <= 0) throw new ArgumentException("nightlyNumber must be a positive integer", nameof(nightlyNumber));
-		return RunAsync($"{UEVRCmdArgs.UPDATEBACKEND} {nightlyNumber}");
+		await RunAsync($"{UEVRCmdArgs.UPDATEBACKEND} {nightlyNumber}");
 	}
 
 	/// <summary>Wrapper to update the backend for Joey Hodge using the elevated helper command.</summary>
-	/// <param name="nightlyNumber">Nightly number/identifier to update to. Use a positive integer.</param>
-	public static Task UpdateJoeyHodgeBackendAsync(string name) {
-		return RunAsync($"{UEVRCmdArgs.UPDATEJOEYHODGEBACKEND} {name}");
-	}
+	/// <param name="name">Tag name.</param>
+	public static async Task UpdateJoeyHodgeBackendAsync(string name)
+		=> await RunAsync($"{UEVRCmdArgs.UPDATEJOEYHODGEBACKEND} {name}");
+
+	/// <summary>Wrapper to update the backend for PureDark using the elevated helper command.</summary>
+	/// <param name="name">Tag name.</param>
+	public static async Task UpdatePureDarkBackendAsync(string name)
+		=> await RunAsync($"{UEVRCmdArgs.UPDATEPUREDARKBACKEND} {name}");
 
 	/// <summary>Install a profile by calling the elevated helper command.</summary>
 	public static Task InstallAsync(string profileRootFolder, string gameExeFolder) {

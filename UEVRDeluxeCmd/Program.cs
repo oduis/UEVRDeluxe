@@ -62,7 +62,6 @@ class Program {
 	public static async Task UpdateBackendAsync(int nightlyNumber) {
 		string zipUrl, sNightlyNumber, commitHash;
 
-		string UEVRBaseDir = Path.Combine(AppContext.BaseDirectory, "..\\UEVR");
 		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.UEVR_VERSION_PRAYDOG_FILENAME);
 
 		byte[] zipData;
@@ -109,7 +108,6 @@ class Program {
 	#region UpdateJoeyHodgeBackendAsync
 	/// <summary>Update UEVR backend from GitHub</summary>
 	public static async Task UpdateJoeyHodgeBackendAsync(string name) {
-		string UEVRBaseDir = Path.Combine(AppContext.BaseDirectory, "..\\UEVR");
 		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.UEVR_VERSION_JOEYHODGE_FILENAME);
 
 		using (var client = new HttpClient()) {
@@ -202,7 +200,9 @@ class Program {
 	}
 	#endregion
 
-	#region Profile Helpers
+	#region * Helpers
+	static string UEVRBaseDir => Path.Combine(AppContext.BaseDirectory, "..\\UEVR");
+
 	static ProfileMeta LoadAndValidateProfileMeta(string profileRootFolder) {
 		string metaPath = Path.Combine(profileRootFolder, ProfileMeta.FILENAME);
 		if (!File.Exists(metaPath)) throw new Exception($"Profile meta not found: {metaPath}");

@@ -6,6 +6,7 @@
     xmlns:local="using:UEVRDeluxe.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ctl="using:UEVRDeluxe.Controls"
     mc:Ignorable="d"
     xmlns:viewmodels="using:UEVRDeluxe.ViewModels"
     xmlns:conv="using:UEVRDeluxe.Code"
@@ -315,42 +316,19 @@
 		</TabView>
 
 		<StackPanel Grid.Row="2" Spacing="12" Orientation="Horizontal" Margin="0,14,0,0">
-			<Button Click="Save_Click" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74e;" />
-					<TextBlock Style="{StaticResource styButtonIconText}" Text="Save" />
-				</Grid>
-			</Button>
+			<ctl:IconButton Click="Save_Click" Glyph="&#xE74e;" Label="Save" />
 
-			<Button Click="OpenFolder_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE838;" />
-					<TextBlock Style="{StaticResource styButtonIconText}" Text="Open Folder" />
-				</Grid>
-			</Button>
+			<ctl:IconButton Click="OpenFolder_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Glyph="&#xE838;" Label="Open Folder" />
 
-			<Button Click="Publish_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}"
-					ToolTipService.ToolTip="Prepare profile for publishing. Deletes temporary files and generates a cleaned profile ZIP for sharing.">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE78c;" />
-					<TextBlock Style="{StaticResource styButtonIconText}" Text="Publish" />
-				</Grid>
-			</Button>
+			<ctl:IconButton Click="Publish_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}"
+					ToolTipService.ToolTip="Prepare profile for publishing. Deletes temporary files and generates a cleaned profile ZIP for sharing."
+					Glyph="&#xE78c;" Label="Publish" />
 
-			<Button Click="Delete_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Style="{StaticResource styButton}"
-					ToolTipService.ToolTip="Can be helpful if UEVR or the game was massively updated since the profile was built">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE74D;" />
-					<TextBlock Style="{StaticResource styButtonIconText}" Text="Delete" />
-				</Grid>
-			</Button>
+			<ctl:IconButton Click="Delete_Click" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}"
+					ToolTipService.ToolTip="Can be helpful if UEVR or the game was massively updated since the profile was built"
+					Glyph="&#xE74D;" Label="Delete" />
 
-			<Button Click="Back_Click" Style="{StaticResource styButton}">
-				<Grid>
-					<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE711;" />
-					<TextBlock Style="{StaticResource styButtonIconText}" Text="Cancel" />
-				</Grid>
-			</Button>
+			<ctl:IconButton Click="Back_Click" Glyph="&#xE711;" Label="Cancel" />
 		</StackPanel>
 
 		<HyperlinkButton Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" NavigateUri="https://uevrdeluxe.org/SubmitProfile" Padding="0,4">

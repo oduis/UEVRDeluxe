@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-	xmlns:code="using:UEVRDeluxe.Code"
+	xmlns:code="using:UEVRDeluxe.Code" xmlns:ctl="using:UEVRDeluxe.Controls"
 	xmlns:viewmodels="using:UEVRDeluxe.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainPageVM}"
 	Loaded="Page_Loaded">
 
@@ -67,29 +67,10 @@
 				<ColumnDefinition Width="*" />
 			</Grid.ColumnDefinitions>
 			<StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12">
-				<Button Click="UpdateUEVR_Click" Style="{StaticResource styButton}"
-				ToolTipService.ToolTip="Download and install latest UEVR nightly backend version. Antivirus might block this.">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
-						<TextBlock Style="{StaticResource styButtonIconText}" Text="{x:Bind VM.DownloadButtonLabel, Mode=OneWay}" />
-					</Grid>
-				</Button>
+				<ctl:IconButton Click="UEVRBackends_Click" Glyph="&#xE896;" Label="{x:Bind VM.UEVRBackendsLabel, Mode=OneWay}" />
 
-				<Button Click="UpdateUEVRJoeyHodge_Click" Style="{StaticResource styButton}"
-				ToolTipService.ToolTip="Download and install latest UEVR JoeyHodge backend version. Antivirus might block this.">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE896;" />
-						<TextBlock Style="{StaticResource styButtonIconText}" Text="{x:Bind VM.DownloadButtonJoeyHodgeLabel, Mode=OneWay}" />
-					</Grid>
-				</Button>
-
-				<Button Click="Rescan_Click" Style="{StaticResource styButton}"
-			ToolTipService.ToolTip="If your games is not shown, try to rescan the library. This may take a while, if you have many games installed.">
-					<Grid>
-						<FontIcon Style="{StaticResource styButtonIcon}" Glyph="&#xE72C;" />
-						<TextBlock Style="{StaticResource styButtonIconText}">Rescan game library</TextBlock>
-					</Grid>
-				</Button>
+				<ctl:IconButton Click="Rescan_Click" Glyph="&#xE72C;" Label="Rescan game library"
+					ToolTipService.ToolTip="If your games is not shown, try to rescan the library. This may take a while, if you have many games installed." />
 			</StackPanel>
 			<TextBlock Grid.Column="1" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
 			( While in game, hit Ctrl+Alt+U to inject directly )
