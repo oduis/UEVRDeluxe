@@ -13,20 +13,20 @@ static class CmdManager {
 	#region Public commands
 	/// <summary>Wrapper to update the backend using the elevated helper command.</summary>
 	/// <param name="nightlyNumber">Nightly number to update to. Use a positive integer.</param>
-	public static async Task UpdateBackendAsync(int nightlyNumber) {
+	public static async Task UpdatePraydogBackendAsync(int nightlyNumber) {
 		if (nightlyNumber <= 0) throw new ArgumentException("nightlyNumber must be a positive integer", nameof(nightlyNumber));
-		await RunAsync($"{UEVRCmdArgs.UPDATEBACKEND} {nightlyNumber}");
+		await RunAsync($"{UEVRCmdArgs.UPDATE_PRAYDOG_BACKEND} {nightlyNumber}");
 	}
 
 	/// <summary>Wrapper to update the backend for Joey Hodge using the elevated helper command.</summary>
 	/// <param name="name">Tag name.</param>
 	public static async Task UpdateJoeyHodgeBackendAsync(string name)
-		=> await RunAsync($"{UEVRCmdArgs.UPDATEJOEYHODGEBACKEND} {name}");
+		=> await RunAsync($"{UEVRCmdArgs.UPDATE_JOEYHODGE_BACKEND} {name}");
 
 	/// <summary>Wrapper to update the backend for PureDark using the elevated helper command.</summary>
 	/// <param name="name">Tag name.</param>
 	public static async Task UpdatePureDarkBackendAsync(string name)
-		=> await RunAsync($"{UEVRCmdArgs.UPDATEPUREDARKBACKEND} {name}");
+		=> await RunAsync($"{UEVRCmdArgs.UPDATE_PUREDARK_BACKENDS} {name}");
 
 	/// <summary>Install a profile by calling the elevated helper command.</summary>
 	public static Task InstallAsync(string profileRootFolder, string gameExeFolder) {
@@ -34,7 +34,7 @@ static class CmdManager {
 		if (string.IsNullOrWhiteSpace(gameExeFolder)) throw new ArgumentException("gameExeFolder is required", nameof(gameExeFolder));
 
 		// Quote paths to preserve spaces when passed to the helper
-		string args = $"{UEVRCmdArgs.INSTALLPROFILE} \"{profileRootFolder}\" \"{gameExeFolder}\"";
+		string args = $"{UEVRCmdArgs.INSTALL_PROFILE} \"{profileRootFolder}\" \"{gameExeFolder}\"";
 		return RunAsync(args);
 	}
 
@@ -43,7 +43,7 @@ static class CmdManager {
 		if (string.IsNullOrWhiteSpace(profileRootFolder)) throw new ArgumentException("profileRootFolder is required", nameof(profileRootFolder));
 		if (string.IsNullOrWhiteSpace(gameExeFolder)) throw new ArgumentException("gameExeFolder is required", nameof(gameExeFolder));
 
-		string args = $"{UEVRCmdArgs.UNINSTALLPROFILE} \"{profileRootFolder}\" \"{gameExeFolder}\"";
+		string args = $"{UEVRCmdArgs.UNINSTALL_PROFILE} \"{profileRootFolder}\" \"{gameExeFolder}\"";
 		return RunAsync(args);
 	}
 	#endregion

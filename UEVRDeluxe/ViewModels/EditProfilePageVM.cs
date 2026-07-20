@@ -20,7 +20,7 @@ public class EditProfilePageVM : VMBase {
 			DescriptionMD = string.IsNullOrWhiteSpace(value.DescriptionMD)
 				? LocalProfile.DUMMY_DESCRIPTION_MD : value.DescriptionMD;
 
-			UseJoeyHodgeBackend = value?.Meta?.UEVRBackendName == UEVRBackendConstants.UEVR_BACKEND_NAME_JOEYHODGE;
+			UseJoeyHodgeBackend = value?.Meta?.UEVRBackendName == UEVRBackendConstants.BACKEND_NAME_JOEYHODGE;
 		}
 	}
 

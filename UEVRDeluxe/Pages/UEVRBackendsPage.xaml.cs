@@ -37,7 +37,9 @@ public sealed partial class UEVRBackendsPage : Page {
 
 	#region UpdateUEVR
 	async Task RefreshVersionLabelsAsync() {
-		VM.PraydogInstalled = Injector.GetInstalledUEVRNightlyNumber()?.ToString() ?? "<unknown>";
+		const string NOT_INSTALLED = "< not installed >";
+
+		VM.PraydogInstalled = Injector.GetInstalledUEVRNightlyNumber()?.ToString() ?? NOT_INSTALLED;
 
 		try {
 			VM.PraydogLatest = (await Injector.ReadLatestUEVRNightlyNumberAsync()).ToString();
@@ -47,7 +49,7 @@ public sealed partial class UEVRBackendsPage : Page {
 		}
 
 
-		VM.JoeyHodgeInstalled = Injector.GetInstalledUEVRJoeyHodgeName() ?? "<unknown>";
+		VM.JoeyHodgeInstalled = Injector.GetInstalledUEVRJoeyHodgeName() ?? NOT_INSTALLED;
 		try {
 			VM.JoeyHodgeLatest = await Injector.ReadLatestUEVRJoeyHodgeVersionAsync();
 		} catch (Exception ex) {
@@ -56,7 +58,7 @@ public sealed partial class UEVRBackendsPage : Page {
 		}
 
 
-		VM.PureDarkInstalled = Injector.GetInstalledUEVRPureDarkName() ?? "<unknown>";
+		VM.PureDarkInstalled = Injector.GetInstalledUEVRPureDarkName() ?? NOT_INSTALLED;
 		try {
 			VM.PureDarkLatest = await Injector.ReadLatestUEVRPureDarkVersionAsync();
 		} catch (Exception ex) {
@@ -130,7 +132,7 @@ public sealed partial class UEVRBackendsPage : Page {
 
 			Logger.Log.LogInformation($"Starting UEVR Nightly update (nightly: {nightlyNumber?.ToString() ?? "latest"})");
 
-			await CmdManager.UpdateBackendAsync(nightlyNumber ?? latestNightlyNumber);
+			await CmdManager.UpdatePraydogBackendAsync(nightlyNumber ?? latestNightlyNumber);
 
 			await RefreshVersionLabelsAsync();
 
@@ -255,6 +257,39 @@ public sealed partial class UEVRBackendsPage : Page {
 		}
 	}
 	#endregion
+
+	async void UpdateAll_Click(object sender, RoutedEventArgs e) {
+		try {
+			VM.IsLoading = true;
+
+			bool anyUpdate = false;
+
+			if (VM.PraydogInstalled != VM.PraydogLatest) {
+				await CmdManager.UpdatePraydogBackendAsync(int.Parse(VM.PraydogLatest));
+				anyUpdate = true;
+			}
+			if (VM.JoeyHodgeInstalled != VM.JoeyHodgeLatest) {
+				await CmdManager.UpdateJoeyHodgeBackendAsync(VM.JoeyHodgeLatest);
+				anyUpdate = true;
+			}
+			if (VM.PureDarkInstalled != VM.PureDarkLatest) {
+				await CmdManager.UpdatePureDarkBackendAsync(VM.PureDarkLatest);
+				anyUpdate = true;
+			}
+
+			await RefreshVersionLabelsAsync();
+
+			VM.IsLoading = false;
+
+			await new ContentDialog {
+				Title = "UEVR Update", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+				Content = anyUpdate? "Updated successfully": "No update required"
+			}.ShowAsync();
+		} catch (Exception ex) {
+			VM.IsLoading = false;
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Update all UEVR backends");
+		}
+	}
 
 	void Back_Click(object sender, RoutedEventArgs e) => Frame.GoBack();
 }

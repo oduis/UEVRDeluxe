@@ -162,7 +162,7 @@ public sealed partial class EditProfilePage : Page {
 			VM.LocalProfile.DescriptionMD = null;  // Remove the dummy description
 		}
 
-		VM.LocalProfile.Meta.UEVRBackendName = VM.UseJoeyHodgeBackend ? UEVRBackendConstants.UEVR_BACKEND_NAME_JOEYHODGE : null;
+		VM.LocalProfile.Meta.UEVRBackendName = VM.UseJoeyHodgeBackend ? UEVRBackendConstants.BACKEND_NAME_JOEYHODGE : null;
 
 		await VM.LocalProfile.SaveAsync();
 	}

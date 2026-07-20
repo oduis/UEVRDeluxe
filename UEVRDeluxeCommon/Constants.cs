@@ -24,39 +24,42 @@ public static class UnrealConstants {
 }
 
 public static class UEVRBackendConstants {
-	public const string UEVR_BACKEND_NAME_JOEYHODGE = "JoeyHodge";
-	public const string UEVR_BACKEND_NAME_PUREDARK_NIGHTLY = "PureDarkNightly";
-	public const string UEVR_BACKEND_NAME_PUREDARK_JOEYHODGE = "PureDarkJoeyHodge";
+	public const string BACKEND_NAME_JOEYHODGE = "JoeyHodge";
+	public const string BACKEND_NAME_PUREDARK_NIGHTLY = "PureDarkNightly";
+	public const string BACKEND_NAME_PUREDARK_JOEYHODGE = "PureDarkJoeyHodge";
 
-	public const string UEVR_BACKEND_DLL = "UEVRBackend.dll";
-	public const string UEVR_BACKEND_DLL_JOEYHODGE = "UEVRBackendJoeyHodge.dll";
+	public const string BACKEND_DLL_PRAYDOG = "UEVRBackend.dll";
+	public const string BACKEND_DLL_JOEYHODGE = "UEVRBackendJoeyHodge.dll";
 	// Puredark has two, one based on praydog, one on Joedodge
-	public const string UEVR_BACKEND_DLL_PUREDARK_NIGHTLY = "UEVRBackendPureDarkNightly.dll";
-	public const string UEVR_BACKEND_DLL_PUREDARK_JOEYHODGE = "UEVRBackendPureDarkJoeyHodge.dll";
+	public const string BACKEND_DLL_PUREDARK_NIGHTLY = "UEVRBackendPureDarkNightly.dll";
+	public const string BACKEND_DLL_PUREDARK_JOEYHODGE = "UEVRBackendPureDarkJoeyHodge.dll";
 
 	// Local file that stores the URL of the downloaded nightly
-	public const string UEVR_VERSION_PRAYDOG_FILENAME = "UEVRLink.txt";
-	public const string UEVR_VERSION_JOEYHODGE_FILENAME = "UEVRVersionJoeyHodge.txt";
+	public const string VERSION_PRAYDOG_FILENAME = "UEVRLink.txt";
+	public const string VERSION_JOEYHODGE_FILENAME = "UEVRVersionJoeyHodge.txt";
 
 	// Points to the "nightly" version of the backend (PureDark has two)
-	public const string UEVR_VERSION_PUREDARK_FILENAME = "UEVRVersionPureDark.txt";
+	public const string VERSION_PUREDARK_FILENAME = "UEVRVersionPureDark.txt";
 
 	// Pradyog nightly endpoints
-	public const string UEVR_LATEST_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases/latest";
-	public const string UEVR_SEARCH_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases?q=Nightly+{0}&expanded=true";
+	public const string LATEST_PRAYDOG_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases/latest";
+	public const string SEARCH_PRAYDOG_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases?q=Nightly+{0}&expanded=true";
 
 	// JoeyHodge release endpoints
-	public const string UEVR_LATEST_JOEYHODGE_URL = "https://github.com/joeyhodge/UEVR/releases/latest";
-	public const string UEVR_DOWNLOAD_JOEYHODGE_URL = "https://github.com/joeyhodge/UEVR/releases/download/{0}/UEVRBackend.dll";
+	public const string LATEST_JOEYHODGE_URL = "https://github.com/joeyhodge/UEVR/releases/latest";
+	public const string DOWNLOAD_JOEYHODGE_URL = "https://github.com/joeyhodge/UEVR/releases/download/{0}/UEVRBackend.dll";
 
-	public const string UEVR_LATEST_PUREDARK_URL = "https://github.com/PureDark/UEVR/releases/latest";
+	public const string LATEST_PUREDARK_URL = "https://github.com/PureDark/UEVR/releases/latest";
+	public const string ASSETS_PUREDARK_URL = "https://github.com/PureDark/UEVR/releases/expanded_assets/{0}";
+
+	public const string ASSETS_PUREDARK_LINK_REGEX = @"a href=""(?<URL>/PureDark/UEVR/releases.+?(nightly|joeyhodge).+?zip)""";
 }
 
+/// <summary>Command names used by the elevated helper EXE (UEVRDeluxeCmd)</summary>
 public static class UEVRCmdArgs {
-	// Command names used by the elevated helper EXE (UEVRDeluxeCmd)
-	public const string UPDATEBACKEND = "UPDATEBACKEND";
-	public const string UPDATEJOEYHODGEBACKEND = "UPDATEJOEYHODGEBACKEND";
-	public const string UPDATEPUREDARKBACKEND = "UPDATEPUREDARKBACKEND";
-	public const string INSTALLPROFILE = "INSTALLPROFILE";
-	public const string UNINSTALLPROFILE = "UNINSTALLPROFILE";
+	public const string UPDATE_PRAYDOG_BACKEND = "UPDATEPRAYDOGBACKEND";
+	public const string UPDATE_JOEYHODGE_BACKEND = "UPDATEJOEYHODGEBACKEND";
+	public const string UPDATE_PUREDARK_BACKENDS = "UPDATEPUREDARKBACKENDS";
+	public const string INSTALL_PROFILE = "INSTALLPROFILE";
+	public const string UNINSTALL_PROFILE = "UNINSTALLPROFILE";
 }

@@ -121,7 +121,7 @@ class Injector {
 
 		if (cachedLatestNightlyNumber.HasValue) return cachedLatestNightlyNumber.Value;
 
-		string html = await client.GetStringAsync(UEVRBackendConstants.UEVR_LATEST_NIGHTLY_URL);
+		string html = await client.GetStringAsync(UEVRBackendConstants.LATEST_PRAYDOG_NIGHTLY_URL);
 		var doc = new HtmlDocument();
 		doc.LoadHtml(html);
 		var title = doc.DocumentNode.SelectSingleNode("//title");
@@ -139,7 +139,7 @@ class Injector {
 	/// <summary>Currently installed nightly UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
 	public static int? GetInstalledUEVRNightlyNumber() {
-		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.UEVR_VERSION_PRAYDOG_FILENAME);
+		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.VERSION_PRAYDOG_FILENAME);
 		if (!File.Exists(VersionFilePath)) return null;
 		string version = File.ReadAllText(VersionFilePath).Trim();
 
@@ -158,14 +158,14 @@ class Injector {
 	public static async Task<string> ReadLatestUEVRJoeyHodgeVersionAsync() {
 		if (cachedLatestJoeyHodgeName != null) return cachedLatestJoeyHodgeName;
 
-		cachedLatestJoeyHodgeName = await ReadLatestUEVRReleaseVersionAsync(UEVRBackendConstants.UEVR_LATEST_JOEYHODGE_URL);
+		cachedLatestJoeyHodgeName = await ReadLatestUEVRReleaseVersionAsync(UEVRBackendConstants.LATEST_JOEYHODGE_URL);
 		return cachedLatestJoeyHodgeName;
 	}
 
 	/// <summary>Currently installed JoeyHodge UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
 	public static string GetInstalledUEVRJoeyHodgeName() 
-		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.UEVR_VERSION_JOEYHODGE_FILENAME);
+		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.VERSION_JOEYHODGE_FILENAME);
 	#endregion
 
 	#region * PureDark's UEVRs
@@ -174,14 +174,14 @@ class Injector {
 
 	public static async Task<string> ReadLatestUEVRPureDarkVersionAsync() {
 		if (cachedLatestPureDarkName != null) return cachedLatestPureDarkName;
-		cachedLatestPureDarkName = await ReadLatestUEVRReleaseVersionAsync(UEVRBackendConstants.UEVR_LATEST_PUREDARK_URL);
+		cachedLatestPureDarkName = await ReadLatestUEVRReleaseVersionAsync(UEVRBackendConstants.LATEST_PUREDARK_URL);
 		return cachedLatestPureDarkName;
 	}
 
 	/// <summary>Currently installed PureDark UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
 	public static string GetInstalledUEVRPureDarkName() 
-		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.UEVR_VERSION_PUREDARK_FILENAME);
+		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.VERSION_PUREDARK_FILENAME);
 	#endregion
 
 	#region * Helpers

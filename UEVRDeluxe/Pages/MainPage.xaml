@@ -106,12 +106,6 @@
 					<TextBlock VerticalAlignment="Center" FontSize="11">Settings</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
-			<HyperlinkButton NavigateUri="https://www.patreon.com/praydog" Padding="0" ToolTipService.ToolTip="Donate on Patreon">
-				<StackPanel Orientation="Horizontal">
-					<Image Source="/Assets/PatreonLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
-					<TextBlock VerticalAlignment="Center" FontSize="11">Support UEVR Author PrayDog</TextBlock>
-				</StackPanel>
-			</HyperlinkButton>
 			<HyperlinkButton NavigateUri="https://discord.com/channels/747967102895390741/1020440446389993542" Padding="0"
 							 ToolTipService.ToolTip="Flat2VR on Discord">
 				<StackPanel Orientation="Horizontal">

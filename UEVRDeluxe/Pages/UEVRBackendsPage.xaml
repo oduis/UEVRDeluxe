@@ -14,9 +14,13 @@
 			<Setter Property="VerticalAlignment" Value="Center" />
 			<Setter Property="TextWrapping" Value="Wrap" />
 		</Style>
+		<Style x:Name="rtbGridEntry" TargetType="RichTextBlock">
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="TextWrapping" Value="Wrap" />
+		</Style>
 	</Page.Resources>
 
-	<Grid Margin="20,8,20,16" RowDefinitions="Auto, Auto, *" ColumnDefinitions="*">
+	<Grid Margin="20,8,20,16" RowDefinitions="Auto, Auto, *, Auto" ColumnDefinitions="*">
 		<StackPanel Orientation="Horizontal">
 			<HyperlinkButton Click="Back_Click" Padding="0">
 				<FontIcon Style="{StaticResource styBackLink}" />
@@ -31,7 +35,7 @@
 		</TextBlock>
 
 		<Grid Grid.Row="2"
-			ColumnDefinitions="Auto, Auto, Auto, *, Auto" ColumnSpacing="16"
+			ColumnDefinitions="Auto, Auto, Auto, *, Auto" ColumnSpacing="18"
 			RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="20">
 			<TextBlock Grid.Column="0" Text="Backend" FontWeight="Bold" />
 			<TextBlock Grid.Column="1" Text="Installed version" FontWeight="Bold" />
@@ -41,23 +45,37 @@
 			<TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource tbGridEntry}" Text="Praydog" />
 			<TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PraydogInstalled, Mode=OneWay}" />
 			<TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PraydogLatest, Mode=OneWay}" />
-			<TextBlock Grid.Row="1" Grid.Column="3" Style="{StaticResource tbGridEntry}">Original UEVR version. Most widely used, but may have issues with games using the latest UNREAL engine version.</TextBlock>
+			<RichTextBlock Grid.Row="1" Grid.Column="3" Style="{StaticResource rtbGridEntry}">
+				<Paragraph>Original UEVR version. Most widely used, 
+					but may have issues with games using the latest UNREAL engine version.
+					<Hyperlink NavigateUri="https://www.patreon.com/praydog" ToolTipService.ToolTip="Donate on Patreon">Support Praydog</Hyperlink>
+				</Paragraph>
+			</RichTextBlock>
 			<ctl:IconButton Grid.Row="1" Grid.Column="4" Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRPraydog_Click" />
 
 			<TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource tbGridEntry}" Text="JoeyHodge" />
 			<TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.JoeyHodgeInstalled, Mode=OneWay}" />
 			<TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.JoeyHodgeLatest, Mode=OneWay}" />
-			<TextBlock Grid.Row="2" Grid.Column="3" Style="{StaticResource tbGridEntry}">Modified version enhances compatibility with certain games using UEVR engine 5.6 or later.</TextBlock>
+			<RichTextBlock Grid.Row="2" Grid.Column="3" Style="{StaticResource rtbGridEntry}">
+				<Paragraph>Enhances compatibility with certain games using very new UNREAL engine versions.</Paragraph>
+			</RichTextBlock>
 			<ctl:IconButton Grid.Row="2" Grid.Column="4" Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRJoeyHodge_Click" />
 
 			<TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource tbGridEntry}" Text="AFW" />
 			<TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PureDarkInstalled, Mode=OneWay}" />
 			<TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PureDarkLatest, Mode=OneWay}" />
-			<TextBlock Grid.Row="3" Grid.Column="3" Style="{StaticResource tbGridEntry}">Modified version of both Praydog and JoeyHodge backends to add alternative frame warapping. 
-				Boost performance in games that do not support UEVR native rendering. Increases VRAM usage and may add some visual artifacts.</TextBlock>
+			<RichTextBlock Grid.Row="3" Grid.Column="3" Style="{StaticResource rtbGridEntry}">
+				<Paragraph>Modified version of both Praydog and JoeyHodge backends to add alternative frame warapping. 
+				Boost performance in games that do not support UEVR native rendering. 
+				Increases VRAM usage and may add some visual artifacts.
+					<Hyperlink NavigateUri="https://www.patreon.com/PureDark" ToolTipService.ToolTip="Donate on Patreon">Support PureDark</Hyperlink>
+				</Paragraph>
+			</RichTextBlock>
 			<ctl:IconButton Grid.Row="3" Grid.Column="4" Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRPureDark_Click" />
 		</Grid>
 
-		<ContentControl Grid.RowSpan="2" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
+		<ctl:IconButton Grid.Row="3" Glyph="&#xE896;" Label="Update all to latest version" Click="UpdateAll_Click" />
+
+		<ContentControl Grid.RowSpan="4" Visibility="{x:Bind VM.VisibleIfLoading,Mode=OneWay}" Style="{StaticResource styProgress}" />
 	</Grid>
 </Page>
