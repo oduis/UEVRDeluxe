@@ -18,7 +18,8 @@ public class GamePageVM : VMBase {
 			nameof(UEVRVersionWarning), nameof(UEVRVersionWarningVisible), nameof(InjectButtonLabel),
 			nameof(ProfileMetaVisible), nameof(ProfileDescriptionVisible), nameof(Warning), nameof(VisibleLateInjectWarning),
 			nameof(StrippedProfileVisible), nameof(NoProfileVisible), nameof(VisibleIfNotRunningAndProfile),
-			nameof(DonateLinkUri), nameof(DonateLinkVisible), nameof(CreateShortcutVisible), nameof(DeleteShortcutVisible)]);
+			nameof(DonateLinkUri), nameof(DonateLinkVisible), nameof(CreateShortcutVisible), nameof(DeleteShortcutVisible),
+			nameof(RequiredUEVRVersionTextVisible), nameof(GameVersionVisible), nameof(RemarksVisible)]);
 	}
 
 	int? currentUEVRNightlyNumber;
@@ -27,6 +28,15 @@ public class GamePageVM : VMBase {
 		set => Set(ref currentUEVRNightlyNumber, value,
 			[nameof(UEVRVersionWarning), nameof(UEVRVersionWarningVisible)]);
 	}
+
+	public Visibility RequiredUEVRVersionTextVisible =>
+		string.IsNullOrEmpty(LocalProfile?.Meta?.RequiredUEVRVersionText) ? Visibility.Collapsed : Visibility.Visible;
+
+	public Visibility GameVersionVisible =>
+		string.IsNullOrWhiteSpace(LocalProfile?.Meta?.GameVersion) ? Visibility.Collapsed : Visibility.Visible;
+
+	public Visibility RemarksVisible =>
+		string.IsNullOrWhiteSpace(LocalProfile?.Meta?.Remarks) ? Visibility.Collapsed : Visibility.Visible;
 
 	public string UEVRVersionWarning {
 		get {

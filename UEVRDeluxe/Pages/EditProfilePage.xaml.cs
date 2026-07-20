@@ -13,6 +13,7 @@ using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 #endregion
 
 namespace UEVRDeluxe.Pages;
@@ -49,6 +50,14 @@ public sealed partial class EditProfilePage : Page {
 
 			SetRadioButtonValue(spRenderingMethod, localProfile.Config.Global["VR_RenderingMethod"]);
 			SetRadioButtonValue(spSyncedSequentialMethod, localProfile.Config.Global["VR_SyncedSequentialMethod"]);
+
+			switch (localProfile.Meta?.UEVRBackendName) {
+				case UEVRBackendConstants.BACKEND_NAME_JOEYHODGE: SetRadioButtonValue(spUEVRBackend, "1"); break;
+				case UEVRBackendConstants.BACKEND_NAME_PUREDARK_NIGHTLY: SetRadioButtonValue(spUEVRBackend, "2"); break;
+				case UEVRBackendConstants.BACKEND_NAME_PUREDARK_JOEYHODGE: SetRadioButtonValue(spUEVRBackend, "3"); break;
+				default: SetRadioButtonValue(spUEVRBackend, "0"); break;
+			}
+
 			cbNativeStereoFix.IsChecked = bool.Parse(localProfile.Config.Global["VR_NativeStereoFix"] ?? "false");
 			cbNativeStereoFixSamePass.IsChecked = bool.Parse(localProfile.Config.Global["VR_NativeStereoFixSamePass"] ?? "false");
 			cbGhostingFix.IsChecked = bool.Parse(localProfile.Config.Global["VR_GhostingFix"] ?? "false");
@@ -162,7 +171,12 @@ public sealed partial class EditProfilePage : Page {
 			VM.LocalProfile.DescriptionMD = null;  // Remove the dummy description
 		}
 
-		VM.LocalProfile.Meta.UEVRBackendName = VM.UseJoeyHodgeBackend ? UEVRBackendConstants.BACKEND_NAME_JOEYHODGE : null;
+		VM.LocalProfile.Meta.UEVRBackendName = GetRadioButtonValue(spUEVRBackend) switch {
+			"1" => UEVRBackendConstants.BACKEND_NAME_JOEYHODGE,
+			"2" => UEVRBackendConstants.BACKEND_NAME_PUREDARK_NIGHTLY,
+			"3" => UEVRBackendConstants.BACKEND_NAME_PUREDARK_JOEYHODGE,
+			_ => null
+		};
 
 		await VM.LocalProfile.SaveAsync();
 	}

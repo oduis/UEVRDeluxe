@@ -78,21 +78,27 @@
 
 			<TextBlock Style="{StaticResource stySubHeader}" Grid.ColumnSpan="8">Local Profile</TextBlock>
 
-			<TextBlock Grid.Row="1" Text="Created:" Margin="0,0,12,0" />
+			<TextBlock Grid.Row="1" Text="Created:" Margin="0,0,8,0" />
 			<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="5">
 				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.ModifiedDate, Mode=OneWay, Converter={StaticResource DateDisplayConverter}}" />
 				<TextBlock Text="by" />
 				<TextBlock Text="{x:Bind VM.LocalProfile.Meta.AuthorName, Mode=OneWay}" TextWrapping="WrapWholeWords" />
 			</StackPanel>
 
-			<TextBlock Grid.Row="1" Grid.Column="3" Text="UEVR backend version required:" Margin="0,0,8,0" />
-			<TextBlock Grid.Row="1" Grid.Column="4" Text="{x:Bind VM.LocalProfile.Meta.RequiredUEVRVersionText, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+			<TextBlock Grid.Row="1" Grid.Column="3" Visibility="{x:Bind VM.RequiredUEVRVersionTextVisible, Mode=OneWay}"
+					   Text="UEVR backend version required:" Margin="0,0,4,0" />
+			<TextBlock Grid.Row="1" Grid.Column="4" Visibility="{x:Bind VM.RequiredUEVRVersionTextVisible, Mode=OneWay}" 
+					   Text="{x:Bind VM.LocalProfile.Meta.RequiredUEVRVersionText, Mode=OneWay}" TextWrapping="WrapWholeWords" />
 
-			<TextBlock Grid.Row="1" Grid.Column="6" Text="Game version:" Margin="0,0,8,0" />
-			<TextBlock Grid.Row="1" Grid.Column="7" Text="{x:Bind VM.LocalProfile.Meta.GameVersion, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+			<TextBlock Grid.Row="1" Grid.Column="6" Visibility="{x:Bind VM.GameVersionVisible, Mode=OneWay}"
+					   Text="Game version:" Margin="0,0,4,0" />
+			<TextBlock Grid.Row="1" Grid.Column="7" Visibility="{x:Bind VM.GameVersionVisible, Mode=OneWay}"
+					   Text="{x:Bind VM.LocalProfile.Meta.GameVersion, Mode=OneWay}" TextWrapping="WrapWholeWords" />
 
-			<TextBlock Grid.Row="2" Text="Remarks:"/>
-			<TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="7" Text="{x:Bind VM.LocalProfile.Meta.Remarks, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+			<TextBlock Grid.Row="2" Visibility="{x:Bind VM.RemarksVisible, Mode=OneWay}"
+					   Text="Remarks:" Margin="0,0,4,0" />
+			<TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="7" Visibility="{x:Bind VM.RemarksVisible, Mode=OneWay}"
+					   Text="{x:Bind VM.LocalProfile.Meta.Remarks, Mode=OneWay}" TextWrapping="WrapWholeWords" />
 
 			<HyperlinkButton Grid.Row="3" Grid.ColumnSpan="8" Margin="0,4,0,0" Padding="0"
 				NavigateUri="{x:Bind VM.DonateLinkUri, Mode=OneWay}"
@@ -166,7 +172,7 @@
 			</Grid.ColumnDefinitions>
 
 			<ctl:IconButton Click="Search_Click" IsEnabled="{x:Bind VM.SearchEnabled, Mode=OneWay}" Margin="0,0,12,0" MinWidth="140"
-						ToolTipService.ToolTip="Search online for a pre-built profile" Glyph="&#xE721;" Label="Search profile" />
+						ToolTipService.ToolTip="Search online for a pre-built profile" Glyph="&#xE721;" Label="Search profile online" />
 
 			<ctl:IconButton Grid.Column="1" Visibility="{x:Bind VM.VisibleIfProfile, Mode=OneWay}" Click="Edit_Click" Margin="0,0,12,0" MinWidth="140"
 						ToolTipService.ToolTip="Edit your local UEVR profile for this game" Glyph="&#xE70f;" Label="Edit profile" />

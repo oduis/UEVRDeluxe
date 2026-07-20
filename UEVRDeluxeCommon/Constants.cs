@@ -24,6 +24,7 @@ public static class UnrealConstants {
 }
 
 public static class UEVRBackendConstants {
+	// Praydogs Backend name is NULL to keep compatibility with older profiles
 	public const string BACKEND_NAME_JOEYHODGE = "JoeyHodge";
 	public const string BACKEND_NAME_PUREDARK_NIGHTLY = "PureDarkNightly";
 	public const string BACKEND_NAME_PUREDARK_JOEYHODGE = "PureDarkJoeyHodge";

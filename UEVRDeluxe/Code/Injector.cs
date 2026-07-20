@@ -41,6 +41,7 @@ class Injector {
 	/// <param name="dllName">local filename</param>
 	public static void InjectDll(int processID, string dllName) {
 		string fullPath = GetFullDLLPath(dllName);
+		if (!File.Exists(fullPath)) throw new Exception("UEVR Backend DLL not found. Please update it");
 
 		// Open the target process with the necessary access
 		nint processHandle = Win32.OpenProcess(0x1F0FFF, false, processID);
@@ -164,7 +165,7 @@ class Injector {
 
 	/// <summary>Currently installed JoeyHodge UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
-	public static string GetInstalledUEVRJoeyHodgeName() 
+	public static string GetInstalledUEVRJoeyHodgeName()
 		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.VERSION_JOEYHODGE_FILENAME);
 	#endregion
 
@@ -180,7 +181,7 @@ class Injector {
 
 	/// <summary>Currently installed PureDark UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
-	public static string GetInstalledUEVRPureDarkName() 
+	public static string GetInstalledUEVRPureDarkName()
 		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.VERSION_PUREDARK_FILENAME);
 	#endregion
 
@@ -224,7 +225,7 @@ class Injector {
 			return false;
 		}
 
-		if (!string.Equals(currentPureDarkName, latestPureDarkName, StringComparison.OrdinalIgnoreCase)) return false; 
+		if (!string.Equals(currentPureDarkName, latestPureDarkName, StringComparison.OrdinalIgnoreCase)) return false;
 		return true;
 	}
 

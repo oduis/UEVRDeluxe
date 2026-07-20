@@ -237,7 +237,7 @@
 										<TextBox Text="{x:Bind VM.LocalProfile.Meta.AuthorName, Mode=TwoWay}" MaxLength="64" />
 									</StackPanel>
 									<StackPanel Width="320" Spacing="4">
-										<TextBlock>Game Version</TextBlock>
+										<TextBlock>Game Version Tested/Required</TextBlock>
 										<TextBox Text="{x:Bind VM.LocalProfile.Meta.GameVersion, Mode=TwoWay}" MaxLength="64" />
 									</StackPanel>
 									<StackPanel Width="200" Spacing="4">
@@ -246,7 +246,7 @@
 									</StackPanel>
 								</StackPanel>
 								<StackPanel Spacing="4">
-									<TextBlock>Donate URL</TextBlock>
+									<TextBlock>Donate to Profile Author URL</TextBlock>
 									<TextBox Text="{x:Bind VM.LocalProfile.Meta.DonateURL, Mode=TwoWay}" />
 								</StackPanel>
 								<StackPanel Spacing="4">
@@ -257,23 +257,46 @@
 						</StackPanel>
 
 						<StackPanel Spacing="6">
-							<TextBlock Style="{StaticResource stySubHeader}">UEVR Requirements</TextBlock>
-
-							<StackPanel Orientation="Horizontal" Spacing="24">
-								<StackPanel Width="180" Spacing="4">
-									<TextBlock>Minimum Nightly Number</TextBlock>
-									<NumberBox Value="{x:Bind VM.LocalProfile.Meta.MinUEVRNightlyNumber, Mode=TwoWay, Converter={StaticResource NullableIntToDoubleConverter}}" Minimum="1" PlaceholderText="Optional" />
-								</StackPanel>
-								<StackPanel Width="180" Spacing="4">
-									<TextBlock>Maximum Nightly Number</TextBlock>
-									<NumberBox Value="{x:Bind VM.LocalProfile.Meta.MaxUEVRNightlyNumber, Mode=TwoWay, Converter={StaticResource NullableIntToDoubleConverter}}" Minimum="1" PlaceholderText="Optional" />
-								</StackPanel>
+							<TextBlock Style="{StaticResource stySubHeader}">UEVR Backend</TextBlock>
+							<StackPanel x:Name="spUEVRBackend" Margin="0,0,0,12" Spacing="4">
+								<RadioButton Tag="0">
+									<StackPanel>
+										<TextBlock>Praydog (Default)</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Original UEVR backend. Most commonly used.</TextBlock>
+										<StackPanel Orientation="Horizontal" Spacing="24" Margin="0,4">
+											<StackPanel Width="180" Spacing="4">
+												<TextBlock>Minimum Nightly Number</TextBlock>
+												<NumberBox Value="{x:Bind VM.LocalProfile.Meta.MinUEVRNightlyNumber, Mode=TwoWay, Converter={StaticResource NullableIntToDoubleConverter}}" Minimum="1" PlaceholderText="Optional" />
+											</StackPanel>
+											<StackPanel Width="180" Spacing="4">
+												<TextBlock>Maximum Nightly Number</TextBlock>
+												<NumberBox Value="{x:Bind VM.LocalProfile.Meta.MaxUEVRNightlyNumber, Mode=TwoWay, Converter={StaticResource NullableIntToDoubleConverter}}" Minimum="1" PlaceholderText="Optional" />
+											</StackPanel>
+										</StackPanel>
+									</StackPanel>
+								</RadioButton>
+								<RadioButton Tag="1">
+									<StackPanel>
+										<TextBlock>JoeyHodge</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Better compatibility if the games uses very new UNREAL engine versions.</TextBlock>
+									</StackPanel>
+								</RadioButton>
+								<RadioButton Tag="2">
+									<StackPanel>
+										<TextBlock>PureDark AFR - Nightly</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Based on Praydogs backend. Improves performance when the game does not support native rendering. Drawbacks: visual artifacts and higher VRAM usage.</TextBlock>
+									</StackPanel>
+								</RadioButton>
+								<RadioButton Tag="3">
+									<StackPanel>
+										<TextBlock>PureDark AFR - Joeyhodge</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Based on Joeyhodge backend, otherwise like nightly.</TextBlock>
+									</StackPanel>
+								</RadioButton>
 							</StackPanel>
 
-							<CheckBox Content="Late Injection (For stability, requires injection when the game is already running and in 3D)" IsChecked="{x:Bind VM.LocalProfile.Meta.LateInjection, Mode=TwoWay}" />
-
-							<CheckBox Content="Use JoeyHodge Backend (for games using very new Unreal engine versions)" IsChecked="{x:Bind VM.UseJoeyHodgeBackend, Mode=TwoWay}" />
-
+							<CheckBox Content="Late Injection (For stability, requires injection when the game is already running and in 3D)"
+									  IsChecked="{x:Bind VM.LocalProfile.Meta.LateInjection, Mode=TwoWay}" />
 						</StackPanel>
 
 						<Grid>

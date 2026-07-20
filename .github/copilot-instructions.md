@@ -9,7 +9,7 @@ Be brief.
 ## Coding Standards
 ** IMPORTANT: Try to preserve the original code and the logic of the original code as much as possible **
 - Simplicity & Modularity: Keep code simple and modular. Use helper classes and regions to organize related logic.
-- .NET & C# Best Practices: Follow .NET 8 and C# conventions, including async/await for asynchronous operations.
+- .NET & C# Best Practices: Follow .NET 10 and C# conventions, including async/await for asynchronous operations.
 - Tabs: Use tabs for indentation, not spaces.
 - Braces: Place opening curly brackets on the same line as the statement.
 - Naming: Use clear, descriptive names. Hungarian notation is used for some variables (e.g., VM, EXEName), but prefer .NET naming conventions for types and members.
@@ -18,7 +18,6 @@ Be brief.
 - Logging: Use the provided ILogger for logging in backend code.
 - Comments: Do not remove existing comments. Add comments only where necessary for clarity.
 - Consistency: Follow the existing code style and structure, including region usage and file organization.
-- Framework: Projects target .NET 10. Use compatible libraries and APIs.
 - Tools: Prefer Copilot tools like "file_search", "write_file", "find_symbol", "code_search", "run_build" and others instead of Powershell or terminal
 
 ## Security
