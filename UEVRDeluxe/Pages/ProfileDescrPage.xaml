@@ -10,6 +10,8 @@
     mc:Ignorable="d">
 
     <Grid>
-		<controls:WebView2 x:Name="webViewDescription" Width="800" Height="300" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+		<controls:WebView2 x:Name="webViewDescription" Width="800" Height="300" 
+						   ScrollViewer.HorizontalScrollMode="Disabled"
+						   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" />
 	</Grid>
 </Page>

@@ -17,13 +17,7 @@
 		<conv:DateTimeToDateTimeOffsetConverter x:Key="DateTimeToDateTimeOffsetConverter" />
 	</Page.Resources>
 
-	<Grid Margin="20,8,20,20">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-
+	<Grid Margin="20,8,20,20" RowDefinitions="Auto, *, Auto">
 		<Image Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="72" Margin="4" Source="{x:Bind VM.GameInstallation.IconURL, Mode=OneWay}" />
 
 		<StackPanel Orientation="Horizontal" Margin="0,0,0,4">
@@ -35,8 +29,8 @@
 
 		<TabView Grid.Row="1" IsAddTabButtonVisible="False" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
 			<TabViewItem Header="&#x25A0;  UEVR Settings" IsClosable="False">
-				<ScrollViewer x:Name="svSettings" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
-					<StackPanel Spacing="26" Margin="0,6,0,0" HorizontalAlignment="Left" Width="{Binding ElementName=svSettings, Path=ActualWidth, Mode=OneWay}">
+				<ScrollViewer HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+					<StackPanel Spacing="26" Margin="0,6,0,0">
 						<StackPanel x:Name="spRenderingMethod">
 							<TextBlock Style="{StaticResource stySubHeader}">Rendering Method</TextBlock>
 
@@ -232,7 +226,7 @@
 				</ScrollViewer>
 			</TabViewItem>
 			<TabViewItem Header="&#x25A0;  Profile Settings" IsClosable="False">
-				<ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
+				<ScrollViewer HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
 					<StackPanel Spacing="26" HorizontalAlignment="Stretch" Margin="0,6,0,0">
 						<StackPanel Spacing="6">
 							<TextBlock Style="{StaticResource stySubHeader}">Profile Metadata</TextBlock>
