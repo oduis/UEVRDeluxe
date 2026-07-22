@@ -194,7 +194,14 @@ public sealed partial class GamePage : Page {
 
 					if (!string.IsNullOrEmpty(exe)) {
 						psi.FileName = exe;
-						foreach (var a in args ?? Array.Empty<string>()) psi.ArgumentList.Add(a);
+						foreach (string a in args ?? Array.Empty<string>()) psi.ArgumentList.Add(a);
+
+						// PureDarkss DLLs needs -dx12 to ensure it runs in DX12 mode, otherwise it will crash on injection
+						if ((VM.LocalProfile.Meta.UEVRBackendName == UEVRBackendConstants.BACKEND_NAME_PUREDARK_JOEYHODGE 
+							|| VM.LocalProfile.Meta.UEVRBackendName == UEVRBackendConstants.BACKEND_NAME_PUREDARK_NIGHTLY)
+							&& !psi.ArgumentList.Contains("-dx11", StringComparer.OrdinalIgnoreCase) && !psi.ArgumentList.Contains("-dx12", StringComparer.OrdinalIgnoreCase)) {
+							psi.ArgumentList.Add("-dx12");  // has no effect if the game was not packaged with DX12 support
+						}
 					} else {
 						// fallback
 						psi.FileName = launchCmd;
