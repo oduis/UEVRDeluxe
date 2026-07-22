@@ -78,6 +78,12 @@
 									<TextBlock Style="{StaticResource styHelpText}">Worst image quality and performance. May cause nausea, but highest compatibility.</TextBlock>
 								</StackPanel>
 							</RadioButton>
+							<RadioButton Tag="2">
+								<StackPanel>
+									<TextBlock>Alternate Frame Warping</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Only use with PureDarks UEVR Backends and if the game supports DirectX 12. Can boost performance, while increasing VRAM usage and potentially causing visual glitches.</TextBlock>
+								</StackPanel>
+							</RadioButton>
 						</StackPanel>
 
 						<Grid>
@@ -90,7 +96,7 @@
 							<StackPanel>
 								<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
 								<CheckBox x:Name="cbGhostingFix">
-									<TextBlock TextWrapping="WrapWholeWords" Text="Eliminates faint ghost images around game characters. Helpful when using Synced Sequential or Native Stereo Fix. May cause crashes in some games." />
+									<TextBlock TextWrapping="WrapWholeWords" Text="Eliminates faint ghost images around game characters. Helpful when using Synced Sequential or Native Stereo Fix. Recommended when using PureDarks AFW. May cause crashes in some games." />
 								</CheckBox>
 							</StackPanel>
 
@@ -283,13 +289,13 @@
 								</RadioButton>
 								<RadioButton Tag="2">
 									<StackPanel>
-										<TextBlock>PureDark AFR - Nightly</TextBlock>
-										<TextBlock Style="{StaticResource styHelpText}">Based on Praydogs backend. Improves performance when the game does not support native rendering. Drawbacks: visual artifacts and higher VRAM usage.</TextBlock>
+										<TextBlock>PureDark AFW - Nightly</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Based on Praydogs backend. Improves performance if game supports DirectX 12. Drawbacks: visual artifacts and higher VRAM usage.</TextBlock>
 									</StackPanel>
 								</RadioButton>
 								<RadioButton Tag="3">
 									<StackPanel>
-										<TextBlock>PureDark AFR - Joeyhodge</TextBlock>
+										<TextBlock>PureDark AFW - Joeyhodge</TextBlock>
 										<TextBlock Style="{StaticResource styHelpText}">Based on Joeyhodge backend, otherwise like nightly.</TextBlock>
 									</StackPanel>
 								</RadioButton>
