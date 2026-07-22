@@ -11,7 +11,7 @@
     <UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<Nullable>disable</Nullable>
-		<VersionPrefix>3.1.0.0</VersionPrefix>
+		<VersionPrefix>3.2.0.0</VersionPrefix>
 		<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 		<FileVersion>$(VersionPrefix)</FileVersion>
 		<WindowsPackageType>None</WindowsPackageType>
@@ -122,19 +122,25 @@
     <None Update="Cmd\UEVRDeluxeCmd.pdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="UEVR\Praydog\LuaVR.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="UEVR\Praydog\openvr_api.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="UEVR\Praydog\openxr_loader.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="UEVR\Praydog\UEVRPluginNullifier.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Page Update="Pages\UEVRBackendsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <None Update="UEVR\UEVRBackendJoeyHodge.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="UEVR\UEVRVersionJoeyHodge.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Page Update="Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <None Update="UEVR\UEVRLink.txt">
+    <None Update="UEVR\Praydog\UEVRVersion.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Page Update="Pages\EditVoiceCommandsPage.xaml">
@@ -152,7 +158,7 @@
     <None Update="UEVR\openxr_loader.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="UEVR\UEVRBackend.dll">
+    <None Update="UEVR\Praydog\UEVRBackend.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="UEVR\UEVRPluginNullifier.dll">

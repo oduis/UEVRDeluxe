@@ -68,9 +68,9 @@ class Program {
 	public static async Task UpdatePraydogBackendAsync(int nightlyNumber) {
 		string zipUrl, sNightlyNumber, commitHash;
 
-		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.VERSION_PRAYDOG_FILENAME);
+		string backendFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_PRAYDOG);
+		string versionFilePath = Path.Combine(backendFolder, UEVRBackendConstants.VERSION_FILENAME);
 
-		byte[] zipData;
 		using (var client = new HttpClient()) {
 			sNightlyNumber = nightlyNumber.ToString("D5");
 			Console.WriteLine($"Checking for UEVR nightly {sNightlyNumber}");
@@ -86,48 +86,52 @@ class Program {
 
 			zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{sNightlyNumber}-{commitHash}/uevr.zip";
 
-			if (File.Exists(VersionFilePath) && string.Equals(File.ReadAllText(VersionFilePath).Trim(), zipUrl)) {
+			if (File.Exists(versionFilePath) && string.Equals(File.ReadAllText(versionFilePath).Trim(), zipUrl)) {
 				Console.WriteLine("UEVR backend is already up to date");
 				return;
 			}
 
-			zipData = await client.GetByteArrayAsync(zipUrl);
+			await DownloadUpackZipDllsAsync(client, zipUrl, backendFolder);
 		}
 
-		using (var zipStream = new MemoryStream(zipData))
-		using (var archive = new ZipArchive(zipStream)) {
-			Directory.CreateDirectory(UEVRBaseDir);
-			foreach (var entry in archive.Entries) {
-				if (entry.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) {
-					string destinationPath = Path.Combine(UEVRBaseDir, entry.Name);
-					entry.ExtractToFile(destinationPath, true);
-
-					File.SetLastAccessTimeUtc(destinationPath, entry.LastWriteTime.UtcDateTime);
-				}
-			}
-		}
-
-		File.WriteAllText(VersionFilePath, zipUrl);
+		File.WriteAllText(versionFilePath, zipUrl);
 	}
+
+
 	#endregion
 
 	#region UpdateJoeyHodgeBackendAsync
 	/// <summary>Update UEVR backend from GitHub</summary>
 	public static async Task UpdateJoeyHodgeBackendAsync(string name) {
-		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.VERSION_JOEYHODGE_FILENAME);
+		string prayDogBackendFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_PRAYDOG);
+		string backendFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_JOEYHODGE);
+		string versionFilePath = Path.Combine(backendFolder, UEVRBackendConstants.VERSION_FILENAME);
+
+		Directory.CreateDirectory(backendFolder);
 
 		using var client = new HttpClient();
 		string fullUrl = string.Format(UEVRBackendConstants.DOWNLOAD_JOEYHODGE_URL, HttpUtility.UrlEncode(name));
 
-		File.WriteAllBytes(Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_DLL_JOEYHODGE), await client.GetByteArrayAsync(fullUrl));
-		File.WriteAllText(VersionFilePath, fullUrl);
+		// Copy all base DLLs from Praydog backend, as JoeyHodge ist just the plain dll
+		foreach (string dllPath in Directory.GetFiles(prayDogBackendFolder, "*.dll")) {
+			if (!dllPath.EndsWith(UEVRBackendConstants.BACKEND_DLL_NAME, StringComparison.OrdinalIgnoreCase)) {
+				string destFile = Path.Combine(backendFolder, Path.GetFileName(dllPath));
+				File.Copy(dllPath, destFile, true);
+			}
+		}
+
+		File.WriteAllBytes(Path.Combine(backendFolder, UEVRBackendConstants.BACKEND_DLL_NAME), await client.GetByteArrayAsync(fullUrl));
+		File.WriteAllText(versionFilePath, fullUrl);
 	}
 	#endregion
 
 	#region UpdatePureDarkBackendsAsync
 	/// <summary>Update UEVR backend from GitHub</summary>
 	public static async Task UpdatePureDarkBackendsAsync(string name) {
-		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.VERSION_PUREDARK_FILENAME);
+		string nightlyFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_PUREDARK_NIGHTLY);
+		string joeyHodgeFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_PUREDARK_JOEYHODGE);
+		string nightlyVersionFilePath = Path.Combine(nightlyFolder, UEVRBackendConstants.VERSION_FILENAME);
+		string joeyHodgeVersionFilePath = Path.Combine(joeyHodgeFolder, UEVRBackendConstants.VERSION_FILENAME);
 
 		using var client = new HttpClient();
 		// Puredark has two files, one based on praydog, one on joeyhodge.
@@ -139,38 +143,25 @@ class Program {
 		if (matches.Count != 2) throw new Exception($"Could not find any PureDark UEVR backend assets for {name}");
 
 		string nightlyDownloadUrl = null;
+		string joeyHodgeDownloadUrl = null;
+
 		foreach (Match match in matches) {
 			string zipUrl = "https://github.com" + match.Groups["URL"].Value;
+
+			string backendFolder;
 			bool isNightly = zipUrl.Contains("nightly", StringComparison.OrdinalIgnoreCase);
-			if (isNightly) nightlyDownloadUrl = zipUrl;
-
-			byte[] zipData = await client.GetByteArrayAsync(zipUrl);
-
-			using (var zipStream = new MemoryStream(zipData))
-			using (var archive = new ZipArchive(zipStream)) {
-				Directory.CreateDirectory(UEVRBaseDir);
-
-				foreach (var entry in archive.Entries) {
-					if (entry.Name.EndsWith("UEVRBackend.dll", StringComparison.OrdinalIgnoreCase)) {
-						// The backend is different between the two versions
-						string destinationPath = Path.Combine(UEVRBaseDir,
-							isNightly ? UEVRBackendConstants.BACKEND_DLL_PUREDARK_NIGHTLY : UEVRBackendConstants.BACKEND_DLL_PUREDARK_JOEYHODGE);
-						entry.ExtractToFile(destinationPath, true);
-
-						File.SetLastAccessTimeUtc(destinationPath, entry.LastWriteTime.UtcDateTime);
-					} else if (entry.Name.EndsWith("PDAFWPlugin.dll", StringComparison.OrdinalIgnoreCase)) {
-						// This is shared
-						string destinationPath = Path.Combine(UEVRBaseDir, entry.Name);
-						entry.ExtractToFile(destinationPath, true);
-
-						File.SetLastAccessTimeUtc(destinationPath, entry.LastWriteTime.UtcDateTime);
-					}
-				}
+			if (isNightly) {
+				nightlyDownloadUrl = zipUrl; backendFolder = nightlyFolder;
+			} else {
+				joeyHodgeDownloadUrl = zipUrl; backendFolder = joeyHodgeFolder;
 			}
+
+			await DownloadUpackZipDllsAsync(client, zipUrl, backendFolder);
 		}
 
-		// its two DLLs, but we only store the Praydog URL, Transactional at the end.
-		if (nightlyDownloadUrl != null) File.WriteAllText(VersionFilePath, nightlyDownloadUrl);
+		// Transactional at the end.
+		if (nightlyDownloadUrl != null) File.WriteAllText(nightlyVersionFilePath, nightlyDownloadUrl);
+		if (joeyHodgeDownloadUrl != null) File.WriteAllText(joeyHodgeVersionFilePath, joeyHodgeDownloadUrl);
 	}
 	#endregion
 
@@ -251,6 +242,24 @@ class Program {
 	#endregion
 
 	#region * Helpers
+	static async Task DownloadUpackZipDllsAsync(HttpClient client, string zipUrl, string backendFolder) {
+		Directory.CreateDirectory(backendFolder);
+
+		byte[] zipData = await client.GetByteArrayAsync(zipUrl);
+		using (var zipStream = new MemoryStream(zipData))
+		using (var archive = new ZipArchive(zipStream)) {
+			Directory.CreateDirectory(backendFolder);
+			foreach (var entry in archive.Entries) {
+				if (entry.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) {
+					string destinationPath = Path.Combine(backendFolder, entry.Name);
+					entry.ExtractToFile(destinationPath, true);
+
+					File.SetLastAccessTimeUtc(destinationPath, entry.LastWriteTime.UtcDateTime);
+				}
+			}
+		}
+	}
+
 	static string UEVRBaseDir => Path.Combine(AppContext.BaseDirectory, "..\\UEVR");
 
 	static ProfileMeta LoadAndValidateProfileMeta(string profileRootFolder) {

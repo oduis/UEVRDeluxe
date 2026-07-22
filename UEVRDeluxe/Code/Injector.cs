@@ -38,9 +38,9 @@ class Injector {
 	}
 
 	/// <summary>Inject the DLL into the target process</summary>
-	/// <param name="dllName">local filename</param>
-	public static void InjectDll(int processID, string dllName) {
-		string fullPath = GetFullDLLPath(dllName);
+	/// <param name="relativeDllPath">path relative to the UEVR base directory</param>
+	public static void InjectDll(int processID, string relativeDllPath) {
+		string fullPath = GetFullDLLPath(relativeDllPath);
 
 		// Open the target process with the necessary access
 		nint processHandle = Win32.OpenProcess(0x1F0FFF, false, processID);
@@ -73,10 +73,10 @@ class Injector {
 			throw new Exception("Failed to free memory in the target process");
 	}
 
-	public static nint InjectDllFindBase(int processID, string dllName) {
-		InjectDll(processID, dllName);
+	public static nint InjectDllFindBase(int processID, string relativeDllPath) {
+		InjectDll(processID, relativeDllPath);
 
-		string fullPath = GetFullDLLPath(dllName);
+		string fullPath = GetFullDLLPath(relativeDllPath);
 		var process = Process.GetProcessById(processID);
 		if (process == null) throw new Exception("Process killed");
 
@@ -87,13 +87,13 @@ class Injector {
 		throw new Exception("Cannot find DLL path");
 	}
 
-	public static void CallFunctionNoArgs(int processId, string dllName, nint dllBase, string functionName) {
+	public static void CallFunctionNoArgs(int processId, string relativeDllPath, nint dllBase, string functionName) {
 		nint processHandle = Win32.OpenProcess(0x1F0FFF, false, processId);
 		if (processHandle == nint.Zero)
 			throw new Exception("Could not open a handle to the target process.\nYou may need to start this program as an administrator, or the process may be protected.");
 
 		// We need to load the DLL into our own process temporarily as a workaround for GetProcAddress not working with remote DLLs
-		nint localDllHandle = Win32.LoadLibrary(Path.Combine(UEVRBaseDir, dllName));
+		nint localDllHandle = Win32.LoadLibrary(Path.Combine(UEVRBaseDir, relativeDllPath));
 		if (localDllHandle == nint.Zero) throw new Exception("Could not load the target DLL into our own process");
 
 		nint localVa = Win32.GetProcAddress(localDllHandle, functionName);
@@ -139,9 +139,9 @@ class Injector {
 	/// <summary>Currently installed nightly UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
 	public static int? GetInstalledUEVRNightlyNumber() {
-		string VersionFilePath = Path.Combine(UEVRBaseDir, UEVRBackendConstants.VERSION_PRAYDOG_FILENAME);
-		if (!File.Exists(VersionFilePath)) return null;
-		string version = File.ReadAllText(VersionFilePath).Trim();
+		string versionFilePath = GetVersionFilePath(UEVRBackendConstants.BACKEND_FOLDER_PRAYDOG);
+		if (!File.Exists(versionFilePath)) return null;
+		string version = File.ReadAllText(versionFilePath).Trim();
 
 		// Parse the nighly number from a URL like https://github.com/praydog/UEVR-nightly/releases/download/nightly-{nightlyNumber}-{commitHash}/uevr.zip
 		var match = Regex.Match(version, @"nightly-(?<NightlyNumber>[0-9]+)-");
@@ -165,7 +165,7 @@ class Injector {
 	/// <summary>Currently installed JoeyHodge UEVR version</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
 	public static string GetInstalledUEVRJoeyHodgeName()
-		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.VERSION_JOEYHODGE_FILENAME);
+		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.BACKEND_FOLDER_JOEYHODGE);
 	#endregion
 
 	#region * PureDark's UEVRs
@@ -178,10 +178,10 @@ class Injector {
 		return cachedLatestPureDarkName;
 	}
 
-	/// <summary>Currently installed PureDark UEVR version</summary>
+	/// <summary>Currently installed PureDark UEVR version (nightly variant)</summary>
 	/// <returns>Returns NULL if not downloaded yet</returns>
 	public static string GetInstalledUEVRPureDarkName()
-		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.VERSION_PUREDARK_FILENAME);
+		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.BACKEND_FOLDER_PUREDARK_NIGHTLY);
 	#endregion
 
 	#region * Helpers
@@ -239,8 +239,8 @@ class Injector {
 		return HttpUtility.UrlDecode(match.Groups[1].Value);
 	}
 
-	static string GetInstalledUEVRReleaseName(string versionFileName) {
-		string versionFilePath = Path.Combine(UEVRBaseDir, versionFileName);
+	static string GetInstalledUEVRReleaseName(string backendFolder) {
+		string versionFilePath = GetVersionFilePath(backendFolder);
 		if (!File.Exists(versionFilePath)) return null;
 		string version = File.ReadAllText(versionFilePath).Trim();
 
@@ -255,14 +255,17 @@ class Injector {
 	#region * Directory paths
 	static string UEVRBaseDir => Path.Combine(AppContext.BaseDirectory, "UEVR");
 
-	static string GetFullDLLPath(string dllName) {
-		var fullPath = Path.Combine(UEVRBaseDir, dllName);
+	static string GetBackendFolderPath(string backendFolder) => Path.Combine(UEVRBaseDir, backendFolder);
+
+	static string GetVersionFilePath(string backendFolder) => Path.Combine(GetBackendFolderPath(backendFolder), UEVRBackendConstants.VERSION_FILENAME);
+
+	static string GetFullDLLPath(string relativeDllPath) {
+		var fullPath = Path.Combine(UEVRBaseDir, relativeDllPath);
 
 		if (!File.Exists(fullPath))
-			throw new Exception($"UEVR Backend {dllName} does not appear to be downloaded yet. Check if any anti-virus software has deleted the file or redownload it.\n\nBaseDirectory: {AppContext.BaseDirectory}");
+			throw new Exception($"UEVR Backend {relativeDllPath} does not appear to be downloaded yet. Check if any anti-virus software has deleted the file or redownload it.\n\nBaseDirectory: {AppContext.BaseDirectory}");
 
-		fullPath = Path.GetFullPath(fullPath);
-		return fullPath;
+		return Path.GetFullPath(fullPath);
 	}
 	#endregion
 }

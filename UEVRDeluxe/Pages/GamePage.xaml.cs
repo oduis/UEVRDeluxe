@@ -244,30 +244,33 @@ public sealed partial class GamePage : Page {
 			Win32.SwitchToThisWindow(gameProcess.MainWindowHandle, true);
 			gameProcess.WaitForInputIdle(100);
 
+			string uevrBackendFolder = VM.LocalProfile.Meta.UEVRBackendName switch {
+				UEVRBackendConstants.BACKEND_NAME_JOEYHODGE => UEVRBackendConstants.BACKEND_FOLDER_JOEYHODGE,
+				UEVRBackendConstants.BACKEND_NAME_PUREDARK_NIGHTLY => UEVRBackendConstants.BACKEND_FOLDER_PUREDARK_NIGHTLY,
+				UEVRBackendConstants.BACKEND_NAME_PUREDARK_JOEYHODGE => UEVRBackendConstants.BACKEND_FOLDER_PUREDARK_JOEYHODGE,
+				_ => UEVRBackendConstants.BACKEND_FOLDER_PRAYDOG
+			};
+
 			#region Nullify plugins
 			if (VM.LocalProfile.Meta.NullifyPlugins) {
 				VM.StatusMessage = "Nullifying VR plugins...";
 
-				IntPtr nullifierBase = Injector.InjectDllFindBase(gameProcess.Id, "UEVRPluginNullifier.dll");
+				string nullifierPath = Path.Combine(uevrBackendFolder, "UEVRPluginNullifier.dll");
+				IntPtr nullifierBase = Injector.InjectDllFindBase(gameProcess.Id, nullifierPath);
 				if (nullifierBase.ToInt64() < 0) throw new Exception("Failed to inject nullifier DLL");
 
-				Injector.CallFunctionNoArgs(gameProcess.Id, "UEVRPluginNullifier.dll", nullifierBase, "nullify");
+				Injector.CallFunctionNoArgs(gameProcess.Id, nullifierPath, nullifierBase, "nullify");
 			}
 			#endregion
 
 			VM.StatusMessage = "Injecting protocol DLL...";
-			Injector.InjectDll(gameProcess.Id, (VM.LinkProtocol_XR ? "openxr_loader.dll" : "openvr_api.dll"));
+			Injector.InjectDll(gameProcess.Id, Path.Combine(uevrBackendFolder, VM.LinkProtocol_XR ? "openxr_loader.dll" : "openvr_api.dll"));
 
-			string uevrDllName = VM.LocalProfile.Meta.UEVRBackendName switch {
-				UEVRBackendConstants.BACKEND_NAME_JOEYHODGE => UEVRBackendConstants.BACKEND_DLL_JOEYHODGE,
-				UEVRBackendConstants.BACKEND_NAME_PUREDARK_NIGHTLY => UEVRBackendConstants.BACKEND_DLL_PUREDARK_NIGHTLY,
-				UEVRBackendConstants.BACKEND_NAME_PUREDARK_JOEYHODGE => UEVRBackendConstants.BACKEND_DLL_PUREDARK_JOEYHODGE,
-				_ => UEVRBackendConstants.BACKEND_DLL_PRAYDOG
-			};
+			string uevrDllPath = Path.Combine(uevrBackendFolder, UEVRBackendConstants.BACKEND_DLL_NAME);
 
-			VM.StatusMessage = $"Injecting backend DLL {uevrDllName}...";
+			VM.StatusMessage = $"Injecting backend DLL {uevrDllPath}...";
 
-			Injector.InjectDll(gameProcess.Id, uevrDllName);
+			Injector.InjectDll(gameProcess.Id, uevrDllPath);
 
 			// Stop voice commands
 			if (speechRecognizer != null) {

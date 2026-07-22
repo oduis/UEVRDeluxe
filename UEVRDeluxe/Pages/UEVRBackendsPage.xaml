@@ -65,8 +65,8 @@
 			<TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PureDarkInstalled, Mode=OneWay}" />
 			<TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PureDarkLatest, Mode=OneWay}" />
 			<RichTextBlock Grid.Row="3" Grid.Column="3" Style="{StaticResource rtbGridEntry}">
-				<Paragraph>Modified version of both Praydog and JoeyHodge backends to add alternative frame warapping. 
-				Boost performance in games that do not support UEVR native rendering. 
+				<Paragraph>Modified version of both Praydog and JoeyHodge backends to add alternative frame warping (AFW). 
+				Boost performance in games that support DirectX 12. 
 				Increases VRAM usage and may add some visual artifacts.
 					<Hyperlink NavigateUri="https://www.patreon.com/PureDark" ToolTipService.ToolTip="Donate on Patreon">Support PureDark</Hyperlink>
 				</Paragraph>

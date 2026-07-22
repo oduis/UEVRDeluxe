@@ -78,9 +78,9 @@
 									<TextBlock Style="{StaticResource styHelpText}">Worst image quality and performance. May cause nausea, but highest compatibility.</TextBlock>
 								</StackPanel>
 							</RadioButton>
-							<RadioButton Tag="2">
+							<RadioButton Tag="3">
 								<StackPanel>
-									<TextBlock>Alternate Frame Warping</TextBlock>
+									<TextBlock>Alternate Frame Warping (AFW)</TextBlock>
 									<TextBlock Style="{StaticResource styHelpText}">Only use with PureDarks UEVR Backends and if the game supports DirectX 12. Can boost performance, while increasing VRAM usage and potentially causing visual glitches.</TextBlock>
 								</StackPanel>
 							</RadioButton>

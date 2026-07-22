@@ -29,18 +29,15 @@ public static class UEVRBackendConstants {
 	public const string BACKEND_NAME_PUREDARK_NIGHTLY = "PureDarkNightly";
 	public const string BACKEND_NAME_PUREDARK_JOEYHODGE = "PureDarkJoeyHodge";
 
-	public const string BACKEND_DLL_PRAYDOG = "UEVRBackend.dll";
-	public const string BACKEND_DLL_JOEYHODGE = "UEVRBackendJoeyHodge.dll";
-	// Puredark has two, one based on praydog, one on Joedodge
-	public const string BACKEND_DLL_PUREDARK_NIGHTLY = "UEVRBackendPureDarkNightly.dll";
-	public const string BACKEND_DLL_PUREDARK_JOEYHODGE = "UEVRBackendPureDarkJoeyHodge.dll";
+	public const string BACKEND_DLL_NAME = "UEVRBackend.dll";
 
-	// Local file that stores the URL of the downloaded nightly
-	public const string VERSION_PRAYDOG_FILENAME = "UEVRLink.txt";
-	public const string VERSION_JOEYHODGE_FILENAME = "UEVRVersionJoeyHodge.txt";
+	public const string BACKEND_FOLDER_PRAYDOG = "Praydog";
+	public const string BACKEND_FOLDER_JOEYHODGE = "JoeyHodge";
+	public const string BACKEND_FOLDER_PUREDARK_NIGHTLY = "PureDark_Nightly";
+	public const string BACKEND_FOLDER_PUREDARK_JOEYHODGE = "PureDark_JoeyHodge";
 
-	// Points to the "nightly" version of the backend (PureDark has two)
-	public const string VERSION_PUREDARK_FILENAME = "UEVRVersionPureDark.txt";
+	// Local file that stores the URL of the downloaded backend
+	public const string VERSION_FILENAME = "UEVRVersion.txt";
 
 	// Pradyog nightly endpoints
 	public const string LATEST_PRAYDOG_NIGHTLY_URL = "https://github.com/praydog/UEVR-nightly/releases/latest";
