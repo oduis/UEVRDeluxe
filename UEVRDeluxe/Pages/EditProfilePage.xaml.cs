@@ -55,6 +55,7 @@ public sealed partial class EditProfilePage : Page {
 				case UEVRBackendConstants.BACKEND_NAME_JOEYHODGE: SetRadioButtonValue(spUEVRBackend, "1"); break;
 				case UEVRBackendConstants.BACKEND_NAME_PUREDARK_NIGHTLY: SetRadioButtonValue(spUEVRBackend, "2"); break;
 				case UEVRBackendConstants.BACKEND_NAME_PUREDARK_JOEYHODGE: SetRadioButtonValue(spUEVRBackend, "3"); break;
+				case UEVRBackendConstants.BACKEND_NAME_DORTAMUR: SetRadioButtonValue(spUEVRBackend, "4"); break;
 				default: SetRadioButtonValue(spUEVRBackend, "0"); break;
 			}
 
@@ -175,7 +176,8 @@ public sealed partial class EditProfilePage : Page {
 			"1" => UEVRBackendConstants.BACKEND_NAME_JOEYHODGE,
 			"2" => UEVRBackendConstants.BACKEND_NAME_PUREDARK_NIGHTLY,
 			"3" => UEVRBackendConstants.BACKEND_NAME_PUREDARK_JOEYHODGE,
-			_ => null
+			"4" => UEVRBackendConstants.BACKEND_NAME_DORTAMUR,
+			_ => null  // Praydog, default
 		};
 
 		await VM.LocalProfile.SaveAsync();

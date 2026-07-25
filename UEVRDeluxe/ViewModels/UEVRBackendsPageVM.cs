@@ -22,4 +22,8 @@ public class UEVRBackendsPageVM : VMBase {
 	string pureDarkLatest, pureDarkInstalled;
 	public string PureDarkLatest { get => pureDarkLatest; set => Set(ref pureDarkLatest, value); }
 	public string PureDarkInstalled	 { get => pureDarkInstalled; set => Set(ref pureDarkInstalled, value); }
+
+	string dortamurLatest, dortamurInstalled;
+	public string DortamurLatest { get => dortamurLatest; set => Set(ref dortamurLatest, value); }
+	public string DortamurInstalled { get => dortamurInstalled; set => Set(ref dortamurInstalled, value); }
 }

@@ -28,6 +28,11 @@ static class CmdManager {
 	public static async Task UpdatePureDarkBackendAsync(string name)
 		=> await RunAsync($"{UEVRCmdArgs.UPDATE_PUREDARK_BACKENDS} {name}");
 
+	/// <summary>Wrapper to update the backend for Dortamur using the elevated helper command.</summary>
+	/// <param name="name">Tag name.</param>
+	public static async Task UpdateDortamurBackendAsync(string name)
+		=> await RunAsync($"{UEVRCmdArgs.UPDATE_DORTAMUR_BACKEND} {name}");
+
 	/// <summary>Install a profile by calling the elevated helper command.</summary>
 	public static Task InstallAsync(string profileRootFolder, string gameExeFolder) {
 		if (string.IsNullOrWhiteSpace(profileRootFolder)) throw new ArgumentException("profileRootFolder is required", nameof(profileRootFolder));

@@ -17,11 +17,12 @@ using System.Threading.Tasks;
 using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
+using Windows.ApplicationModel.UserDataTasks;
 #endregion
 
 namespace UEVRDeluxe.Pages;
 
-public sealed partial class MainPage : Page {
+public sealed partial class MainPage : Page, IDisposable {
 	readonly MainPageVM VM = new();
 
 	#region * Init
@@ -90,9 +91,19 @@ public sealed partial class MainPage : Page {
 
 			hotKeyCheckTimer.Start();
 
-			bool allUEVRLatest = await Injector.CheckAllUEVRBackendLatestAsync();
-			VM.UEVRBackendsLabel = MainPageVM.UEVR_BACKEND_LABEL 
-				+ " " + (allUEVRLatest ? "(all up to date)" : "- New versions available");
+			// Since we got multiple UEVR backends, this may take a few seconds.
+			_ = Task.Run(async () => {
+				try {
+					bool allUEVRLatest = await Injector.CheckAllUEVRBackendLatestAsync();
+					DispatcherQueue.TryEnqueue(() => {
+						if (disposed) return;
+						VM.UEVRBackendsLabel = MainPageVM.UEVR_BACKEND_LABEL
+							+ " " + (allUEVRLatest ? "(all up to date)" : "- New versions available");
+					});
+				} catch (Exception ex) {
+					Logger.Log.LogError(ex, "Failed to determine UEVR backend update status");
+				}
+			});
 		} catch (Exception ex) {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Startup");
 		} finally {
@@ -293,4 +304,9 @@ public sealed partial class MainPage : Page {
 		Frame.Navigate(typeof(GamePage), new GameNavigationArgs { Game = gameToLaunch, AutoLaunch = true });
 		return true;
 	}
+
+	#region * Dispose
+	bool disposed = false;
+	void IDisposable.Dispose() => disposed = true;
+	#endregion
 }

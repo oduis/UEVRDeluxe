@@ -48,7 +48,7 @@ public class ProfileMeta {
 	[JsonIgnore]
 	public string RequiredUEVRVersionText {
 		get {
-			if (UEVRBackendName != null) return UEVRBackendName;
+			if (!string.IsNullOrEmpty(UEVRBackendName)) return UEVRBackendName;
 
 			if (MinUEVRNightlyNumber.HasValue && MaxUEVRNightlyNumber.HasValue)
 				return $"{MinUEVRNightlyNumber} to {MaxUEVRNightlyNumber}";

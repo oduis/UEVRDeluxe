@@ -65,6 +65,14 @@ public sealed partial class UEVRBackendsPage : Page {
 			Logger.Log.LogError(ex, "Failed to read latest UEVR PureDark version");
 			VM.PureDarkLatest = "<unknown>";
 		}
+
+		VM.DortamurInstalled = Injector.GetInstalledUEVRDortamurName() ?? NOT_INSTALLED;
+		try {
+			VM.DortamurLatest = await Injector.ReadLatestUEVRDortamurVersionAsync();
+		} catch (Exception ex) {
+			Logger.Log.LogError(ex, "Failed to read latest UEVR Dortamur version");
+			VM.DortamurLatest = "<unknown>";
+		}
 	}
 
 	async Task<int?> ShowUpdateNightlyDialogAsync(int? installedNightlyNumber, int latestNightlyNumber) {
@@ -256,6 +264,34 @@ public sealed partial class UEVRBackendsPage : Page {
 			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Download UEVR PureDark");
 		}
 	}
+
+	async void UpdateUEVRDortamur_Click(object sender, RoutedEventArgs e) {
+		try {
+			VM.IsLoading = true;
+
+			string latestDortamurName = await Injector.ReadLatestUEVRDortamurVersionAsync();
+			string installedDortamurName = Injector.GetInstalledUEVRDortamurName();
+
+			string tagName = await ShowUpdateNonPrayDogDialogAsync(installedDortamurName, latestDortamurName, "e.g. v1.0.0");
+			if (tagName == null) { VM.IsLoading = false; return; }
+
+			Logger.Log.LogInformation($"Starting UEVR Dortamur update (version: {tagName})");
+
+			await CmdManager.UpdateDortamurBackendAsync(tagName);
+
+			await RefreshVersionLabelsAsync();
+
+			VM.IsLoading = false;
+
+			await new ContentDialog {
+				Title = "UEVR Dortamur", CloseButtonText = "OK", XamlRoot = this.XamlRoot,
+				Content = "Updated successfully"
+			}.ShowAsync();
+		} catch (Exception ex) {
+			VM.IsLoading = false;
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Download UEVR Dortamur");
+		}
+	}
 	#endregion
 
 	async void UpdateAll_Click(object sender, RoutedEventArgs e) {
@@ -274,6 +310,10 @@ public sealed partial class UEVRBackendsPage : Page {
 			}
 			if (VM.PureDarkInstalled != VM.PureDarkLatest) {
 				await CmdManager.UpdatePureDarkBackendAsync(VM.PureDarkLatest);
+				anyUpdate = true;
+			}
+			if (VM.DortamurInstalled != VM.DortamurLatest) {
+				await CmdManager.UpdateDortamurBackendAsync(VM.DortamurLatest);
 				anyUpdate = true;
 			}
 

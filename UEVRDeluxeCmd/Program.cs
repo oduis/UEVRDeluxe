@@ -33,6 +33,9 @@ class Program {
 					await UpdatePureDarkBackendsAsync(args[2]);
 					break;
 
+				case UEVRCmdArgs.UPDATE_DORTAMUR_BACKEND:
+					await UpdateDortamurBackendAsync(args[2]);
+					break;
 
 				case UEVRCmdArgs.INSTALL_PROFILE:
 					if (args.Length < 4) throw new Exception("INSTALLPROFILE requires profileRootFolder and gameExeFolder parameters");
@@ -71,33 +74,30 @@ class Program {
 		string backendFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_PRAYDOG);
 		string versionFilePath = Path.Combine(backendFolder, UEVRBackendConstants.VERSION_FILENAME);
 
-		using (var client = new HttpClient()) {
-			sNightlyNumber = nightlyNumber.ToString("D5");
-			Console.WriteLine($"Checking for UEVR nightly {sNightlyNumber}");
+		using var client = new HttpClient();
+		sNightlyNumber = nightlyNumber.ToString("D5");
+		Console.WriteLine($"Checking for UEVR nightly {sNightlyNumber}");
 
-			string searchUrl = string.Format(UEVRBackendConstants.SEARCH_PRAYDOG_NIGHTLY_URL, sNightlyNumber);
+		string searchUrl = string.Format(UEVRBackendConstants.SEARCH_PRAYDOG_NIGHTLY_URL, sNightlyNumber);
 
-			string html = await client.GetStringAsync(searchUrl);
+		string html = await client.GetStringAsync(searchUrl);
 
-			// e.g. <a href="/praydog/UEVR-nightly/releases/tag/nightly-01095-69fd6801eec8f9ede3c6667302b1740268b89c50" data-view-component="true" class="Link--primary Link" ...
-			var match = Regex.Match(html, $"releases/tag/nightly-{sNightlyNumber}-([0-9a-f]+)");
-			if (!match.Success) throw new Exception($"Could not find nightly version {sNightlyNumber} on GitHub");
-			commitHash = match.Groups[1].Value;
+		// e.g. <a href="/praydog/UEVR-nightly/releases/tag/nightly-01095-69fd6801eec8f9ede3c6667302b1740268b89c50" data-view-component="true" class="Link--primary Link" ...
+		var match = Regex.Match(html, $"releases/tag/nightly-{sNightlyNumber}-([0-9a-f]+)");
+		if (!match.Success) throw new Exception($"Could not find nightly version {sNightlyNumber} on GitHub");
+		commitHash = match.Groups[1].Value;
 
-			zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{sNightlyNumber}-{commitHash}/uevr.zip";
+		zipUrl = $"https://github.com/praydog/UEVR-nightly/releases/download/nightly-{sNightlyNumber}-{commitHash}/uevr.zip";
 
-			if (File.Exists(versionFilePath) && string.Equals(File.ReadAllText(versionFilePath).Trim(), zipUrl)) {
-				Console.WriteLine("UEVR backend is already up to date");
-				return;
-			}
-
-			await DownloadUpackZipDllsAsync(client, zipUrl, backendFolder);
+		if (File.Exists(versionFilePath) && string.Equals(File.ReadAllText(versionFilePath).Trim(), zipUrl)) {
+			Console.WriteLine("UEVR backend is already up to date");
+			return;
 		}
+
+		await DownloadUpackZipDllsAsync(client, zipUrl, backendFolder);
 
 		File.WriteAllText(versionFilePath, zipUrl);
 	}
-
-
 	#endregion
 
 	#region UpdateJoeyHodgeBackendAsync
@@ -109,9 +109,6 @@ class Program {
 
 		Directory.CreateDirectory(backendFolder);
 
-		using var client = new HttpClient();
-		string fullUrl = string.Format(UEVRBackendConstants.DOWNLOAD_JOEYHODGE_URL, HttpUtility.UrlEncode(name));
-
 		// Copy all base DLLs from Praydog backend, as JoeyHodge ist just the plain dll
 		foreach (string dllPath in Directory.GetFiles(prayDogBackendFolder, "*.dll")) {
 			if (!dllPath.EndsWith(UEVRBackendConstants.BACKEND_DLL_NAME, StringComparison.OrdinalIgnoreCase)) {
@@ -120,8 +117,16 @@ class Program {
 			}
 		}
 
-		File.WriteAllBytes(Path.Combine(backendFolder, UEVRBackendConstants.BACKEND_DLL_NAME), await client.GetByteArrayAsync(fullUrl));
-		File.WriteAllText(versionFilePath, fullUrl);
+		using var client = new HttpClient();
+		string fullUrl1 = string.Format(UEVRBackendConstants.DOWNLOAD_JOEYHODGE1_URL, HttpUtility.UrlEncode(name));
+		string fullUrl2 = string.Format(UEVRBackendConstants.DOWNLOAD_JOEYHODGE2_URL, HttpUtility.UrlEncode(name));
+
+		File.WriteAllBytes(Path.Combine(backendFolder, Path.GetFileName(new Uri(fullUrl1).AbsolutePath)),
+			await client.GetByteArrayAsync(fullUrl1));
+		File.WriteAllBytes(Path.Combine(backendFolder, Path.GetFileName(new Uri(fullUrl2).AbsolutePath)),
+			await client.GetByteArrayAsync(fullUrl2));
+
+		File.WriteAllText(versionFilePath, fullUrl1);  // only the first as version reference
 	}
 	#endregion
 
@@ -162,6 +167,32 @@ class Program {
 		// Transactional at the end.
 		if (nightlyDownloadUrl != null) File.WriteAllText(nightlyVersionFilePath, nightlyDownloadUrl);
 		if (joeyHodgeDownloadUrl != null) File.WriteAllText(joeyHodgeVersionFilePath, joeyHodgeDownloadUrl);
+	}
+	#endregion
+
+	#region UpdateDortamurBackendAsync
+	/// <summary>Update UEVR backend from GitHub</summary>
+	public static async Task UpdateDortamurBackendAsync(string name) {
+		string prayDogBackendFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_PRAYDOG);
+		string backendFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_DORTAMUR);
+		string versionFilePath = Path.Combine(backendFolder, UEVRBackendConstants.VERSION_FILENAME);
+
+		Directory.CreateDirectory(backendFolder);
+
+		// Copy all base DLLs from Praydog backend, as JoeyHodge ist just the plain dll
+		foreach (string dllPath in Directory.GetFiles(prayDogBackendFolder, "*.dll")) {
+			if (!dllPath.EndsWith(UEVRBackendConstants.BACKEND_DLL_NAME, StringComparison.OrdinalIgnoreCase)) {
+				string destFile = Path.Combine(backendFolder, Path.GetFileName(dllPath));
+				File.Copy(dllPath, destFile, true);
+			}
+		}
+
+		using var client = new HttpClient();
+		string fullUrl = string.Format(UEVRBackendConstants.DOWNLOAD_DORTAMUR_URL, HttpUtility.UrlEncode(name));
+
+		await DownloadUpackZipDllsAsync(client, fullUrl, backendFolder);
+
+		File.WriteAllText(versionFilePath, fullUrl);
 	}
 	#endregion
 

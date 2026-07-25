@@ -299,6 +299,12 @@
 										<TextBlock Style="{StaticResource styHelpText}">Based on Joeyhodge backend, otherwise like nightly.</TextBlock>
 									</StackPanel>
 								</RadioButton>
+								<RadioButton Tag="4">
+									<StackPanel>
+										<TextBlock>Dortamur</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Backend to fix the game "Satisfactory" (and possibly others)</TextBlock>
+									</StackPanel>
+								</RadioButton>
 							</StackPanel>
 
 							<CheckBox Content="Late Injection (For stability, requires injection when the game is already running and in 3D)"

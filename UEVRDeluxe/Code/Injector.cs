@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using UEVRDeluxe.Common;
 using System.Web;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 #endregion
 
 namespace UEVRDeluxe.Code;
@@ -121,7 +122,7 @@ class Injector {
 
 		if (cachedLatestNightlyNumber.HasValue) return cachedLatestNightlyNumber.Value;
 
-		string html = await client.GetStringAsync(UEVRBackendConstants.LATEST_PRAYDOG_NIGHTLY_URL);
+		string html = await client.GetStringAsync(UEVRBackendConstants.LATEST_PRAYDOG_NIGHTLY_URL).ConfigureAwait(false);
 		var doc = new HtmlDocument();
 		doc.LoadHtml(html);
 		var title = doc.DocumentNode.SelectSingleNode("//title");
@@ -152,7 +153,6 @@ class Injector {
 	#endregion
 
 	#region * JoeyHodge's UEVR
-	/// <summary>We don't want a web request on every entering to the main page.</summary>
 	static string cachedLatestJoeyHodgeName;
 
 	public static async Task<string> ReadLatestUEVRJoeyHodgeVersionAsync() {
@@ -169,7 +169,6 @@ class Injector {
 	#endregion
 
 	#region * PureDark's UEVRs
-	/// <summary>We don't want a web request on every entering to the main page.</summary>
 	static string cachedLatestPureDarkName;
 
 	public static async Task<string> ReadLatestUEVRPureDarkVersionAsync() {
@@ -184,14 +183,30 @@ class Injector {
 		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.BACKEND_FOLDER_PUREDARK_NIGHTLY);
 	#endregion
 
+	#region * Dortamur's UEVR
+	static string cachedLatestDortamurName;
+
+	public static async Task<string> ReadLatestUEVRDortamurVersionAsync() {
+		if (cachedLatestDortamurName != null) return cachedLatestDortamurName;
+
+		cachedLatestDortamurName = await ReadLatestUEVRReleaseVersionAsync(UEVRBackendConstants.LATEST_DORTAMUR_URL);
+		return cachedLatestDortamurName;
+	}
+
+	/// <summary>Currently installed Dortamur UEVR version</summary>
+	/// <returns>Returns NULL if not downloaded yet</returns>
+	public static string GetInstalledUEVRDortamurName()
+		=> GetInstalledUEVRReleaseName(UEVRBackendConstants.BACKEND_FOLDER_DORTAMUR);
+	#endregion
+
 	#region * Helpers
 	public static async Task<bool> CheckAllUEVRBackendLatestAsync() {
-		int? currentNightlyNumber = Injector.GetInstalledUEVRNightlyNumber();
+		int? currentNightlyNumber = GetInstalledUEVRNightlyNumber();
 		if (!currentNightlyNumber.HasValue) return false;
 
 		int? latestNightlyNumber;
 		try {
-			latestNightlyNumber = await Injector.ReadLatestUEVRNightlyNumberAsync();
+			latestNightlyNumber = await ReadLatestUEVRNightlyNumberAsync();
 		} catch (Exception ex) {
 			Logger.Log.LogError(ex, "Failed to read latest UEVR nightly number");
 			return false;
@@ -199,13 +214,12 @@ class Injector {
 		if (currentNightlyNumber != latestNightlyNumber) return false;
 
 
-
-		string currentJoeyHodgeName = Injector.GetInstalledUEVRJoeyHodgeName();
+		string currentJoeyHodgeName = GetInstalledUEVRJoeyHodgeName();
 		if (currentJoeyHodgeName == null) return false;
 
 		string latestJoeyHodgeName;
 		try {
-			latestJoeyHodgeName = await Injector.ReadLatestUEVRJoeyHodgeVersionAsync();
+			latestJoeyHodgeName = await ReadLatestUEVRJoeyHodgeVersionAsync();
 		} catch (Exception ex) {
 			Logger.Log.LogError(ex, "Failed to read latest UEVR JoeyHodge version");
 			return false;
@@ -214,26 +228,39 @@ class Injector {
 		if (!string.Equals(currentJoeyHodgeName, latestJoeyHodgeName, StringComparison.OrdinalIgnoreCase)) return false;
 
 
-		string currentPureDarkName = Injector.GetInstalledUEVRPureDarkName();
+		string currentPureDarkName = GetInstalledUEVRPureDarkName();
 		if (currentPureDarkName == null) return false;
 		string latestPureDarkName;
 		try {
-			latestPureDarkName = await Injector.ReadLatestUEVRPureDarkVersionAsync();
+			latestPureDarkName = await ReadLatestUEVRPureDarkVersionAsync();
 		} catch (Exception ex) {
 			Logger.Log.LogError(ex, "Failed to read latest UEVR PureDark version");
 			return false;
 		}
 
 		if (!string.Equals(currentPureDarkName, latestPureDarkName, StringComparison.OrdinalIgnoreCase)) return false;
+
+		string currentDortamurName = GetInstalledUEVRDortamurName();
+		if (currentDortamurName == null) return false;
+		string latestDortamurName;
+		try {
+			latestDortamurName = await ReadLatestUEVRDortamurVersionAsync();
+		} catch (Exception ex) {
+			Logger.Log.LogError(ex, "Failed to read latest UEVR Dortamur version");
+			return false;
+		}
+
+		if (!string.Equals(currentDortamurName, latestDortamurName, StringComparison.OrdinalIgnoreCase)) return false;
 		return true;
 	}
 
 	static async Task<string> ReadLatestUEVRReleaseVersionAsync(string url) {
 		using var client = new HttpClient();
 
-		string html = await client.GetStringAsync(url);
+		string html = await client.GetStringAsync(url).ConfigureAwait(false);
 
-		var match = Regex.Match(html, @"UEVR/tree/([^\""]+)");
+		// Most backends have UEVR as name, some inbetween UEVR
+		var match = Regex.Match(html, @"/[^/]*UEVR[^/]*/tree/([^\""]+)", RegexOptions.IgnoreCase);
 		if (!match.Success) throw new Exception("Invalid release tree format");
 
 		return HttpUtility.UrlDecode(match.Groups[1].Value);
@@ -244,11 +271,10 @@ class Injector {
 		if (!File.Exists(versionFilePath)) return null;
 		string version = File.ReadAllText(versionFilePath).Trim();
 
-		// Parse the nighly number from a URL like https://github.com/PureDark/UEVR/releases/download/UEVR_AFW_v1.0-beta.3/UEVR-nightly_AFW_v1.0-beta.3.1.zip		var match = Regex.Match(version, @"download/(?<Name>.+)/");
 		var match = Regex.Match(version, @"download/(?<Name>.+)/");
-		if (!match.Success) return null;
+		if (match.Success) return HttpUtility.UrlDecode(match.Groups["Name"].Value);
 
-		return HttpUtility.UrlDecode(match.Groups["Name"].Value);
+		return version;
 	}
 	#endregion
 

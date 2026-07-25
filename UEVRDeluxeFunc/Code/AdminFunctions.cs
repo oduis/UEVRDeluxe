@@ -73,6 +73,7 @@ public class AdminFunctions : FunctionsBase {
 				{nameof(ProfileMeta.AuthorName), profileMeta.AuthorName },
 				{nameof(ProfileMeta.MinUEVRNightlyNumber), profileMeta.MinUEVRNightlyNumber },
 				{nameof(ProfileMeta.MaxUEVRNightlyNumber), profileMeta.MaxUEVRNightlyNumber },
+				{nameof(ProfileMeta.UEVRBackendName), profileMeta.UEVRBackendName },
 				{nameof(ProfileMeta.Remarks), profileMeta.Remarks }
 			};
 

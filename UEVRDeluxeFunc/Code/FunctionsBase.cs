@@ -74,6 +74,7 @@ public abstract class FunctionsBase {
 				ModifiedDate = DateTime.ParseExact(item[nameof(ProfileMeta.ModifiedDate)] as string, "yyyyMMdd", CultureInfo.InvariantCulture),
 				MinUEVRNightlyNumber = item[nameof(ProfileMeta.MinUEVRNightlyNumber)] is int minValue ? minValue : (int?)null,
 				MaxUEVRNightlyNumber = item[nameof(ProfileMeta.MaxUEVRNightlyNumber)] is int maxValue ? maxValue : (int?)null,
+				UEVRBackendName = item[nameof(ProfileMeta.UEVRBackendName)] as string,
 				Remarks = item[nameof(ProfileMeta.Remarks)] as string
 			});
 		}

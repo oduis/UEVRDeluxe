@@ -28,6 +28,7 @@ public static class UEVRBackendConstants {
 	public const string BACKEND_NAME_JOEYHODGE = "JoeyHodge";
 	public const string BACKEND_NAME_PUREDARK_NIGHTLY = "PureDarkNightly";
 	public const string BACKEND_NAME_PUREDARK_JOEYHODGE = "PureDarkJoeyHodge";
+	public const string BACKEND_NAME_DORTAMUR = "Dortamur";
 
 	public const string BACKEND_DLL_NAME = "UEVRBackend.dll";
 
@@ -35,6 +36,7 @@ public static class UEVRBackendConstants {
 	public const string BACKEND_FOLDER_JOEYHODGE = "JoeyHodge";
 	public const string BACKEND_FOLDER_PUREDARK_NIGHTLY = "PureDark_Nightly";
 	public const string BACKEND_FOLDER_PUREDARK_JOEYHODGE = "PureDark_JoeyHodge";
+	public const string BACKEND_FOLDER_DORTAMUR = "Dortamur";
 
 	// Local file that stores the URL of the downloaded backend
 	public const string VERSION_FILENAME = "UEVRVersion.txt";
@@ -45,12 +47,16 @@ public static class UEVRBackendConstants {
 
 	// JoeyHodge release endpoints
 	public const string LATEST_JOEYHODGE_URL = "https://github.com/joeyhodge/UEVR/releases/latest";
-	public const string DOWNLOAD_JOEYHODGE_URL = "https://github.com/joeyhodge/UEVR/releases/download/{0}/UEVRBackend.dll";
+	public const string DOWNLOAD_JOEYHODGE1_URL = "https://github.com/joeyhodge/UEVR/releases/download/{0}/UEVRBackend.dll";
+	public const string DOWNLOAD_JOEYHODGE2_URL = "https://github.com/joeyhodge/UEVR/releases/download/{0}/DIBRUEVRBackend.dll";
 
 	public const string LATEST_PUREDARK_URL = "https://github.com/PureDark/UEVR/releases/latest";
 	public const string ASSETS_PUREDARK_URL = "https://github.com/PureDark/UEVR/releases/expanded_assets/{0}";
 
 	public const string ASSETS_PUREDARK_LINK_REGEX = @"a href=""(?<URL>/PureDark/UEVR/releases.+?(nightly|joeyhodge).+?zip)""";
+
+	public const string LATEST_DORTAMUR_URL = "https://github.com/dortamur/satisfactory-uevr-enhancements/releases/latest";
+	public const string DOWNLOAD_DORTAMUR_URL = "https://github.com/dortamur/satisfactory-uevr-enhancements/releases/download/{0}/UEVR-Satisfactory-fix.zip";
 }
 
 /// <summary>Command names used by the elevated helper EXE (UEVRDeluxeCmd)</summary>
@@ -58,6 +64,7 @@ public static class UEVRCmdArgs {
 	public const string UPDATE_PRAYDOG_BACKEND = "UPDATEPRAYDOGBACKEND";
 	public const string UPDATE_JOEYHODGE_BACKEND = "UPDATEJOEYHODGEBACKEND";
 	public const string UPDATE_PUREDARK_BACKENDS = "UPDATEPUREDARKBACKENDS";
+	public const string UPDATE_DORTAMUR_BACKEND = "UPDATEDORTAMURBACKEND";
 	public const string INSTALL_PROFILE = "INSTALLPROFILE";
 	public const string UNINSTALL_PROFILE = "UNINSTALLPROFILE";
 }
