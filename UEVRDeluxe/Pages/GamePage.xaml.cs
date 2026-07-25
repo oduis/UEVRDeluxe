@@ -152,6 +152,21 @@ public sealed partial class GamePage : Page {
 			if (VM.EnableVoiceCommands && Win32.IsUserAnAdmin())
 				throw new Exception("Start UEVR Easy without administrator privileges to use voice commands");
 
+			#region Pre-Check the non-Praydog backends are downloaded
+			if (VM.LocalProfile.Meta != null) {
+				string installedVersion = VM.LocalProfile.Meta.UEVRBackendName switch {
+					UEVRBackendConstants.BACKEND_NAME_JOEYHODGE => Injector.GetInstalledUEVRJoeyHodgeName(),
+					UEVRBackendConstants.BACKEND_NAME_PUREDARK_NIGHTLY => Injector.GetInstalledUEVRPureDarkName(),
+					UEVRBackendConstants.BACKEND_NAME_PUREDARK_JOEYHODGE => Injector.GetInstalledUEVRPureDarkName(),
+					UEVRBackendConstants.BACKEND_NAME_DORTAMUR => Injector.GetInstalledUEVRDortamurName(),
+					_ => UEVRBackendConstants.BACKEND_FOLDER_PRAYDOG
+				};
+
+				if (installedVersion == null)
+					throw new Exception($"Please install the UEVR backend \"{VM.LocalProfile.Meta.UEVRBackendName}\" needed for this profile first.\nUse the \"Update UEVR Backends\" button on home page.");
+			}
+			#endregion
+
 			shouldStop = false;
 			VM.IsRunning = true; hotKeyCheckTimer?.Stop();
 			await Task.Delay(60);  // Allow UI to update
@@ -316,7 +331,7 @@ public sealed partial class GamePage : Page {
 			VM.StatusMessage += $" - {ex.Message}";
 
 			await new ContentDialog {
-				Title = "UEVR", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
+				Title = "UEVR Easy Injector", Content = ex.Message, CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 
 			speechRecognizer?.Stop(); speechRecognizer = null;
