@@ -88,26 +88,26 @@
 	</Style>
 
 	<DataTemplate x:Key="styProfileMetaDataTemplate">
-		<Border CornerRadius="4" BorderBrush="LightGray" BorderThickness="1" Margin="0,4">
+		<Border CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+				Margin="0,4" Padding="16,10,16,16">
 			<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition />
 					<RowDefinition />
 				</Grid.RowDefinitions>
-				<Border Grid.ColumnSpan="2" Background="LightGray">
-					<TextBlock Foreground="Black" Text="{Binding GameName}" FontSize="18" Margin="8,4,8,8" />
-				</Border>
+				<TextBlock Text="{Binding GameName}" FontSize="22" FontWeight="SemiBold" />
 
-				<Grid Grid.Row="1" Margin="10,8,10,10">
+				<Grid Grid.Row="1" Margin="0,6,0,0">
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
 						<RowDefinition Height="Auto"/>
 					</Grid.RowDefinitions>
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="Auto"/>
-						<ColumnDefinition Width="240"/>
+						<ColumnDefinition Width="320"/>
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
+					
 					<TextBlock Text="Created:" Margin="0,0,12,0" />
 
 					<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
@@ -118,14 +118,15 @@
 
 					<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
 						<TextBlock Text="UEVR version:" />
-						<TextBlock Text="{Binding MinMaxUEVRNightlyNumberText}" />
-						<TextBlock Text="/ Game version:" />
+						<TextBlock Text="{Binding RequiredUEVRVersionText}" />
+						<TextBlock Text="  ●  Game version:" />
 						<TextBlock Text="{Binding GameVersion}" />
 					</StackPanel>
 
-					<TextBlock Grid.Row="1" Text="Remarks:"/>
+					<TextBlock Grid.Row="1" Text="Remarks:" Margin="0,2,0,0" />
 
-					<TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Remarks}" TextWrapping="WrapWholeWords" />
+					<TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,2,0,0"
+							   Text="{Binding Remarks}" TextWrapping="WrapWholeWords" />
 				</Grid>
 			</Grid>
 		</Border>

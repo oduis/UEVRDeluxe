@@ -10,13 +10,39 @@
     mc:Ignorable="d" Loaded="Page_Loaded">
 
 	<Page.Resources>
-		<Style x:Name="tbGridEntry" TargetType="TextBlock">
-			<Setter Property="VerticalAlignment" Value="Center" />
-			<Setter Property="TextWrapping" Value="Wrap" />
+		<Style x:Key="BackendCardStyle" TargetType="Border">
+			<Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorSecondaryBrush}" />
+			<Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="8" />
+			<Setter Property="Padding" Value="16,12,16,16" />
 		</Style>
-		<Style x:Name="rtbGridEntry" TargetType="RichTextBlock">
-			<Setter Property="VerticalAlignment" Value="Center" />
+
+		<Style x:Key="BackendTitleStyle" TargetType="TextBlock">
+			<Setter Property="FontSize" Value="24" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+		</Style>
+
+		<Style x:Key="BackendDescriptionStyle" TargetType="TextBlock">
 			<Setter Property="TextWrapping" Value="Wrap" />
+			<Setter Property="Opacity" Value="0.8" />
+			<Setter Property="Margin" Value="0,4,12,0" />
+		</Style>
+
+		<Style x:Key="MetadataCaptionStyle" TargetType="TextBlock">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="Opacity" Value="0.8" />
+		</Style>
+
+		<Style x:Key="MetadataValueStyle" TargetType="TextBlock">
+			<Setter Property="FontSize" Value="18" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+		</Style>
+
+		<Style x:Key="BackendActionsStyle" TargetType="StackPanel">
+			<Setter Property="HorizontalAlignment" Value="Right" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="Spacing" Value="8" />
 		</Style>
 	</Page.Resources>
 
@@ -28,51 +54,131 @@
 			<TextBlock Style="{StaticResource styPageHeader}">UEVR Backends</TextBlock>
 		</StackPanel>
 
-		<TextBlock Grid.Row="1" Style="{StaticResource tbGridEntry}" Margin="0,8,0,28">
+		<TextBlock Grid.Row="1" Margin="0,8,0,28" TextWrapping="WrapWholeWords">
 			UEVR includes several backend engine variants, and some may deliver better performance or compatibility depending on the game.
 			You can update or change the backend here. Keep in mind that the newest version isn’t always the best for every game.
 			To choose the backend for a specific game, open the "Edit profile" page after selecting a game.
 		</TextBlock>
 
-		<Grid Grid.Row="2"
-			ColumnDefinitions="Auto, Auto, Auto, *, Auto" ColumnSpacing="18"
-			RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="20">
-			<TextBlock Grid.Column="0" Text="Backend" FontWeight="Bold" />
-			<TextBlock Grid.Column="1" Text="Installed version" FontWeight="Bold" />
-			<TextBlock Grid.Column="2" Text="Latest version" FontWeight="Bold" />
-			<TextBlock Grid.Column="3" Text="Description" FontWeight="Bold" />
+		<StackPanel Grid.Row="2" Spacing="12">
+			<Border Style="{StaticResource BackendCardStyle}">
+				<Grid ColumnDefinitions="*,200,200,180" ColumnSpacing="32">
+					<StackPanel Grid.Column="0">
+						<TextBlock Text="Praydog" Style="{StaticResource BackendTitleStyle}" />
+						<TextBlock Style="{StaticResource BackendDescriptionStyle}">
+							Original UEVR version. Most widely used, but may have issues with games using the latest UNREAL engine version.
+						</TextBlock>
+					</StackPanel>
 
-			<TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource tbGridEntry}" Text="Praydog" />
-			<TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PraydogInstalled, Mode=OneWay}" />
-			<TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PraydogLatest, Mode=OneWay}" />
-			<RichTextBlock Grid.Row="1" Grid.Column="3" Style="{StaticResource rtbGridEntry}">
-				<Paragraph>Original UEVR version. Most widely used, 
-					but may have issues with games using the latest UNREAL engine version.
-					<Hyperlink NavigateUri="https://www.patreon.com/praydog" ToolTipService.ToolTip="Donate on Patreon">Support Praydog</Hyperlink>
-				</Paragraph>
-			</RichTextBlock>
-			<ctl:IconButton Grid.Row="1" Grid.Column="4" Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRPraydog_Click" />
+					<StackPanel Grid.Column="1" VerticalAlignment="Center">
+						<TextBlock Text="Installed version" Style="{StaticResource MetadataCaptionStyle}" />
+						<TextBlock Text="{x:Bind VM.PraydogInstalled, Mode=OneWay}" Style="{StaticResource MetadataValueStyle}" />
+					</StackPanel>
 
-			<TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource tbGridEntry}" Text="JoeyHodge" />
-			<TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.JoeyHodgeInstalled, Mode=OneWay}" />
-			<TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.JoeyHodgeLatest, Mode=OneWay}" />
-			<RichTextBlock Grid.Row="2" Grid.Column="3" Style="{StaticResource rtbGridEntry}">
-				<Paragraph>Enhances compatibility with certain games using very new UNREAL engine versions.</Paragraph>
-			</RichTextBlock>
-			<ctl:IconButton Grid.Row="2" Grid.Column="4" Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRJoeyHodge_Click" />
+					<StackPanel Grid.Column="2" VerticalAlignment="Center">
+						<TextBlock Text="Latest version" Style="{StaticResource MetadataCaptionStyle}" />
+						<TextBlock Text="{x:Bind VM.PraydogLatest, Mode=OneWay}" Style="{StaticResource MetadataValueStyle}" />
+					</StackPanel>
 
-			<TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource tbGridEntry}" Text="AFW" />
-			<TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PureDarkInstalled, Mode=OneWay}" />
-			<TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource tbGridEntry}" Text="{x:Bind VM.PureDarkLatest, Mode=OneWay}" />
-			<RichTextBlock Grid.Row="3" Grid.Column="3" Style="{StaticResource rtbGridEntry}">
-				<Paragraph>Modified version of both Praydog and JoeyHodge backends to add alternative frame warping (AFW). 
-				Boost performance in games that support DirectX 12. 
-				Increases VRAM usage and may add some visual artifacts.
-					<Hyperlink NavigateUri="https://www.patreon.com/PureDark" ToolTipService.ToolTip="Donate on Patreon">Support PureDark</Hyperlink>
-				</Paragraph>
-			</RichTextBlock>
-			<ctl:IconButton Grid.Row="3" Grid.Column="4" Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRPureDark_Click" />
-		</Grid>
+					<StackPanel Grid.Column="3" Style="{StaticResource BackendActionsStyle}">
+						<ctl:IconButton Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRPraydog_Click" />
+						<HyperlinkButton NavigateUri="https://www.patreon.com/praydog" ToolTipService.ToolTip="Donate on Patreon" Padding="0">
+							<StackPanel Orientation="Horizontal" Spacing="6">
+								<TextBlock Text="Support Praydog" />
+								<FontIcon Glyph="&#xE8A7;" FontSize="12" VerticalAlignment="Center" />
+							</StackPanel>
+						</HyperlinkButton>
+					</StackPanel>
+				</Grid>
+			</Border>
+
+			<Border Style="{StaticResource BackendCardStyle}">
+				<Grid ColumnDefinitions="*,200,200,180" ColumnSpacing="32">
+					<StackPanel Grid.Column="0">
+						<TextBlock Text="JoeyHodge" Style="{StaticResource BackendTitleStyle}" />
+						<TextBlock Style="{StaticResource BackendDescriptionStyle}">
+							Enhances compatibility with certain games using very new UNREAL engine versions.
+						</TextBlock>
+					</StackPanel>
+
+					<StackPanel Grid.Column="1" VerticalAlignment="Center">
+						<TextBlock Text="Installed version" Style="{StaticResource MetadataCaptionStyle}" />
+						<TextBlock Text="{x:Bind VM.JoeyHodgeInstalled, Mode=OneWay}" Style="{StaticResource MetadataValueStyle}" />
+					</StackPanel>
+
+					<StackPanel Grid.Column="2" VerticalAlignment="Center">
+						<TextBlock Text="Latest version" Style="{StaticResource MetadataCaptionStyle}" />
+						<TextBlock Text="{x:Bind VM.JoeyHodgeLatest, Mode=OneWay}" Style="{StaticResource MetadataValueStyle}" />
+					</StackPanel>
+
+					<StackPanel Grid.Column="3" Style="{StaticResource BackendActionsStyle}">
+						<ctl:IconButton Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRJoeyHodge_Click" />
+					</StackPanel>
+				</Grid>
+			</Border>
+
+			<Border Style="{StaticResource BackendCardStyle}">
+				<Grid ColumnDefinitions="*,200,200,180" ColumnSpacing="32">
+					<StackPanel Grid.Column="0">
+						<TextBlock Text="AFW" Style="{StaticResource BackendTitleStyle}" />
+						<TextBlock Style="{StaticResource BackendDescriptionStyle}">
+							Modified version of both Praydog and JoeyHodge backends to add alternative frame warping (AFW). Boost performance in games that support DirectX 12. Increases VRAM usage and may add some visual artifacts.
+						</TextBlock>
+					</StackPanel>
+
+					<StackPanel Grid.Column="1" VerticalAlignment="Center">
+						<TextBlock Text="Installed version" Style="{StaticResource MetadataCaptionStyle}" />
+						<TextBlock Text="{x:Bind VM.PureDarkInstalled, Mode=OneWay}" Style="{StaticResource MetadataValueStyle}" />
+					</StackPanel>
+
+					<StackPanel Grid.Column="2" VerticalAlignment="Center">
+						<TextBlock Text="Latest version" Style="{StaticResource MetadataCaptionStyle}" />
+						<TextBlock Text="{x:Bind VM.PureDarkLatest, Mode=OneWay}" Style="{StaticResource MetadataValueStyle}" />
+					</StackPanel>
+
+					<StackPanel Grid.Column="3" Style="{StaticResource BackendActionsStyle}">
+						<ctl:IconButton Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRPureDark_Click" />
+						<HyperlinkButton NavigateUri="https://www.patreon.com/PureDark" ToolTipService.ToolTip="Donate on Patreon" Padding="0">
+							<StackPanel Orientation="Horizontal" Spacing="6">
+								<TextBlock Text="Support PureDark" />
+								<FontIcon Glyph="&#xE8A7;" FontSize="12" VerticalAlignment="Center" />
+							</StackPanel>
+						</HyperlinkButton>
+					</StackPanel>
+				</Grid>
+			</Border>
+
+			<Border Style="{StaticResource BackendCardStyle}">
+				<Grid ColumnDefinitions="*,200,200,180" ColumnSpacing="32">
+					<StackPanel Grid.Column="0">
+						<TextBlock Text="Dortamur" Style="{StaticResource BackendTitleStyle}" />
+						<TextBlock Style="{StaticResource BackendDescriptionStyle}">
+							Backend to fix the game "Satisfactory" (and possibly others).
+						</TextBlock>
+					</StackPanel>
+
+					<StackPanel Grid.Column="1" VerticalAlignment="Center">
+						<TextBlock Text="Installed version" Style="{StaticResource MetadataCaptionStyle}" />
+						<TextBlock Text="{x:Bind VM.DortamurInstalled, Mode=OneWay}" Style="{StaticResource MetadataValueStyle}" />
+					</StackPanel>
+
+					<StackPanel Grid.Column="2" VerticalAlignment="Center">
+						<TextBlock Text="Latest version" Style="{StaticResource MetadataCaptionStyle}" />
+						<TextBlock Text="{x:Bind VM.DortamurLatest, Mode=OneWay}" Style="{StaticResource MetadataValueStyle}" />
+					</StackPanel>
+
+					<StackPanel Grid.Column="3" Style="{StaticResource BackendActionsStyle}">
+						<ctl:IconButton Glyph="&#xE896;" Label="Update/Change" Click="UpdateUEVRDortamur_Click" />
+						<HyperlinkButton NavigateUri="https://ko-fi.com/dortamur" ToolTipService.ToolTip="Donate on Ko-fi" Padding="0">
+							<StackPanel Orientation="Horizontal" Spacing="6">
+								<TextBlock Text="Support Dortamur" />
+								<FontIcon Glyph="&#xE8A7;" FontSize="12" VerticalAlignment="Center" />
+							</StackPanel>
+						</HyperlinkButton>
+					</StackPanel>
+				</Grid>
+			</Border>
+		</StackPanel>
 
 		<ctl:IconButton Grid.Row="3" Glyph="&#xE896;" Label="Update all to latest version" Click="UpdateAll_Click" />
 
