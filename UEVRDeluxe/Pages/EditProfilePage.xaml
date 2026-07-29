@@ -134,7 +134,7 @@
 							<TextBlock Style="{StaticResource stySubHeader}">Resolution Scale</TextBlock>
 
 							<StackPanel Orientation="Horizontal">
-								<Slider x:Name="slResolutionScale" Minimum="70" Maximum="130" TickFrequency="5" 
+								<Slider x:Name="slResolutionScale" Minimum="70" Maximum="200" TickFrequency="5" 
 								TickPlacement="Outside" SnapsTo="Ticks" Width="680" Margin="0,0,16,0" />
 
 								<TextBlock Text="{x:Bind slResolutionScale.Value, Mode=OneWay}" FontSize="18" VerticalAlignment="Center" />
