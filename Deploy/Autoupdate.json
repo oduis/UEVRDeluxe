@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "3.3.0.0",
-	"releaseNotes": "Dortamur UEVR Backend added, JoeyHodge corrected",
+	"version": "3.3.2.0",
+	"releaseNotes": "Resolution scale up to 200%",
 	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/"
 }
