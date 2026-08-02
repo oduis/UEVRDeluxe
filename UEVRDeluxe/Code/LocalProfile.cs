@@ -168,7 +168,6 @@ public class LocalProfile {
 	}
 
 	public void Load() {
-
 		var parser = CreateFileIniDataParserAllowDuplicates();
 
 		if (File.Exists(ConfigFilePath)) {
@@ -213,8 +212,11 @@ public class LocalProfile {
 					AssigmentSpacer = string.Empty,
 				};
 				var innerParser = new IniParser.Parser.IniDataParser(cfg);
-				var userParser = new FileIniDataParser(innerParser);
-				UserScript = userParser.ReadFile(UserScriptFilePath, Encoding.UTF8);
+				var userParser = new StreamIniDataParser(innerParser);
+				// Some dirty scripts have a mix of = and spaces
+				using var userScriptStream = new MemoryStream(Encoding.UTF8.GetBytes(File.ReadAllText(UserScriptFilePath).Replace("=", " ")));
+				using var userScriptReader = new StreamReader(userScriptStream, Encoding.UTF8);
+				UserScript = userParser.ReadData(userScriptReader);
 			} catch (Exception ex) {
 				throw new Exception($"Incorrect UserScript {UserScriptFilePath}: {ex.Message}");
 			}
