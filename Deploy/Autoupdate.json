@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "3.3.2.0",
-	"releaseNotes": "Resolution scale up to 200%",
+	"version": "3.4.0.0",
+	"releaseNotes": "Option to fix rendering options for each launch",
 	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/"
 }

@@ -84,6 +84,10 @@
 									<TextBlock Style="{StaticResource styHelpText}">Only use with PureDarks UEVR Backends and if the game supports DirectX 12. Can boost performance, while increasing VRAM usage and potentially causing visual glitches.</TextBlock>
 								</StackPanel>
 							</RadioButton>
+
+							<CheckBox x:Name="cbFixRenderingOptions" Margin="0,16,0,0">
+								<TextBlock Text="Revert to these rendering options on every launch, even if you change them in game (for AFW games that show a black screen or crash if not initially injected using a safe method)" TextWrapping="WrapWholeWords" />
+							</CheckBox>
 						</StackPanel>
 
 						<Grid>

@@ -171,6 +171,8 @@ public sealed partial class GamePage : Page {
 			VM.IsRunning = true; hotKeyCheckTimer?.Stop();
 			await Task.Delay(60);  // Allow UI to update
 
+			await VM.LocalProfile.ResetConfigAsync();
+
 			#region Setup voice recognition
 			if (VM.EnableVoiceCommands) {
 				// might already be started by the first launch on late injection

@@ -13,7 +13,6 @@ using UEVRDeluxe.Code;
 using UEVRDeluxe.Common;
 using UEVRDeluxe.ViewModels;
 using Windows.Storage.Pickers;
-using Windows.Storage.Streams;
 #endregion
 
 namespace UEVRDeluxe.Pages;
@@ -37,6 +36,7 @@ public sealed partial class EditProfilePage : Page {
 			Logger.Log.LogTrace($"Opening profile page {VM.GameInstallation?.Name}");
 
 			var localProfile = LocalProfile.FromUnrealVRProfile(VM.GameInstallation.EXEName, true);
+			await localProfile.ResetConfigAsync();
 
 			// If we just created a new local profile, prepopulate the metadata from the detected game
 			if (localProfile?.Meta != null && string.IsNullOrWhiteSpace(localProfile.Meta.EXEName)) {
@@ -50,6 +50,9 @@ public sealed partial class EditProfilePage : Page {
 
 			SetRadioButtonValue(spRenderingMethod, localProfile.Config.Global["VR_RenderingMethod"]);
 			SetRadioButtonValue(spSyncedSequentialMethod, localProfile.Config.Global["VR_SyncedSequentialMethod"]);
+
+			// There might be more Configs fixed than the one we use in the GUI
+			cbFixRenderingOptions.IsChecked = localProfile.ConfigFixed?.Global?.Count > 0;
 
 			switch (localProfile.Meta?.UEVRBackendName) {
 				case UEVRBackendConstants.BACKEND_NAME_JOEYHODGE: SetRadioButtonValue(spUEVRBackend, "1"); break;
@@ -118,6 +121,17 @@ public sealed partial class EditProfilePage : Page {
 	}
 
 	async Task SaveAsync() {
+		if (cbFixRenderingOptions.IsChecked == true) {
+			VM.LocalProfile.ConfigFixed.Global["VR_RenderingMethod"] = GetRadioButtonValue(spRenderingMethod);
+			VM.LocalProfile.ConfigFixed.Global["VR_SyncedSequentialMethod"] = GetRadioButtonValue(spSyncedSequentialMethod);
+			VM.LocalProfile.ConfigFixed.Global["VR_NativeStereoFix"] = cbNativeStereoFix.IsChecked.ToString().ToLower();
+			VM.LocalProfile.ConfigFixed.Global["VR_NativeStereoFixSamePass"] = cbNativeStereoFixSamePass.IsChecked.ToString().ToLower();
+		} else if (VM.LocalProfile.ConfigFixed != null) {
+			foreach (var key in VM.LocalProfile.ConfigFixed.Global.ToList()) {
+				VM.LocalProfile.ConfigFixed.Global.RemoveKey(key.KeyName);
+			}
+		}
+
 		VM.LocalProfile.Config.Global["VR_RenderingMethod"] = GetRadioButtonValue(spRenderingMethod);
 		VM.LocalProfile.Config.Global["VR_SyncedSequentialMethod"] = GetRadioButtonValue(spSyncedSequentialMethod);
 		VM.LocalProfile.Config.Global["VR_NativeStereoFix"] = cbNativeStereoFix.IsChecked.ToString().ToLower();

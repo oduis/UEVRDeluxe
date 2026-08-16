@@ -18,6 +18,9 @@ public class LocalProfile {
 
 	const string CONFIG_FILENAME = "config.txt";
 
+	/// <summary>A fixed snapshot of the current config that is merged with the config.txt on every launch. Can contain just a subset of values.</summary>
+	const string CONFIG_FIXED_FILENAME = "config_fixed.txt";
+
 	// They both contain different ini settings. Check UEVR\src\mods\vr\CVarManager.hpp for details
 	const string CVARS_STANDARD_FILENAME = "cvars_standard.txt";
 	const string CVARS_DATA_FILENAME = "cvars_data.txt";
@@ -72,6 +75,9 @@ public class LocalProfile {
 
 	/// <summary>Content of the Config.txt</summary>
 	public IniData Config { get; private set; }
+
+	/// <summary>Optional override values that should be applied to Config.txt when resetting the profile.</summary>
+	public IniData ConfigFixed { get; private set; }
 
 	/// <summary>Content of the cvars_standard.txt</summary>
 	public IniData CVarsStandard { get; private set; }
@@ -134,6 +140,7 @@ public class LocalProfile {
 	public bool GetExists() => Directory.Exists(FolderPath);
 
 	string ConfigFilePath => Path.Combine(FolderPath, CONFIG_FILENAME);
+	string ConfigFixedFilePath => Path.Combine(FolderPath, CONFIG_FIXED_FILENAME);
 	string CVarStandardFilePath => Path.Combine(FolderPath, CVARS_STANDARD_FILENAME);
 	string CVarDataFilePath => Path.Combine(FolderPath, CVARS_DATA_FILENAME);
 	string UserScriptFilePath => Path.Combine(FolderPath, USER_SCRIPT_FILENAME);
@@ -179,6 +186,16 @@ public class LocalProfile {
 		} else {
 			using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(CONFIG_DEFAULT)))
 			using (var rdr = new StreamReader(memoryStream)) this.Config = parser.ReadData(rdr);
+		}
+
+		if (File.Exists(ConfigFixedFilePath)) {
+			try {
+				ConfigFixed = parser.ReadFile(ConfigFixedFilePath, Encoding.UTF8);
+			} catch (Exception ex) {
+				throw new Exception($"Incorrect fixed config {ConfigFixedFilePath}: {ex.Message}");
+			}
+		} else {
+			ConfigFixed = new IniData();
 		}
 
 		if (File.Exists(CVarStandardFilePath)) {
@@ -241,8 +258,24 @@ public class LocalProfile {
 		}
 	}
 
+	/// <summary>Applies every key from config_fixed.txt over the active config and saves the result.</summary>
+	public async Task ResetConfigAsync() {
+		if (ConfigFixed is null || ConfigFixed.Global.Count == 0) return;
+
+		foreach (var key in ConfigFixed.Global) {
+			Config.Global[key.KeyName] = key.Value;
+		}
+
+		await SaveAsync();
+	}
+
 	public async Task SaveAsync() {
 		if (!Directory.Exists(FolderPath)) Directory.CreateDirectory(FolderPath);
+
+		if (ConfigFixed is null || ConfigFixed.Global.Count == 0)
+			await WriteTextFileIfChangedAsync(ConfigFixedFilePath, null);
+		else
+			await WriteTextFileIfChangedAsync(ConfigFixedFilePath, CleanedIni(ConfigFixed));
 
 		await WriteTextFileIfChangedAsync(ConfigFilePath, CleanedIni(Config));
 		await WriteTextFileIfChangedAsync(CVarStandardFilePath, CleanedIni(CVarsStandard));
@@ -260,12 +293,14 @@ public class LocalProfile {
 		if (oldExists) oldContent = await File.ReadAllTextAsync(path);
 
 		if (oldContent != content) {
+			bool modified = true;
 			if (!string.IsNullOrWhiteSpace(content))
 				await File.WriteAllTextAsync(path, content);
 			else if (oldExists)
 				File.Delete(path);  // e.g. CVars are better not available than empty
+			else modified = false;
 
-			Logger.Log.LogTrace($"{path} changed");
+			if (modified) Logger.Log.LogTrace($"{path} changed");
 		}
 	}
 
