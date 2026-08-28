@@ -21,17 +21,17 @@ static class CmdManager {
 	/// <summary>Wrapper to update the backend for Joey Hodge using the elevated helper command.</summary>
 	/// <param name="name">Tag name.</param>
 	public static async Task UpdateJoeyHodgeBackendAsync(string name)
-		=> await RunAsync($"{UEVRCmdArgs.UPDATE_JOEYHODGE_BACKEND} {name}");
+		=> await RunAsync($"{UEVRCmdArgs.UPDATE_JOEYHODGE_BACKEND} \"{name}\"");
 
 	/// <summary>Wrapper to update the backend for PureDark using the elevated helper command.</summary>
 	/// <param name="name">Tag name.</param>
 	public static async Task UpdatePureDarkBackendAsync(string name)
-		=> await RunAsync($"{UEVRCmdArgs.UPDATE_PUREDARK_BACKENDS} {name}");
+		=> await RunAsync($"{UEVRCmdArgs.UPDATE_PUREDARK_BACKENDS} \"{name}\"");
 
 	/// <summary>Wrapper to update the backend for Dortamur using the elevated helper command.</summary>
 	/// <param name="name">Tag name.</param>
 	public static async Task UpdateDortamurBackendAsync(string name)
-		=> await RunAsync($"{UEVRCmdArgs.UPDATE_DORTAMUR_BACKEND} {name}");
+		=> await RunAsync($"{UEVRCmdArgs.UPDATE_DORTAMUR_BACKEND} \"{name}\"");
 
 	/// <summary>Install a profile by calling the elevated helper command.</summary>
 	public static Task InstallAsync(string profileRootFolder, string gameExeFolder) {

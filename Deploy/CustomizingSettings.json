@@ -29,6 +29,7 @@
 		"UninstallHelper",
 		"-crash-helper",
 		"d3dconfig",
-		"Vampyr-Win64-Shipping"
+		"Vampyr-Win64-Shipping",
+		"HCEDigitalExtrasApp-Win64-Shipping"
 	]
 }
