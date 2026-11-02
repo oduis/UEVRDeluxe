@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "UEVRDeluxeCmd": {
+      "commandName": "Project",
+      "commandLineArgs": "UPDATEJOEYHODGEBACKEND \"081826AVX+RegressionFixes\""
+    }
+  }
+}
