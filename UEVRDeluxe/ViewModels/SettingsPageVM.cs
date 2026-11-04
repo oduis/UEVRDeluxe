@@ -113,20 +113,7 @@ public class SettingsPageVM : VMBase {
 		new() { Name = "PICO 4 Ultra", PanelResolution = new(2160, 2160) },
 		new() { Name = "PICO Neo 3 Link", PanelResolution = new(1832, 1920) },
 
-		new() { Name = "HTC Vive Focus 3", PanelResolution = new(2448, 2448) },
 		new() { Name = "HTC Vive XR Elite", PanelResolution = new(1920, 1920) },
-
-		new() { Name = "Valve Index", PanelResolution = new(1440, 1600) },
-		new() { Name = "HTC Vive", PanelResolution = new(1080, 1200) },
-		new() { Name = "HTC Vive Pro", PanelResolution = new(1440, 1600) },
-		new() { Name = "HTC Vive Pro 2", PanelResolution = new(2448, 2448) },
-
-		new() { Name = "HP Reverb G2", PanelResolution = new(2160, 2160) },
-		new() { Name = "Pimax Crystal Light", PanelResolution = new(2880, 2880) },
-		new() { Name = "Pimax Crystal Super", PanelResolution = new(3840, 3840) },
-		new() { Name = "Pimax 8K X/Plus", PanelResolution = new(3840, 2160) },
-		new() { Name = "Bigscreen Beyond", PanelResolution = new(2560, 2560) },
-		new() { Name = "Varjo Aero", PanelResolution = new(2880, 2720) },
 	];
 
 
@@ -189,9 +176,9 @@ public class SettingsPageVM : VMBase {
 			["Meta Quest 3"] = new(2496, 2688),
 			["Galaxy XR"] = new(2496, 2688),
 			// Vive XR Elite/Pico 4 / Pico 4 Ultra
-			["HTC Vive XR Elite"] = new(2592, 2592),
-			["PICO 4"] = new(2592, 2592),
-			["PICO 4 Ultra"] = new(2592, 2592),
+			["HTC Vive XR Elite"] = new(2688, 2688),
+			["PICO 4"] = new(2688, 2688),
+			["PICO 4 Ultra"] = new(2688, 2688),
 			// Play For Dream
 			["Play For Dream"] = new(2688, 2496),
 		}),
@@ -204,9 +191,9 @@ public class SettingsPageVM : VMBase {
 			["Meta Quest 3"] = new(2688, 2880),
 			["Galaxy XR"] = new(2688, 2880),
 			// Vive XR Elite/Pico 4 / Pico 4 Ultra
-			["HTC Vive XR Elite"] = new(2784, 2784),
-			["PICO 4"] = new(2784, 2784),
-			["PICO 4 Ultra"] = new(2784, 2784),
+			["HTC Vive XR Elite"] = new(2880, 2880),
+			["PICO 4"] = new(2880, 2880),
+			["PICO 4 Ultra"] = new(2880, 2880),
 			// Play For Dream
 			["Play For Dream"] = new(2880, 2688),
 		}),
@@ -217,19 +204,25 @@ public class SettingsPageVM : VMBase {
 			["Meta Quest 3"] = new(3072, 3264),
 			["Galaxy XR"] = new(3072, 3264),
 			// Vive XR Elite/Pico 4 / Pico 4 Ultra
-			["HTC Vive XR Elite"] = new(3168, 3168),
-			["PICO 4"] = new(3168, 3168),
-			["PICO 4 Ultra"] = new(3168, 3168),
+			["HTC Vive XR Elite"] = new(3264, 3264),
+			["PICO 4"] = new(3264, 3264),
+			["PICO 4 Ultra"] = new(3264, 3264),
 			// Play For Dream
 			["Play For Dream"] = new(3264, 3072),
 		}),
 		new("Monster", new Dictionary<string, Resolution> {
 			// Galaxy XR
 			["Galaxy XR"] = new(3648, 3936),
-			// Vive XR Elite/Pico 4 / Pico 4 Ultra
-			["PICO 4 Ultra"] = new(3648, 3648),
+			// Pico 4 Ultra
+			["PICO 4 Ultra"] = new(3840, 3840),
 			// Play For Dream
-			["Play For Dream"] = new(3936, 3648),
+			["Play For Dream"] = new(4032, 3648),
+		}),
+		new("Rampage", new Dictionary<string, Resolution> {
+			// Galaxy XR
+			["Galaxy XR"] = new(4224, 4608),
+			// Play For Dream
+			["Play For Dream"] = new(4608, 4224),
 		}),
 	];
 
