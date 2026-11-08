@@ -134,9 +134,9 @@ class Program {
 	/// <summary>Update UEVR backend from GitHub</summary>
 	public static async Task UpdatePureDarkBackendsAsync(string name) {
 		string nightlyFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_PUREDARK_NIGHTLY);
-		string joeyHodgeFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_PUREDARK_JOEYHODGE);
+		string targetFolder = Path.Combine(UEVRBaseDir, UEVRBackendConstants.BACKEND_FOLDER_PUREDARK_JOEYHODGE);
 		string nightlyVersionFilePath = Path.Combine(nightlyFolder, UEVRBackendConstants.VERSION_FILENAME);
-		string joeyHodgeVersionFilePath = Path.Combine(joeyHodgeFolder, UEVRBackendConstants.VERSION_FILENAME);
+		string targetVersionFilePath = Path.Combine(targetFolder, UEVRBackendConstants.VERSION_FILENAME);
 
 		using var client = new HttpClient();
 		// Puredark has two files, one based on praydog, one on joeyhodge.
@@ -148,7 +148,7 @@ class Program {
 		if (matches.Count != 2) throw new Exception($"Could not find any PureDark UEVR backend assets for {name}");
 
 		string nightlyDownloadUrl = null;
-		string joeyHodgeDownloadUrl = null;
+		string standardDownloadUrl = null;
 
 		foreach (Match match in matches) {
 			string zipUrl = "https://github.com" + match.Groups["URL"].Value;
@@ -158,7 +158,7 @@ class Program {
 			if (isNightly) {
 				nightlyDownloadUrl = zipUrl; backendFolder = nightlyFolder;
 			} else {
-				joeyHodgeDownloadUrl = zipUrl; backendFolder = joeyHodgeFolder;
+				standardDownloadUrl = zipUrl; backendFolder = targetFolder;
 			}
 
 			await DownloadUpackZipDllsAsync(client, zipUrl, backendFolder);
@@ -166,7 +166,7 @@ class Program {
 
 		// Transactional at the end.
 		if (nightlyDownloadUrl != null) File.WriteAllText(nightlyVersionFilePath, nightlyDownloadUrl);
-		if (joeyHodgeDownloadUrl != null) File.WriteAllText(joeyHodgeVersionFilePath, joeyHodgeDownloadUrl);
+		if (standardDownloadUrl != null) File.WriteAllText(targetVersionFilePath, standardDownloadUrl);
 	}
 	#endregion
 

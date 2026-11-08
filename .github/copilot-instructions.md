@@ -15,5 +15,4 @@ Be brief.
 - Logging: Use the provided ILogger for logging in backend code.
 - Comments: Do not remove existing comments. Add comments only where necessary for clarity.
 - Consistency: Follow the existing code style and structure, including region usage and file organization.
-- Tools: Prefer Copilot tools like "file_search", "write_file", "find_symbol", "code_search", "run_build" and others instead of Powershell or terminal
-
+- Do not generate small functions that are just used once, but inline instead.
