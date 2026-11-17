@@ -1,0 +1,141 @@
+name: v3.5.0.2 Backend Helper Hotfix
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/backend-helper-hotfix-3.5.0.2.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-2022
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download previous application release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Force 'stage/input','stage/app','stage/helper','stage/dist' | Out-Null
+          gh release download v3.5.0.1 --repo '${{ github.repository }}' --pattern 'UEVRDeluxe-Windows-x64-Release.zip' --dir 'stage/input'
+          if ($LASTEXITCODE -ne 0) { throw 'Release v3.5.0.1 ZIP download failed' }
+          Expand-Archive -Path 'stage/input/UEVRDeluxe-Windows-x64-Release.zip' -DestinationPath 'stage/app'
+          if (!(Test-Path 'stage/app/UEVRDeluxe.exe')) { throw 'Application missing from ZIP' }
+
+      - name: Publish self-contained helper, including .NET 10 runtime
+        shell: pwsh
+        run: |
+          dotnet publish 'UEVRDeluxeCmd/UEVRDeluxeCmd.csproj' -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:PublishTrimmed=false -p:PublishReadyToRun=false -o 'stage/helper'
+          if ($LASTEXITCODE -ne 0) { throw 'Self-contained helper build failed' }
+          foreach ($name in @('UEVRDeluxeCmd.exe','UEVRDeluxeCmd.dll','UEVRDeluxeCmd.deps.json','UEVRDeluxeCmd.runtimeconfig.json','hostfxr.dll','hostpolicy.dll','coreclr.dll','System.Private.CoreLib.dll')) {
+            if (!(Test-Path (Join-Path 'stage/helper' $name))) { throw "Self-contained runtime file missing: $name" }
+          }
+          Copy-Item -Path 'stage/helper/*' -Destination 'stage/app/Cmd' -Recurse -Force
+
+      - name: Smoke test packaged backend helper with no actual updates
+        shell: pwsh
+        run: |
+          $helper = (Resolve-Path 'stage/app/Cmd/UEVRDeluxeCmd.exe').Path
+          $result = Join-Path $env:RUNNER_TEMP 'uevr-helper-hotfix-test.txt'
+          $stdout = Join-Path $env:RUNNER_TEMP 'uevr-helper-hotfix-stdout.txt'
+          $stderr = Join-Path $env:RUNNER_TEMP 'uevr-helper-hotfix-stderr.txt'
+          $p = Start-Process -FilePath $helper -ArgumentList @($result,'TEST') -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+          if ($p.ExitCode -ne 255) { Get-Content $stderr; throw "Helper exit code: $($p.ExitCode), expected 255" }
+          if (!(Test-Path $result)) { throw 'Helper did not write the expected diagnostic file' }
+          if ((Get-Content -Raw $result) -notmatch 'Unknown command: TEST') { throw 'Helper command smoke test failed' }
+
+      - name: Repack Windows Release ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive -Path 'stage/app/*' -DestinationPath 'stage/dist/UEVRDeluxe-Windows-x64-Release-v3.5.0.2.zip' -CompressionLevel Optimal
+          if (!(Test-Path 'stage/dist/UEVRDeluxe-Windows-x64-Release-v3.5.0.2.zip')) { throw 'ZIP missing' }
+
+      - name: Install Inno Setup 6
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress --limit-output
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup install failed' }
+
+      - name: Compile updated Inno Setup installer
+        shell: pwsh
+        run: |
+          $iss = Get-Content -Raw 'installer/UEVRDeluxe.iss'
+          if (!$iss.Contains('#define AppVersion "3.5.0.1"')) { throw 'Unexpected Inno Setup version' }
+          $iss = $iss.Replace('#define AppVersion "3.5.0.1"', '#define AppVersion "3.5.0.2"').Replace('OutputBaseFilename=UEVRDeluxe-Setup-v3.5.0.1-x64','OutputBaseFilename=UEVRDeluxe-Setup-v3.5.0.2-x64')
+          Set-Content -Path 'installer/UEVRDeluxe-3.5.0.2-ci.iss' -Value $iss -Encoding utf8
+          $pf86 = [Environment]::GetFolderPath('ProgramFilesX86')
+          $iscc = Join-Path $pf86 'Inno Setup 6\ISCC.exe'
+          if (!(Test-Path $iscc)) { $iscc = Join-Path $pf86 'Inno Setup 7\ISCC.exe' }
+          if (!(Test-Path $iscc)) { throw 'Inno Setup compiler not installed' }
+          $appFolder = (Resolve-Path 'stage/app').Path
+          $distFolder = (Resolve-Path 'stage/dist').Path
+          & $iscc "/DReleaseFilesDirectory=$appFolder" "/O$distFolder" 'installer/UEVRDeluxe-3.5.0.2-ci.iss'
+          if ($LASTEXITCODE -ne 0) { throw 'Setup.exe compilation failed' }
+          if (!(Test-Path 'stage/dist/UEVRDeluxe-Setup-v3.5.0.2-x64.exe')) { throw 'Setup.exe missing' }
+
+      - name: Test installed helper after silent installation
+        shell: pwsh
+        run: |
+          $setup = (Resolve-Path 'stage/dist/UEVRDeluxe-Setup-v3.5.0.2-x64.exe').Path
+          $target = Join-Path (Resolve-Path 'stage').Path 'installed'
+          $install = Start-Process -FilePath $setup -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=$target" -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Installer returned $($install.ExitCode)" }
+          foreach ($file in @('UEVRDeluxe.exe','Cmd/UEVRDeluxeCmd.dll','Cmd/hostfxr.dll','Cmd/hostpolicy.dll','Cmd/coreclr.dll')) {
+            if (!(Test-Path (Join-Path $target $file))) { throw "Installed file missing: $file" }
+          }
+          $result = Join-Path $env:RUNNER_TEMP 'uevr-installed-helper-test.txt'
+          $exe = Join-Path $target 'Cmd/UEVRDeluxeCmd.exe'
+          $p = Start-Process -FilePath $exe -ArgumentList @($result,'TEST') -NoNewWindow -Wait -PassThru
+          if ($p.ExitCode -ne 255 -or !(Test-Path $result)) { throw "Installed helper failed: $($p.ExitCode)" }
+          if ((Get-Content -Raw $result) -notmatch 'Unknown command: TEST') { throw 'Incorrect helper diagnostic' }
+
+      - name: Write checksums and hotfix notes
+        shell: pwsh
+        run: |
+          $names = @('UEVRDeluxe-Setup-v3.5.0.2-x64.exe','UEVRDeluxe-Windows-x64-Release-v3.5.0.2.zip')
+          $checksums = foreach ($name in $names) {
+            $hash = (Get-FileHash -Algorithm SHA256 (Join-Path 'stage/dist' $name)).Hash.ToLowerInvariant()
+            "$hash *$name"
+          }
+          Set-Content -Path 'stage/dist/SHA256SUMS.txt' -Value $checksums -Encoding ascii
+          @'
+          # UEVR Easy Injector v3.5.0.2 - Windows x64
+
+          Backend updater runtime hotfix.
+
+          - Fixed the command helper failing to start because .NET 10 runtime was not found.
+          - The backend helper is now self-contained, including its own .NET 10 runtime.
+          - Same application build and Custom Games functionality as v3.5.0.1; only the backend helper packaging and installer version changed.
+          - Install using the new Setup.exe (recommended), or extract the portable ZIP.
+          - CI verified the helper starts and responds correctly after installation. Actual UEVR backend downloads still require an on-device Windows test.
+
+          Existing user custom game registrations are stored in AppData and are not part of the application install folder.
+
+          Unofficial fork of Oliver Duis's UEVRDeluxe, with Praydog's UEVR engine.
+          '@ | Set-Content -Path 'stage/release-notes.md' -Encoding utf8
+
+      - name: Publish ordinary (not prerelease) v3.5.0.2
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v3.5.0.2 'stage/dist/UEVRDeluxe-Setup-v3.5.0.2-x64.exe' 'stage/dist/UEVRDeluxe-Windows-x64-Release-v3.5.0.2.zip' 'stage/dist/SHA256SUMS.txt' --repo '${{ github.repository }}' --target '${{ github.sha }}' --title 'UEVR Easy Injector v3.5.0.2 - Backend Runtime Fix (Windows x64)' --notes-file 'stage/release-notes.md' --latest
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub Release publication failed' }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: UEVRDeluxe-v3.5.0.2-hotfix
+          path: stage/dist/*
+          if-no-files-found: warn
+          retention-days: 30
