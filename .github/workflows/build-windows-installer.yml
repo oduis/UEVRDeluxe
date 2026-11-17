@@ -1,0 +1,94 @@
+name: Build Windows Setup.exe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - installer/**
+      - .github/workflows/build-windows-installer.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: installer-v3.5.0.1
+  cancel-in-progress: false
+
+jobs:
+  installer:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - name: Checkout installer files
+        uses: actions/checkout@v4
+
+      - name: Download the existing Release ZIP
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Force -Path 'build/input','build/app','build/installer' | Out-Null
+          gh release download v3.5.0.1 --repo '${{ github.repository }}' --pattern 'UEVRDeluxe-Windows-x64-Release.zip' --dir 'build/input' --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Could not download Windows Release ZIP' }
+          Expand-Archive -LiteralPath 'build/input/UEVRDeluxe-Windows-x64-Release.zip' -DestinationPath 'build/app' -Force
+          foreach ($file in @('UEVRDeluxe.exe','UEVRDeluxe.dll','Cmd/UEVRDeluxeCmd.exe','Cmd/UEVRDeluxeCmd.dll','Cmd/UEVRDeluxeCmd.deps.json','Cmd/UEVRDeluxeCmd.runtimeconfig.json')) {
+            if (-not (Test-Path -LiteralPath (Join-Path 'build/app' $file))) { throw "Release ZIP is incomplete: $file" }
+          }
+
+      - name: Install Inno Setup 6
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress --limit-output
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup install failed' }
+
+      - name: Build Inno Setup installer
+        shell: pwsh
+        run: |
+          $pf86 = [Environment]::GetFolderPath('ProgramFilesX86')
+          $possible = @(
+            (Join-Path $pf86 'Inno Setup 6\ISCC.exe'),
+            (Join-Path $pf86 'Inno Setup 7\ISCC.exe')
+          )
+          $compiler = $possible | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+          if (-not $compiler) {
+            $command = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+            if ($command) { $compiler = $command.Source }
+          }
+          if (-not $compiler) { throw 'Cannot find Inno Setup command-line compiler ISCC.exe' }
+          $sourceDir = (Resolve-Path 'build/app').Path
+          $outDir = (Resolve-Path 'build/installer').Path
+          & $compiler "/DReleaseFilesDirectory=$sourceDir" "/O$outDir" 'installer/UEVRDeluxe.iss'
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup compile failed: $LASTEXITCODE" }
+          $setup = Join-Path $outDir 'UEVRDeluxe-Setup-v3.5.0.1-x64.exe'
+          if (-not (Test-Path -LiteralPath $setup)) { throw 'Setup.exe not created' }
+          if ((Get-Item -LiteralPath $setup).Length -lt 25000000) { throw 'Setup.exe is unexpectedly small' }
+          $hash = (Get-FileHash -LiteralPath $setup -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -LiteralPath (Join-Path $outDir 'UEVRDeluxe-Setup-v3.5.0.1-x64.exe.sha256') -Value "$hash *UEVRDeluxe-Setup-v3.5.0.1-x64.exe" -Encoding ascii
+
+      - name: Verify silent installation and helper files
+        shell: pwsh
+        run: |
+          $setup = (Resolve-Path 'build/installer/UEVRDeluxe-Setup-v3.5.0.1-x64.exe').Path
+          $target = Join-Path (Resolve-Path 'build').Path 'test-installed'
+          $run = Start-Process -FilePath $setup -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=$target" -Wait -PassThru
+          if ($run.ExitCode -ne 0) { throw "Installer failed during test installation: $($run.ExitCode)" }
+          foreach ($file in @('UEVRDeluxe.exe','Cmd/UEVRDeluxeCmd.exe','Cmd/UEVRDeluxeCmd.dll','Cmd/UEVRDeluxeCmd.runtimeconfig.json')) {
+            if (-not (Test-Path -LiteralPath (Join-Path $target $file))) { throw "Installed file missing: $file" }
+          }
+
+      - name: Attach installer to existing v3.5.0.1 release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload v3.5.0.1 'build/installer/UEVRDeluxe-Setup-v3.5.0.1-x64.exe' 'build/installer/UEVRDeluxe-Setup-v3.5.0.1-x64.exe.sha256' --repo '${{ github.repository }}' --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Could not attach Setup.exe to GitHub Release' }
+
+      - name: Backup downloadable installer as Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UEVRDeluxe-Setup-v3.5.0.1-x64
+          path: build/installer/UEVRDeluxe-Setup-v3.5.0.1-x64.exe*
+          retention-days: 30
+          if-no-files-found: error
