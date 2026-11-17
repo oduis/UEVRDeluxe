@@ -723,6 +723,7 @@ public class GameInstallation {
 		GameStoreType.XBox => $"X{XBoxID}",
 		GameStoreType.EA => $"EA{string.Join('|', EAContentIDs)}",
 		GameStoreType.Windows => $"W{FolderPath}",
+		GameStoreType.Custom => $"C{CustomID}",
 		_ => throw new NotImplementedException()
 	};
 
@@ -749,6 +750,9 @@ public class GameInstallation {
 	/// <summary>Full path to EXE</summary>
 	public string EXEPath { get; set; }
 
+	/// <summary>Stable identifier for custom/local games</summary>
+	public string CustomID { get; set; }
+
 	/// <summary>The real executable (not the launchers above) without .exe</summary>
 	public string EXEName => EXEPath != null ? Path.GetFileNameWithoutExtension(EXEPath) : null;
 
@@ -763,7 +767,8 @@ public enum GameStoreType {
 	GOG,
 	XBox,
 	EA,
-	Windows
+	Windows,
+	Custom
 }
 
 /// <summary>Disk representation.</summary>

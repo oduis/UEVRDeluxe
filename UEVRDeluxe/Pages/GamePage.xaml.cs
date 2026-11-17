@@ -225,6 +225,9 @@ public sealed partial class GamePage : Page {
 					}
 				}
 
+				if (VM.GameInstallation.StoreType == GameStoreType.Custom)
+					psi.WorkingDirectory = Path.GetDirectoryName(VM.GameInstallation.EXEPath);
+
 				Logger.Log.LogInformation($"Launching game with command: {psi.FileName} and args: {string.Join(" ", psi.ArgumentList.ToArray() ?? Array.Empty<string>())}");
 				Process.Start(psi);
 

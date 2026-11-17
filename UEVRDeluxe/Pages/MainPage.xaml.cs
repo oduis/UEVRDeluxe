@@ -56,8 +56,9 @@ public sealed partial class MainPage : Page, IDisposable {
 
 			InitSort();
 
+			var detectedGames = await GameStoreManager.FindAllUEVRGamesAsync(false);
 			VM.Games = new System.Collections.ObjectModel.ObservableCollection<GameInstallation>(
-				await GameStoreManager.FindAllUEVRGamesAsync(false));
+				detectedGames.Concat(CustomGameManager.Load()));
 			VM.PleaseWaitVisible = Visibility.Collapsed;
 			SortGames();
 
@@ -195,7 +196,7 @@ public sealed partial class MainPage : Page, IDisposable {
 			InitSort();
 			VM.Games.Clear();
 			var games = await GameStoreManager.FindAllUEVRGamesAsync(true);
-			foreach (var game in games) VM.Games.Add(game);
+			foreach (var game in games.Concat(CustomGameManager.Load())) VM.Games.Add(game);
 			VM.PleaseWaitVisible = Visibility.Collapsed;
 			SortGames();
 
@@ -210,6 +211,25 @@ public sealed partial class MainPage : Page, IDisposable {
 		}
 
 		VM.IsLoading = false;
+	}
+	#endregion
+
+	#region Custom game registration
+	async void AddCustomGame_Click(object sender, RoutedEventArgs e) {
+		try {
+			var picker = new Windows.Storage.Pickers.FileOpenPicker();
+			picker.FileTypeFilter.Add(".exe");
+			WinRT.Interop.InitializeWithWindow.Initialize(picker, MainWindow.hWnd);
+			var file = await picker.PickSingleFileAsync();
+			if (file == null) return;
+
+			var game = CustomGameManager.Add(file.Path);
+			if (!VM.Games.Any(g => string.Equals(g.ID, game.ID, StringComparison.OrdinalIgnoreCase)))
+				VM.Games.Add(game);
+			SortGames();
+		} catch (Exception ex) {
+			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Add custom game");
+		}
 	}
 	#endregion
 

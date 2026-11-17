@@ -71,6 +71,8 @@
 
 				<ctl:IconButton Click="Rescan_Click" Glyph="&#xE72C;" Label="Rescan game library"
 					ToolTipService.ToolTip="If your games is not shown, try to rescan the library. This may take a while, if you have many games installed." />
+				<ctl:IconButton Click="AddCustomGame_Click" Glyph="&#xE710;" Label="Add custom game"
+					ToolTipService.ToolTip="Register an existing local Windows game executable (including your own Unreal Engine build)." />
 			</StackPanel>
 			<TextBlock Grid.Column="1" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
 			( While in game, hit Ctrl+Alt+U to inject directly )
