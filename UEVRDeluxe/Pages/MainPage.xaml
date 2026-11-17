@@ -106,7 +106,7 @@
 					<TextBlock VerticalAlignment="Center" FontSize="11">Settings</TextBlock>
 				</StackPanel>
 			</HyperlinkButton>
-			<HyperlinkButton NavigateUri="https://discord.com/channels/747967102895390741/1020440446389993542" Padding="0"
+			<HyperlinkButton NavigateUri="https://flat2vr.com" Padding="0"
 							 ToolTipService.ToolTip="Flat2VR on Discord">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/DiscordLogo.png" Width="24" Height="24" Margin="0,0,6,0" />
