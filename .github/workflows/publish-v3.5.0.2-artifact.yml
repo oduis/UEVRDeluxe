@@ -1,0 +1,50 @@
+name: Publish v3.5.0.2 existing assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-v3.5.0.2-artifact.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download verified Windows package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dist
+          gh run download 44191321508 --repo "${{ github.repository }}" --name UEVRDeluxe-v3.5.0.2-hotfix --dir dist
+          test -s dist/UEVRDeluxe-Setup-v3.5.0.2-x64.exe
+          test -s dist/UEVRDeluxe-Windows-x64-Release-v3.5.0.2.zip
+          test -s dist/SHA256SUMS.txt
+          unzip -t dist/UEVRDeluxe-Windows-x64-Release-v3.5.0.2.zip >/dev/null
+          (cd dist && sha256sum -c SHA256SUMS.txt)
+
+      - name: Publish stable v3.5.0.2 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<'EOF'
+          # UEVR Easy Injector v3.5.0.2 — Windows x64
+
+          Backend updater runtime hotfix. The command helper now includes its own .NET 10 x64 runtime, fixing the missing .NET framework / Unknown error in helper EXE failure.
+
+          The existing Custom Games functionality is unchanged. Windows CI verified installation and a non-destructive helper startup test, but real backend downloads should be confirmed on a Windows PC.
+
+          Recommended: install UEVRDeluxe-Setup-v3.5.0.2-x64.exe. Portable ZIP is also available.
+
+          Unofficial project fork. Original application by Oliver Duis; UEVR engine by Praydog.
+          EOF
+          if gh release view v3.5.0.2 --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release upload v3.5.0.2 dist/UEVRDeluxe-Setup-v3.5.0.2-x64.exe dist/UEVRDeluxe-Windows-x64-Release-v3.5.0.2.zip dist/SHA256SUMS.txt --repo "${{ github.repository }}" --clobber
+          else
+            gh release create v3.5.0.2 dist/UEVRDeluxe-Setup-v3.5.0.2-x64.exe dist/UEVRDeluxe-Windows-x64-Release-v3.5.0.2.zip dist/SHA256SUMS.txt --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "UEVR Easy Injector v3.5.0.2 - Backend Runtime Fix (Windows x64)" --notes-file notes.md --latest
+          fi
