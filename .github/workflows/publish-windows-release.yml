@@ -1,0 +1,63 @@
+name: Publish Windows x64 Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-windows-release.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: publish-windows-v3.5.0.1
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release metadata
+        uses: actions/checkout@v4
+
+      - name: Fetch already successful Windows Release ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p release-assets
+          gh run download 44186993808 --repo "${{ github.repository }}" --name "UEVRDeluxe-Windows-x64-Release" --dir release-assets
+          test -s release-assets/UEVRDeluxe-Windows-x64-Release.zip
+          unzip -t release-assets/UEVRDeluxe-Windows-x64-Release.zip >/dev/null
+
+      - name: Create normal GitHub Release (not prerelease)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > release-notes.txt <<'EOF'
+          # WoozyFace UEVR Easy Injector v3.5.0.1
+
+          Windows x64 Release build of UEVRDeluxe with **Add custom game** support.
+
+          ## What's new
+          - Add local Windows game executables manually (including games not detected through Steam, Epic, or GOG).
+          - Custom game entries persist in `%APPDATA%\\UEVRDeluxe\\CustomGames.json`.
+          - Existing local profiles, game launch and UEVR injection flows are reused.
+          - Backend update helper is packaged with its required .NET DLL and runtime files.
+
+          ## Installation
+          1. Download `UEVRDeluxe-Windows-x64-Release.zip`.
+          2. Extract the **entire** ZIP to a folder.
+          3. Run `UEVRDeluxe.exe` on Windows x64.
+
+          This is a genuine Release-configuration build from commit `fe18e3f3a3e1ffd8d4735fd34c988463d27471a5`. The CI build completed successfully; this specific ZIP has not yet undergone a manual Windows runtime test. The standalone release configuration does not connect to the original upstream private cloud-profile service, so online profile features may be unavailable.
+
+          Unofficial fork of the original UEVRDeluxe by Oliver Duis. The UEVR engine is by Praydog.
+          EOF
+          gh release create "v3.5.0.1" "release-assets/UEVRDeluxe-Windows-x64-Release.zip#UEVRDeluxe-Windows-x64-Release.zip" \
+            --repo "${{ github.repository }}" \
+            --target "fe18e3f3a3e1ffd8d4735fd34c988463d27471a5" \
+            --title "UEVR Easy Injector v3.5.0.1 - Custom Games (Windows x64)" \
+            --notes-file release-notes.txt \
+            --latest
