@@ -1,0 +1,153 @@
+diff --git a/UEVRDeluxe/Code/GameStoreManager.cs b/UEVRDeluxe/Code/GameStoreManager.cs
+--- a/UEVRDeluxe/Code/GameStoreManager.cs
++++ b/UEVRDeluxe/Code/GameStoreManager.cs
+@@ -724,3 +724,4 @@
+ 		GameStoreType.EA => $"EA{string.Join('|', EAContentIDs)}",
+ 		GameStoreType.Windows => $"W{FolderPath}",
++		GameStoreType.Custom => $"C{CustomID}",
+ 		_ => throw new NotImplementedException()
+@@ -748,3 +749,6 @@
+ 	public string EXEPath { get; set; }
+ 
++	/// <summary>Stable identifier for custom/local games</summary>
++	public string CustomID { get; set; }
++
+ 	/// <summary>The real executable (not the launchers above) without .exe</summary>
+@@ -765,4 +769,5 @@
+ 	EA,
+-	Windows
++	Windows,
++	Custom
+ }
+ 
+diff --git a/UEVRDeluxe/Pages/MainPage.xaml.cs b/UEVRDeluxe/Pages/MainPage.xaml.cs
+--- a/UEVRDeluxe/Pages/MainPage.xaml.cs
++++ b/UEVRDeluxe/Pages/MainPage.xaml.cs
+@@ -59,3 +59,4 @@
++			var detectedGames = await GameStoreManager.FindAllUEVRGamesAsync(false);
+ 			VM.Games = new System.Collections.ObjectModel.ObservableCollection<GameInstallation>(
+-				await GameStoreManager.FindAllUEVRGamesAsync(false));
++				detectedGames.Concat(CustomGameManager.Load()));
+ 			VM.PleaseWaitVisible = Visibility.Collapsed;
+@@ -197,3 +198,3 @@
+ 			var games = await GameStoreManager.FindAllUEVRGamesAsync(true);
+-			foreach (var game in games) VM.Games.Add(game);
++			foreach (var game in games.Concat(CustomGameManager.Load())) VM.Games.Add(game);
+ 			VM.PleaseWaitVisible = Visibility.Collapsed;
+@@ -214,3 +215,22 @@
+ 	#endregion
+ 
++	#region Custom game registration
++	async void AddCustomGame_Click(object sender, RoutedEventArgs e) {
++		try {
++			var picker = new Windows.Storage.Pickers.FileOpenPicker();
++			picker.FileTypeFilter.Add(".exe");
++			WinRT.Interop.InitializeWithWindow.Initialize(picker, MainWindow.hWnd);
++			var file = await picker.PickSingleFileAsync();
++			if (file == null) return;
++
++			var game = CustomGameManager.Add(file.Path);
++			if (!VM.Games.Any(g => string.Equals(g.ID, game.ID, StringComparison.OrdinalIgnoreCase)))
++				VM.Games.Add(game);
++			SortGames();
++		} catch (Exception ex) {
++			await VM.HandleExceptionAsync(this.XamlRoot, ex, "Add custom game");
++		}
++	}
++	#endregion
++
+ 	#region * Sorting
+diff --git a/UEVRDeluxe/Pages/MainPage.xaml b/UEVRDeluxe/Pages/MainPage.xaml
+--- a/UEVRDeluxe/Pages/MainPage.xaml
++++ b/UEVRDeluxe/Pages/MainPage.xaml
+@@ -72,3 +72,5 @@
+ 				<ctl:IconButton Click="Rescan_Click" Glyph="&#xE72C;" Label="Rescan game library"
+ 					ToolTipService.ToolTip="If your games is not shown, try to rescan the library. This may take a while, if you have many games installed." />
++				<ctl:IconButton Click="AddCustomGame_Click" Glyph="&#xE710;" Label="Add custom game"
++					ToolTipService.ToolTip="Register an existing local Windows game executable (including your own Unreal Engine build)." />
+ 			</StackPanel>
+diff --git a/UEVRDeluxe/Pages/GamePage.xaml.cs b/UEVRDeluxe/Pages/GamePage.xaml.cs
+--- a/UEVRDeluxe/Pages/GamePage.xaml.cs
++++ b/UEVRDeluxe/Pages/GamePage.xaml.cs
+@@ -228,2 +228,5 @@
++				if (VM.GameInstallation.StoreType == GameStoreType.Custom)
++					psi.WorkingDirectory = Path.GetDirectoryName(VM.GameInstallation.EXEPath);
++
+ 				Logger.Log.LogInformation($"Launching game with command: {psi.FileName} and args: {string.Join(" ", psi.ArgumentList.ToArray() ?? Array.Empty<string>())}");
+ 				Process.Start(psi);
+diff --git a/UEVRDeluxe/Code/CustomGameManager.cs b/UEVRDeluxe/Code/CustomGameManager.cs
+new file mode 100644
+--- /dev/null
++++ b/UEVRDeluxe/Code/CustomGameManager.cs
+@@ -0,0 +1,71 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using System.Text.Json;
++
++namespace UEVRDeluxe.Code;
++
++/// <summary>Locally registered, non-store game executables.</summary>
++internal static class CustomGameManager {
++    static string DataFile => Path.Combine(
++        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
++        "UEVRDeluxe", "CustomGames.json");
++
++    public static List<GameInstallation> Load() {
++        if (!File.Exists(DataFile)) return new();
++
++        var games = JsonSerializer.Deserialize<List<GameInstallation>>(
++            File.ReadAllText(DataFile)) ?? new();
++
++        return games.Where(g => g != null
++                && g.StoreType == GameStoreType.Custom
++                && !string.IsNullOrWhiteSpace(g.CustomID)
++                && !string.IsNullOrWhiteSpace(g.EXEPath)
++                && File.Exists(g.EXEPath))
++            .GroupBy(g => g.EXEPath, StringComparer.OrdinalIgnoreCase)
++            .Select(g => g.First())
++            .ToList();
++    }
++
++    public static GameInstallation Add(string exePath) {
++        if (string.IsNullOrWhiteSpace(exePath))
++            throw new ArgumentException("Select a game executable.", nameof(exePath));
++
++        string fullPath = Path.GetFullPath(exePath);
++        if (!File.Exists(fullPath) ||
++            !string.Equals(Path.GetExtension(fullPath), ".exe", StringComparison.OrdinalIgnoreCase))
++            throw new FileNotFoundException("Select an existing Windows .exe game file.", fullPath);
++
++        var games = Load();
++        var existing = games.FirstOrDefault(g =>
++            string.Equals(g.EXEPath, fullPath, StringComparison.OrdinalIgnoreCase));
++        if (existing != null) return existing;
++
++        string name = Path.GetFileNameWithoutExtension(fullPath);
++        if (name.EndsWith("-Win64-Shipping", StringComparison.OrdinalIgnoreCase))
++            name = name[..^"-Win64-Shipping".Length];
++        else if (name.EndsWith("-WinGDK-Shipping", StringComparison.OrdinalIgnoreCase))
++            name = name[..^"-WinGDK-Shipping".Length];
++
++        var game = new GameInstallation {
++            CustomID = Guid.NewGuid().ToString("N"),
++            StoreType = GameStoreType.Custom,
++            Name = name,
++            FolderPath = Path.GetDirectoryName(fullPath),
++            EXEPath = fullPath,
++            ShellLaunchPath = $"\"{fullPath}\"",
++            IconURL = "/Assets/GenericGameLogo.jpg"
++        };
++
++        games.Add(game);
++        Directory.CreateDirectory(Path.GetDirectoryName(DataFile)!);
++
++        string tempFile = DataFile + ".tmp";
++        File.WriteAllText(tempFile, JsonSerializer.Serialize(games,
++            new JsonSerializerOptions { WriteIndented = true }));
++        File.Move(tempFile, DataFile, true);
++
++        return game;
++    }
++}

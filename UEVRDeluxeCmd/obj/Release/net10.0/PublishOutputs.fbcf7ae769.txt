@@ -1,0 +1,5 @@
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Release\Publish\UEVRDeluxeCmd.exe
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Release\Publish\UEVRDeluxeCmd.dll
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Release\Publish\UEVRDeluxeCmd.deps.json
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Release\Publish\UEVRDeluxeCmd.runtimeconfig.json
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Release\Publish\UEVRDeluxeCmd.pdb

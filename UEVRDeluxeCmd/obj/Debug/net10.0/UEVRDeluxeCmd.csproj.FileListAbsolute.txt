@@ -1,0 +1,12 @@
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Debug\net10.0\UEVRDeluxeCmd.exe
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Debug\net10.0\UEVRDeluxeCmd.deps.json
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Debug\net10.0\UEVRDeluxeCmd.runtimeconfig.json
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Debug\net10.0\UEVRDeluxeCmd.dll
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\bin\Debug\net10.0\UEVRDeluxeCmd.pdb
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\obj\Debug\net10.0\UEVRDeluxeCmd.GeneratedMSBuildEditorConfig.editorconfig
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\obj\Debug\net10.0\UEVRDeluxeCmd.AssemblyInfoInputs.cache
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\obj\Debug\net10.0\UEVRDeluxeCmd.AssemblyInfo.cs
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\obj\Debug\net10.0\UEVRDeluxeCmd.csproj.CoreCompileInputs.cache
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\obj\Debug\net10.0\UEVRDeluxeCmd.dll
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\obj\Debug\net10.0\UEVRDeluxeCmd.pdb
+D:\Downloads\UEVRDeluxe-main\UEVRDeluxe-main\UEVRDeluxeCmd\obj\Debug\net10.0\UEVRDeluxeCmd.genruntimeconfig.cache
