@@ -1,0 +1,79 @@
+name: Windows x64 Release build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/windows-release.yml
+      - UEVRDeluxe/**
+      - UEVRDeluxeCmd/**
+      - UEVRDeluxeCommon/**
+
+permissions:
+  contents: read
+
+jobs:
+  windows-release:
+    runs-on: windows-2022
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Generate standalone Release configuration
+        shell: pwsh
+        run: |
+          @'
+          namespace UEVRDeluxe.Code;
+
+          #if !DEBUG
+          // Public/offline Release configuration. No upstream service credentials.
+          public static class CompiledSecret
+          {
+              public const string FUNCTION_BASE_ADDRESS = "http://127.0.0.1:7299/api/";
+              public const string AUTOUPDATE_URL = "";
+              public const string CUSTOMIZE_URL = "";
+          }
+          #endif
+          '@ | Set-Content -Path 'UEVRDeluxe/Code/CompiledSecret_STANDALONE_RELEASE.cs' -Encoding UTF8
+
+      - name: Restore Windows application
+        shell: pwsh
+        run: dotnet restore 'UEVRDeluxe/UEVRDeluxe.csproj' -p:Platform=x64 -r win-x64
+
+      - name: Publish Windows x64 application
+        shell: pwsh
+        run: |
+          dotnet publish 'UEVRDeluxe/UEVRDeluxe.csproj' -c Release -p:Platform=x64 -r win-x64 --self-contained true -p:PublishReadyToRun=false -p:PublishTrimmed=false -p:WindowsPackageType=None -o 'artifacts/app'
+          if ($LASTEXITCODE -ne 0) { throw "Windows Release publish failed" }
+
+      - name: Publish command helper and validate package
+        shell: pwsh
+        run: |
+          dotnet publish 'UEVRDeluxeCmd/UEVRDeluxeCmd.csproj' -c Release -r win-x64 --self-contained false -o 'artifacts/helper'
+          if ($LASTEXITCODE -ne 0) { throw "Command helper publish failed" }
+          New-Item -ItemType Directory -Force 'artifacts/app/Cmd' | Out-Null
+          Copy-Item -Path 'artifacts/helper/*' -Destination 'artifacts/app/Cmd' -Force
+          foreach ($file in @('UEVRDeluxe.exe','UEVRDeluxe.dll')) {
+            if (-not (Test-Path "artifacts/app/$file")) { throw "Missing application file: $file" }
+          }
+          foreach ($file in @('UEVRDeluxeCmd.exe','UEVRDeluxeCmd.dll','UEVRDeluxeCmd.deps.json','UEVRDeluxeCmd.runtimeconfig.json')) {
+            if (-not (Test-Path "artifacts/app/Cmd/$file")) { throw "Missing command helper file: $file" }
+          }
+          Compress-Archive -Path 'artifacts/app/*' -DestinationPath 'artifacts/UEVRDeluxe-Windows-x64-Release.zip' -CompressionLevel Optimal
+
+      - name: Upload downloadable Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: UEVRDeluxe-Windows-x64-Release
+          path: artifacts/UEVRDeluxe-Windows-x64-Release.zip
+          if-no-files-found: error
+          retention-days: 30
