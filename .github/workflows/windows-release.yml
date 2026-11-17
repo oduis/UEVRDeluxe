@@ -58,7 +58,7 @@ jobs:
       - name: Publish command helper and validate package
         shell: pwsh
         run: |
-          dotnet publish 'UEVRDeluxeCmd/UEVRDeluxeCmd.csproj' -c Release -r win-x64 --self-contained false -o 'artifacts/helper'
+          dotnet publish 'UEVRDeluxeCmd/UEVRDeluxeCmd.csproj' -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:PublishTrimmed=false -o 'artifacts/helper'
           if ($LASTEXITCODE -ne 0) { throw "Command helper publish failed" }
           New-Item -ItemType Directory -Force 'artifacts/app/Cmd' | Out-Null
           Copy-Item -Path 'artifacts/helper/*' -Destination 'artifacts/app/Cmd' -Force
