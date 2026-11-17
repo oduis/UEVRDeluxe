@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)system.clientmodel\1.15.0\buildTransitive\net10.0\System.ClientModel.targets" Condition="Exists('$(NuGetPackageRoot)system.clientmodel\1.15.0\buildTransitive\net10.0\System.ClientModel.targets')" />
+    <Import Project="$(NuGetPackageRoot)microsoft.azure.functions.worker.sdk\2.1.0\build\Microsoft.Azure.Functions.Worker.Sdk.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.azure.functions.worker.sdk\2.1.0\build\Microsoft.Azure.Functions.Worker.Sdk.targets')" />
+    <Import Project="$(NuGetPackageRoot)azure.core\1.62.0\buildTransitive\net10.0\Azure.Core.targets" Condition="Exists('$(NuGetPackageRoot)azure.core\1.62.0\buildTransitive\net10.0\Azure.Core.targets')" />
+  </ImportGroup>
+</Project>

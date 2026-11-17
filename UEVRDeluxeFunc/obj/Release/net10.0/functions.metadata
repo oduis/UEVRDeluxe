@@ -1,0 +1,164 @@
+[
+  {
+    "name": "UploadProfile",
+    "scriptFile": "UEVRDeluxeFunc.dll",
+    "entryPoint": "UEVRDeluxeFunc.AdminFunctions.RunUploadProfileAsync",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "post"
+        ],
+        "route": "profiles",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "DeleteProfile",
+    "scriptFile": "UEVRDeluxeFunc.dll",
+    "entryPoint": "UEVRDeluxeFunc.AdminFunctions.RunDeleteProfileAsync",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "delete"
+        ],
+        "route": "profiles/{exeName}/{id}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "SearchProfile",
+    "scriptFile": "UEVRDeluxeFunc.dll",
+    "entryPoint": "UEVRDeluxeFunc.PublicFunctions.RunSearchProfileAsync",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get"
+        ],
+        "route": "profiles/{exeName}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "DownloadProfile",
+    "scriptFile": "UEVRDeluxeFunc.dll",
+    "entryPoint": "UEVRDeluxeFunc.PublicFunctions.RunDownloadProfileAsync",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get"
+        ],
+        "route": "profiles/{exeName}/{id}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "DownloadProfileDescription",
+    "scriptFile": "UEVRDeluxeFunc.dll",
+    "entryPoint": "UEVRDeluxeFunc.PublicFunctions.RunDownloadProfileDescriptionAsync",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get"
+        ],
+        "route": "profiles/{exeName}/{id}/description",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "DownloadAllProfiles",
+    "scriptFile": "UEVRDeluxeFunc.dll",
+    "entryPoint": "UEVRDeluxeFunc.PublicFunctions.RunDownloadAllProfilesAsync",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get"
+        ],
+        "route": "allprofiles",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  }
+]
