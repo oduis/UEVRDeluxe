@@ -269,3 +269,9 @@ __pycache__/
 /UEVRDeluxeFunc/Properties/ServiceDependencies/UEVRDeluxeFunc - Zip Deploy
 /UEVRDeluxeFunc/Properties/serviceDependencies.UEVRDeluxeFunc - Zip Deploy.json
 /UEVRDeluxe/Cmd
+
+# All generated .NET build artifacts
+**/bin/
+**/obj/
+/UEVRDeluxe/Cmd/
+/artifacts/

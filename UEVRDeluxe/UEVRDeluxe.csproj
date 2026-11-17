@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\UEVRDeluxeCmd\UEVRDeluxeCmd.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
@@ -117,12 +120,6 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Update="Cmd\UEVRDeluxeCmd.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Cmd\UEVRDeluxeCmd.pdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="UEVR\Praydog\LuaVR.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -185,10 +182,33 @@
     <Folder Include="Cmd\" />
     <Folder Include="Controls\" />
   </ItemGroup>
-	<PropertyGroup>
-		<PreBuildEvent Condition="'$(Configuration)' == 'Debug'">copy "$(SolutionDir)UEVRDeluxeCmd\bin\Debug\net10.0\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
-		<PreBuildEvent Condition="'$(Configuration)' == 'Release'">copy "$(SolutionDir)UEVRDeluxeCmd\bin\Release\net10.0\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
-	</PropertyGroup>
+
+  <!-- Build the helper first, then copy all its runtime files to the WinUI app output. -->
+  <Target Name="CopyHelperAfterBuild" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <_HelperSource>$(MSBuildProjectDirectory)\..\UEVRDeluxeCmd\bin\$(Configuration)\net10.0\</_HelperSource>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(_HelperSource)UEVRDeluxeCmd.exe') or !Exists('$(_HelperSource)UEVRDeluxeCmd.dll') or !Exists('$(_HelperSource)UEVRDeluxeCmd.runtimeconfig.json')"
+           Text="UEVRDeluxeCmd build output is missing EXE, DLL, or .NET runtime configuration." />
+    <ItemGroup>
+      <_HelperFiles Include="$(_HelperSource)*.*" />
+    </ItemGroup>
+    <MakeDir Directories="$(TargetDir)Cmd" />
+    <Copy SourceFiles="@(_HelperFiles)" DestinationFolder="$(TargetDir)Cmd\" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="CopyHelperAfterPublish" AfterTargets="Publish" Condition="'$(PublishDir)' != '' and '$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <_HelperSource>$(MSBuildProjectDirectory)\..\UEVRDeluxeCmd\bin\$(Configuration)\net10.0\</_HelperSource>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(_HelperSource)UEVRDeluxeCmd.dll')" Text="UEVRDeluxeCmd.dll missing for published app." />
+    <ItemGroup>
+      <_PublishHelperFiles Include="$(_HelperSource)*.*" />
+    </ItemGroup>
+    <MakeDir Directories="$(PublishDir)Cmd" />
+    <Copy SourceFiles="@(_PublishHelperFiles)" DestinationFolder="$(PublishDir)Cmd\" SkipUnchangedFiles="true" />
+  </Target>
+
   <PropertyGroup Label="Globals">
     <WebView2EnableCsWinRTProjection>True</WebView2EnableCsWinRTProjection>
   </PropertyGroup>
@@ -212,7 +232,6 @@
     <PackageIcon>UEVR2.png</PackageIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Title>UEVR Easy Injector</Title>
-    <PreBuildEvent>copy "$(SolutionDir)UEVRDeluxeCmd\bin\Release\Publish\*.*" "$(SolutionDir)UEVRDeluxe\Cmd\" /Y</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>False</Optimize>
