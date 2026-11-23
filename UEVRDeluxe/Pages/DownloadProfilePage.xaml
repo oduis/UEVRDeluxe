@@ -32,7 +32,7 @@
                              ItemTemplate="{StaticResource styProfileMetaDataTemplate}" IsItemClickEnabled="True" SelectionMode="Single" />
 
 		<StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16">
-			<ctl:IconButton Click="Download_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Glyph="&#xE896;" Label="Install" />
+			<ctl:IconButton Click="Download_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Glyph="&#xE896;" Label="Install" MinWidth="220" />
 			<ctl:IconButton Click="ShowDescription_Click" IsEnabled="{x:Bind VM.IsProfileSelected, Mode=OneWay}" Glyph="&#xE8a5;" Label="Show Description" />
 			<ctl:IconButton Click="Back_Click" Glyph="&#xE711;" Label="Cancel" />
 		</StackPanel>

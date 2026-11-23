@@ -52,7 +52,7 @@ public sealed partial class AdminPage : Page {
 
 	async void Search_Click(object sender, RoutedEventArgs e) {
 		try {
-			if (string.IsNullOrEmpty(VM.SearchEXEName)) throw new Exception("Give the full EXE-Name (without extensions)");
+			if (string.IsNullOrEmpty(VM.SearchEXEName)) throw new Exception("Enter the full EXE name (without extensions)");
 			VM.SearchEXEName = VM.SearchEXEName.Trim();
 
 			VM.IsLoading = true;

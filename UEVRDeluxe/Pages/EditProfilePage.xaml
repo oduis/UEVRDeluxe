@@ -37,7 +37,7 @@
 							<RadioButton Tag="0">
 								<StackPanel>
 									<TextBlock>Native Stereo (Recommended)</TextBlock>
-									<TextBlock Style="{StaticResource styHelpText}">Unreal engine's native VR rendering. Best performance and image quality. Recommended if no issues.</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Unreal Engine's native VR rendering. Best performance and image quality. Recommended if no issues.</TextBlock>
 									<CheckBox x:Name="cbNativeStereoFix">
 										<StackPanel>
 											<TextBlock>Native Stereo Fix</TextBlock>
@@ -55,7 +55,7 @@
 							<RadioButton Tag="1" Margin="0,4">
 								<StackPanel>
 									<TextBlock>Synced Sequential (Higher compatibility)</TextBlock>
-									<TextBlock Style="{StaticResource styHelpText}">Worse performance (more CPU intensive) than Native Stereo. Image may show ghosting effects. But better compatibility if game has issues with Native Stereo.</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Worse performance (more CPU-intensive) than Native Stereo. Image may show ghosting effects. But better compatibility if the game has issues with Native Stereo.</TextBlock>
 									<StackPanel x:Name="spSyncedSequentialMethod" Margin="0,4,0,0" Spacing="2">
 										<RadioButton Tag="0">
 											<StackPanel>
@@ -81,12 +81,12 @@
 							<RadioButton Tag="3">
 								<StackPanel>
 									<TextBlock>Alternate Frame Warping (AFW)</TextBlock>
-									<TextBlock Style="{StaticResource styHelpText}">Only use with PureDarks UEVR Backends and if the game supports DirectX 12. Can boost performance, while increasing VRAM usage and potentially causing visual glitches.</TextBlock>
+									<TextBlock Style="{StaticResource styHelpText}">Only use with PureDark's UEVR backend and if the game supports DirectX 12. Can boost performance while increasing VRAM usage and potentially causing visual glitches.</TextBlock>
 								</StackPanel>
 							</RadioButton>
 
 							<CheckBox x:Name="cbFixRenderingOptions" Margin="0,16,0,0">
-								<TextBlock Text="Revert to these rendering options on every launch, even if you change them in game (for AFW games that show a black screen or crash if not initially injected using a safe method)" TextWrapping="WrapWholeWords" />
+								<TextBlock Text="Revert to these rendering options on every launch, even if you change them in-game (for AFW games that show a black screen or crash if not initially injected using a safe method)" TextWrapping="WrapWholeWords" />
 							</CheckBox>
 						</StackPanel>
 
@@ -100,14 +100,14 @@
 							<StackPanel>
 								<TextBlock Style="{StaticResource stySubHeader}">Fix Ghosting</TextBlock>
 								<CheckBox x:Name="cbGhostingFix">
-									<TextBlock TextWrapping="WrapWholeWords" Text="Eliminates faint ghost images around game characters. Helpful when using Synced Sequential or Native Stereo Fix. Recommended when using PureDarks AFW. May cause crashes in some games." />
+									<TextBlock TextWrapping="WrapWholeWords" Text="Eliminates faint ghost images around game characters. Helpful when using Synced Sequential or Native Stereo Fix. Recommended when using PureDark's AFW. May cause crashes in some games." />
 								</CheckBox>
 							</StackPanel>
 
 							<StackPanel Grid.Column="2">
 								<TextBlock Style="{StaticResource stySubHeader}">Override One Frame Thread Lag</TextBlock>
 								<CheckBox x:Name="cbOneFrameThreadLag" IsThreeState="True">
-									<TextBlock TextWrapping="WrapWholeWords" Text="Toggle this setting to see if it reduces latency or stuttering. For SteamVR connections and games using Native Fix, set this to OFF." />
+									<TextBlock TextWrapping="WrapWholeWords" Text="Toggle this setting to see if it reduces latency or stuttering. For SteamVR connections and games using Native Stereo Fix, set this to OFF." />
 								</CheckBox>
 							</StackPanel>
 						</Grid>
@@ -129,7 +129,7 @@
 							<StackPanel Grid.Column="2">
 								<TextBlock Style="{StaticResource stySubHeader}">Override Disable Materials</TextBlock>
 								<CheckBox x:Name="cbOverrideDisableMaterials" IsThreeState="True">
-									<TextBlock TextWrapping="WrapWholeWords" Text="Enabling this explictly often improves VR performance at the expense of visual quality." />
+									<TextBlock TextWrapping="WrapWholeWords" Text="Enabling this explicitly often improves VR performance at the expense of visual quality." />
 								</CheckBox>
 							</StackPanel>
 						</Grid>
@@ -162,7 +162,7 @@
 								<RadioButton Tag="1">
 									<StackPanel>
 										<TextBlock>Force Temporal Upscaling</TextBlock>
-										<TextBlock Style="{StaticResource styHelpText}">Replace game upscaler by a Unreal Engine built-in one. Use if game does not support upscaling or DLSS/FSR has rendering glitches.</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Replace the game upscaler with an Unreal Engine built-in one. Use if game does not support upscaling or DLSS/FSR has rendering glitches.</TextBlock>
 										<StackPanel Orientation="Horizontal">
 											<Slider x:Name="slScreenPercentage" Minimum="40" Maximum="100" TickFrequency="5" 
 												TickPlacement="Outside" SnapsTo="Ticks" Width="654" Margin="0,0,16,0" />
@@ -210,11 +210,11 @@
 						</Grid>
 
 						<StackPanel>
-							<TextBlock Style="{StaticResource stySubHeader}">Typical in game settings</TextBlock>
+							<TextBlock Style="{StaticResource stySubHeader}">Typical in-game settings</TextBlock>
 							<TextBlock TextWrapping="WrapWholeWords">
 								<Run>Rendering VR at very high resolutions is extremely demanding. 
 									Ensure you have a powerful GPU with ample VRAM, and avoid maxing out game settings. 
-									While optimizing, monitor GPU usage and especially GPU VRAM in Task Explorer.</Run>
+									While optimizing, monitor GPU usage and especially GPU VRAM in Task Manager.</Run>
 								<LineBreak/>
 								<Run>If the game supports it, adjust these in-game graphic settings:</Run>
 								<LineBreak/> 
@@ -247,7 +247,7 @@
 										<TextBox Text="{x:Bind VM.LocalProfile.Meta.AuthorName, Mode=TwoWay}" MaxLength="64" />
 									</StackPanel>
 									<StackPanel Width="320" Spacing="4">
-										<TextBlock>Game Version Tested/Required</TextBlock>
+										<TextBlock>Tested/Required Game Version</TextBlock>
 										<TextBox Text="{x:Bind VM.LocalProfile.Meta.GameVersion, Mode=TwoWay}" MaxLength="64" />
 									</StackPanel>
 									<StackPanel Width="200" Spacing="4">
@@ -288,19 +288,19 @@
 								<RadioButton Tag="1">
 									<StackPanel>
 										<TextBlock>JoeyHodge</TextBlock>
-										<TextBlock Style="{StaticResource styHelpText}">Better compatibility if the games uses very new UNREAL engine versions.</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Better compatibility if the game uses very new Unreal Engine versions.</TextBlock>
 									</StackPanel>
 								</RadioButton>
 								<RadioButton Tag="2">
 									<StackPanel>
 										<TextBlock>PureDark AFW - Nightly</TextBlock>
-										<TextBlock Style="{StaticResource styHelpText}">Based on Praydogs backend. Improves performance if game supports DirectX 12. Drawbacks: visual artifacts and higher VRAM usage.</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Based on Praydog's backend. Improves performance if game supports DirectX 12. Drawbacks: visual artifacts and higher VRAM usage.</TextBlock>
 									</StackPanel>
 								</RadioButton>
 								<RadioButton Tag="3">
 									<StackPanel>
-										<TextBlock>PureDark AFW - Joeyhodge</TextBlock>
-										<TextBlock Style="{StaticResource styHelpText}">Based on Joeyhodge backend, otherwise like nightly.</TextBlock>
+										<TextBlock>PureDark AFW - JoeyHodge</TextBlock>
+										<TextBlock Style="{StaticResource styHelpText}">Based on JoeyHodge's backend, otherwise the same as Nightly.</TextBlock>
 									</StackPanel>
 								</RadioButton>
 								<RadioButton Tag="4">
@@ -311,7 +311,7 @@
 								</RadioButton>
 							</StackPanel>
 
-							<CheckBox Content="Late Injection (For stability, requires injection when the game is already running and in 3D)"
+							<CheckBox Content="Late injection (for stability; requires injection when the game is already running and in 3D)"
 									  IsChecked="{x:Bind VM.LocalProfile.Meta.LateInjection, Mode=TwoWay}" />
 						</StackPanel>
 

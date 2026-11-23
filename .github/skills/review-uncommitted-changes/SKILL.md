@@ -1,8 +1,8 @@
 ---
-agent: agent
+name: review-uncommitted-changes
 description: "Review uncommitted changes and new files in the current workspace. Use for code review; focus on hard logical errors and regressions."
+disable-model-invocation: true
 ---
-
 # Review Uncommitted Changes and Additions
 
 ## Procedure

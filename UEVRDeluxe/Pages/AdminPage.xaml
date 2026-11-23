@@ -36,7 +36,7 @@
 		<StackPanel Grid.Row="2">
 			<TextBlock Style="{StaticResource stySubHeader}">Search Profiles</TextBlock>
 			<StackPanel Orientation="Horizontal">
-				<TextBlock VerticalAlignment="Center">EXE-Name (without .exe):</TextBlock>
+				<TextBlock VerticalAlignment="Center">EXE name (without .exe):</TextBlock>
 				<TextBox Width="300" Text="{x:Bind VM.SearchEXEName, Mode=TwoWay}" Margin="8,0" />
 				<ctl:IconButton Click="Search_Click" Glyph="&#xE721;" Label="Search" />
 			</StackPanel>

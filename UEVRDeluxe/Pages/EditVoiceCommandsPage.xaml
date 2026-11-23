@@ -61,7 +61,7 @@
 				</StackPanel>
 
 				<StackPanel Grid.Column="1">
-					<TextBlock Style="{StaticResource stySubHeader}" Margin="0,0,0,8">Key Press Delay</TextBlock>
+					<TextBlock Style="{StaticResource stySubHeader}" Margin="0,0,0,8">Keypress Delay</TextBlock>
 
 					<StackPanel Orientation="Horizontal">
 						<NumberBox Value="{x:Bind VM.KeyPressDelayMS, Mode=TwoWay}" 

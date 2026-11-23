@@ -58,7 +58,7 @@ public sealed partial class EditVoiceCommandsPage : Page {
 			var languages = SpeechRecognizer.SupportedTopicLanguages;
 			if (languages.Count == 0) {
 				OpenWinLanguages_Click(null, null);
-				throw new Exception("Please install Speech Recognition within the language in Windows settings first");
+				throw new Exception("Please install a speech recognition language in Windows Settings first");
 			}
 
 			VM.Languages = [.. languages];
@@ -95,7 +95,7 @@ public sealed partial class EditVoiceCommandsPage : Page {
 	async void AddCommand_Click(object sender, RoutedEventArgs e) {
 		try {
 			if (string.IsNullOrWhiteSpace(VM.Text))
-				throw new Exception("Please enter a text to say in the language selected above, e.g. 'open map'");
+				throw new Exception("Please enter text to say in the language selected above, e.g. 'open map'");
 
 			if (string.IsNullOrWhiteSpace(VM.TextKeyCode))
 				throw new Exception("Please enter a character or function key to invoke, e.g. 'A' or 'F7' or 'Tab'");

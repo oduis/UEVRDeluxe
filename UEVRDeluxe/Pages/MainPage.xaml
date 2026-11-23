@@ -70,10 +70,10 @@
 				<ctl:IconButton Click="UEVRBackends_Click" Glyph="&#xE896;" Label="{x:Bind VM.UEVRBackendsLabel, Mode=OneWay}" />
 
 				<ctl:IconButton Click="Rescan_Click" Glyph="&#xE72C;" Label="Rescan game library"
-					ToolTipService.ToolTip="If your games is not shown, try to rescan the library. This may take a while, if you have many games installed." />
+					ToolTipService.ToolTip="If your game is not shown, try rescanning the library. This may take a while if you have many games installed." />
 			</StackPanel>
 			<TextBlock Grid.Column="1" Style="{StaticResource styHelpText}" HorizontalAlignment="Right">
-			( While in game, hit Ctrl+Alt+U to inject directly )
+			( While in-game, press Ctrl+Alt+U to inject directly )
 			</TextBlock>
 		</Grid>
 

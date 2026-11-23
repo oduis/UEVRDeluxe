@@ -169,7 +169,7 @@ public sealed partial class MainPage : Page, IDisposable {
 								PrimaryButtonText = "Yes",
 								CloseButtonText = "No",
 								XamlRoot = this.XamlRoot,
-								Content = ($"An update ot UEVR Easy Injector is available. Would you like to download the update now?\n{autoupdate.ReleaseNotes}").Trim()
+								Content = ($"An update of UEVR Easy Injector is available. Would you like to download the update now?\n{autoupdate.ReleaseNotes}").Trim()
 							}.ShowAsync();
 
 							if (dialogResult == ContentDialogResult.Primary)
@@ -282,7 +282,7 @@ public sealed partial class MainPage : Page, IDisposable {
 				return;
 			}
 
-			hotKeyCheckTimer.Stop(); // so it doesnt pick the hotkey up
+			hotKeyCheckTimer.Stop(); // so it doesn't pick the hotkey up
 			MainWindow.HotkeyEvent.Set();  // so the next page will pick it up
 			Frame.Navigate(typeof(GamePage), foundGames.First(), new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
 		}

@@ -30,7 +30,7 @@
 			<TextBlock Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource styPageHeader}" Text="Global Settings" />
 		</StackPanel>
 
-		<TextBlock Grid.Row="1" Style="{StaticResource stySubHeader}" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}">Select Application to link your Headset to this PC</TextBlock>
+		<TextBlock Grid.Row="1" Style="{StaticResource stySubHeader}" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}">Select application that links your headset to this PC</TextBlock>
 		<StackPanel Grid.Row="2" Orientation="Horizontal" Visibility="{x:Bind VM.OpenXRRuntimeVisible, Mode=OneWay}" Margin="0,6,0,0">
 			<TextBlock VerticalAlignment="Center">OpenXR Runtime:</TextBlock>
 			<ComboBox DisplayMemberPath="Name" ItemsSource="{x:Bind VM.OpenXRRuntimes, Mode=OneWay}" SelectedItem="{x:Bind VM.SelectedRuntime, Mode=TwoWay}" Margin="8,0,32,0"

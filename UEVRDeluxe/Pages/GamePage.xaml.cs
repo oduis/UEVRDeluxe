@@ -150,7 +150,7 @@ public sealed partial class GamePage : Page {
 	async void Launch_Click(object sender, RoutedEventArgs e) {
 		try {
 			if (VM.EnableVoiceCommands && Win32.IsUserAnAdmin())
-				throw new Exception("Start UEVR Easy without administrator privileges to use voice commands");
+				throw new Exception("Restart UEVR Easy without administrator privileges to use voice commands");
 
 			#region Pre-Check the non-Praydog backends are downloaded
 			if (VM.LocalProfile.Meta != null) {
@@ -163,7 +163,7 @@ public sealed partial class GamePage : Page {
 				};
 
 				if (installedVersion == null)
-					throw new Exception($"Please install the UEVR backend \"{VM.LocalProfile.Meta.UEVRBackendName}\" needed for this profile first.\nUse the \"Update UEVR Backends\" button on home page.");
+					throw new Exception($"Please install the UEVR backend \"{VM.LocalProfile.Meta.UEVRBackendName}\" needed by this profile first.\nUse the \"UEVR Backends\" button on the home page.");
 			}
 			#endregion
 
@@ -295,7 +295,7 @@ public sealed partial class GamePage : Page {
 				speechRecognizer.InjectRequested -= OnInjectRequested;
 			}
 
-			VM.StatusMessage = "Game is running! You may see a black screen while the intro movies are playing. The UEVR in-game window will open. Press 'Ins' on keyboard or both controller joysticks to close it.";
+			VM.StatusMessage = "Game is running! You may see a black screen while intro movies play. The UEVR in-game window will open. Press 'Ins' on the keyboard or press both controller thumbsticks to close it.";
 
 			while (!shouldStop) {
 				await Task.Delay(800);
@@ -381,7 +381,7 @@ public sealed partial class GamePage : Page {
 	async void NavigateVoiceCommandsPage(object sender, RoutedEventArgs e) {
 		if (Win32.IsUserAnAdmin()) {
 			await new ContentDialog {
-				Title = "UEVR", Content = "Start UEVR Easy without administrator privileges to use voice commands",
+				Title = "UEVR", Content = "Restart UEVR Easy without administrator privileges to use voice commands",
 				CloseButtonText = "OK", XamlRoot = this.XamlRoot
 			}.ShowAsync();
 			return;
