@@ -1,6 +1,6 @@
 {
 	"app": "UEVR Easy Injector",
-	"version": "3.5.0.0",
-	"releaseNotes": "Updated resolution calculator. Allowed higher profiles sizes (Hogwarts). Fallbacks for defective OpenXR configs.",
+	"version": "3.5.1.0",
+	"releaseNotes": "Support for the new EPIC preview launcher.",
 	"webURL": "https://github.com/oduis/UEVRDeluxe/releases/"
 }

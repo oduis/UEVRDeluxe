@@ -1,6 +1,7 @@
 ﻿#region Usings
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using PeNet;
@@ -169,6 +170,8 @@ public static class GameStoreManager {
 
 					string folder = pathParts.Last().ToLowerInvariant();
 					exe.isInWinFolder = folder == "win32" || folder == "win64" || folder == "wingdk";
+					exe.isInWin32Folder = folder == "win32";
+					exe.isInWin64Folder = folder == "win64" || folder == "wingdk";  // WinGDK is 64 bit only as well
 					exe.isInBinariesFolder = folder == "binaries";  // Not as good, but...
 
 					// Check for typical UE DLLs. But this does not work on e.g. XBox, since they are security boxed
@@ -185,6 +188,20 @@ public static class GameStoreManager {
 					}
 
 					exeProps.Add(exe);
+				}
+
+				// UEVR is 64 bit only. So if a game ships both a Win32 and a Win64 build, ignore the Win32 one
+				if (exeProps.Any(e => e.isInWin64Folder))
+					exeProps.RemoveAll(e => e.isInWin32Folder);
+
+				// Some stores know the exact executable, which is better than any guess.
+				// But they may also report a small launcher instead of the real game. So only use it when the file scan has no clear hit.
+				if (game.StoreEXEPath != null && !exeProps.Any(e => e.isShipping)) {
+					game.EXEPath = game.StoreEXEPath;
+					game.ShellLaunchPath ??= game.StoreEXEPath;
+
+					Logger.Log.LogTrace($"{game.Name} using store executable: {game.EXEPath}");
+					continue;
 				}
 
 				// Heuristic to find the best executable. DLLImport is the best checker,
@@ -267,7 +284,11 @@ public static class GameStoreManager {
 		try {
 			var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-			string appDataPath = ReadRegistryValue(@"SOFTWARE\Epic Games\EpicGamesLauncher", "AppDataPath");
+			// The new launcher (v2) keeps its data in the user profile, the old one below ProgramData
+			string appDataPath = new[] {
+					ReadRegistryValue(@"SOFTWARE\Epic Games\EpicGamesLauncher", "AppDataPath", RegistryHive.CurrentUser),
+					ReadRegistryValue(@"SOFTWARE\Epic Games\EpicGamesLauncher", "AppDataPath")
+				}.FirstOrDefault(path => !string.IsNullOrEmpty(path) && Directory.Exists(path));
 			if (string.IsNullOrEmpty(appDataPath)) {
 				Logger.Log.LogTrace("EPIC not installed");
 				return allGames;
@@ -275,61 +296,163 @@ public static class GameStoreManager {
 
 			Logger.Log.LogTrace($"EPIC installed in {appDataPath}");
 
-			var manifestsPath = Path.Combine(appDataPath, "Manifests");
-			if (Directory.Exists(manifestsPath)) {
-				var manifestPaths = Directory.GetFiles(manifestsPath, "*.item");
+			// Install manifests are still the same JSON files, but the new launcher stores them in other places:
+			//   old: <AppData>\Manifests
+			//   new: <AppData>\import-scan\v1-items (taken over from the old launcher) and <InstallLocation>\.egstore (new installs)
+			var manifests = new List<EpicManifest>();
+			foreach (string manifestsFolder in new[] {
+					Path.Combine(appDataPath, "Manifests"), Path.Combine(appDataPath, "import-scan", "v1-items") }) {
+				if (!Directory.Exists(manifestsFolder)) continue;
 
-				foreach (var manifestPath in manifestPaths) {
+				foreach (string manifestPath in Directory.GetFiles(manifestsFolder, "*.item")) {
 					try {
 						var manifest = JsonSerializer.Deserialize<EpicManifest>(File.ReadAllText(manifestPath), jsonOptions);
-						if (!Directory.Exists(manifest.InstallLocation)  // Might be delete manually
-							|| IGNORE_GAME_NAMES.Contains(manifest.DisplayName, StringComparer.OrdinalIgnoreCase)) continue;  // e.g. "Unreal Engine"
-
-						Logger.Log.LogTrace($"EPIC Game {manifest.DisplayName}");
-
-						// IconURL later
-						var game = new GameInstallation {
-							StoreType = GameStoreType.Epic, EpicID = manifest.CatalogItemId, EpicNamespace = manifest.CatalogNamespace,
-							FolderPath = manifest.InstallLocation, Name = manifest.DisplayName,
-							ShellLaunchPath = $"com.epicgames.launcher://apps/{manifest.AppName}?action=launch&silent=true"
-						};
-
-						allGames.Add(game);
+						if (manifest != null && !string.IsNullOrEmpty(manifest.DisplayName)) manifests.Add(manifest);
 					} catch (Exception ex) {
 						// For the guys still running their corrupted hard drives... show must go on
 						Logger.Log.LogError($"Failed to read EPIC manifest {manifestPath}: {ex.Message}");
 					}
 				}
+			}
 
-				// Try to resolve the Logos from Cache
-				if (cacheGameInstallations != null) {
-					foreach (var game in allGames)
-						game.IconURL = cacheGameInstallations.FirstOrDefault(g => g.ID == game.ID)?.IconURL;
+			// The new launcher additionally maintains the authoritative list of installed games
+			var installations = new Dictionary<string, EpicInstallation>(StringComparer.OrdinalIgnoreCase);
+			string installationsPath = Path.Combine(appDataPath, "installations.jsonl");
+			if (File.Exists(installationsPath)) {
+				// JSON lines, where the first line is just a header and the last line of an installation wins
+				foreach (string line in File.ReadLines(installationsPath)) {
+					try {
+						var installation = JsonSerializer.Deserialize<EpicInstallation>(line, jsonOptions);
+						if (installation?.InstallationID == null) continue;  // header
+
+						installations.Remove(installation.InstallationID);
+						installations.Add(installation.InstallationID, installation);
+					} catch (Exception ex) {
+						Logger.Log.LogWarning($"Failed to read EPIC installation {line}: {ex.Message}");
+					}
 				}
 
-				// If not, we must expensively read the EPIC Catalog cache
-				if (allGames.Any(g => g.IconURL == null)) {
-					Logger.Log.LogTrace("Reading catalog cache");
+				// Games installed by the new launcher may only have their manifest inside the game folder
+				foreach (var installation in installations.Values) {
+					if (string.IsNullOrEmpty(installation.InstallLocation)) continue;
 
-					var catalogPath = Path.Combine(appDataPath, "Catalog", "catcache.bin");
-					var catalog = new List<EpicCatalogItem>();
-					if (File.Exists(catalogPath)) {
-						var catalogCacheFile = File.ReadAllText(catalogPath);
-						var json = Encoding.UTF8.GetString(Convert.FromBase64String(catalogCacheFile));
-						catalog = JsonSerializer.Deserialize<List<EpicCatalogItem>>(json, jsonOptions);
+					string egstoreFolder = Path.Combine(installation.InstallLocation, ".egstore");
+					if (!Directory.Exists(egstoreFolder)) continue;
 
-						Logger.Log.LogTrace($"Found {catalog.Count} cataloged EPIC items");
+					try {
+						foreach (string manifestPath in Directory.GetFiles(egstoreFolder, "*.item")) {
+							try {
+								var manifest = JsonSerializer.Deserialize<EpicManifest>(File.ReadAllText(manifestPath), jsonOptions);
+								if (manifest != null && !string.IsNullOrEmpty(manifest.DisplayName)) manifests.Add(manifest);
+							} catch (Exception ex) {
+								// For the guys still running their corrupted hard drives... show must go on
+								Logger.Log.LogError($"Failed to read EPIC manifest {manifestPath}: {ex.Message}");
+							}
+						}
+					} catch (Exception ex) {
+						Logger.Log.LogWarning($"Failed to read EPIC manifest folder {egstoreFolder}: {ex.Message}");
+					}
+				}
+			}
 
-						foreach (var game in allGames) {
-							var catalogItem = catalog.FirstOrDefault(c => c.Id == game.EpicID && c.Namespace == game.EpicNamespace);
-							game.IconURL = catalogItem?.KeyImages?.OrderBy(k => k.Height)?.FirstOrDefault()?.Url
-								?? "/Assets/GenericGameLogo.jpg";
+			foreach (var manifest in manifests) {
+				if (!Directory.Exists(manifest.InstallLocation)  // Might be delete manually
+					|| IGNORE_GAME_NAMES.Contains(manifest.DisplayName, StringComparer.OrdinalIgnoreCase)  // e.g. "Unreal Engine"
+					|| allGames.Any(g => g.EpicID == manifest.CatalogItemId && g.EpicNamespace == manifest.CatalogNamespace)) continue;
+
+				Logger.Log.LogTrace($"EPIC Game {manifest.DisplayName}");
+
+				// New launcher needs "Namespace:ItemId:ArtifactId" (URL encoded colons), the AppName only form is deprecated
+				string launchApp = string.IsNullOrEmpty(manifest.CatalogNamespace) || string.IsNullOrEmpty(manifest.CatalogItemId)
+					? manifest.AppName
+					: $"{manifest.CatalogNamespace}%3A{manifest.CatalogItemId}%3A{manifest.AppName}";
+
+				// IconURL later
+				allGames.Add(new GameInstallation {
+					StoreType = GameStoreType.Epic, EpicID = manifest.CatalogItemId, EpicNamespace = manifest.CatalogNamespace,
+					FolderPath = manifest.InstallLocation, Name = manifest.DisplayName,
+					ShellLaunchPath = $"com.epicgames.launcher://apps/{launchApp}?action=launch&silent=true"
+				});
+			}
+
+			// Games of the new launcher without a manifest: the display name is in the library cache
+			var missingInstallations = installations.Values.Where(i => i.Complete && !string.IsNullOrEmpty(i.InstallLocation)
+				&& Directory.Exists(i.InstallLocation) && i.ItemID != null
+				&& !allGames.Any(g => g.EpicID == i.ItemID && g.EpicNamespace == i.Namespace)).ToList();
+			if (missingInstallations.Count > 0) {
+				var titles = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+				string libraryCacheFolder = Path.Combine(appDataPath, "cache", "prod", "account");
+				if (Directory.Exists(libraryCacheFolder)) {
+					foreach (string libraryCachePath in Directory.GetFiles(libraryCacheFolder, "library-cache.json", SearchOption.AllDirectories)) {
+						try {
+							var libraryCache = JsonSerializer.Deserialize<EpicLibraryCache>(File.ReadAllText(libraryCachePath), jsonOptions);
+							foreach (var libraryItem in libraryCache?.Items ?? []) {
+								if (libraryItem?.AppID == null || libraryItem.Title == null) continue;
+
+								titles.TryAdd($"{libraryItem.AppID.NamespaceID}|{libraryItem.AppID.ItemID}", libraryItem.Title);
+							}
+						} catch (Exception ex) {
+							Logger.Log.LogWarning($"Failed to read EPIC library cache {libraryCachePath}: {ex.Message}");
 						}
 					}
 				}
 
-				Logger.Log.LogTrace($"Found {allGames.Count} installed EPIC games");
+				foreach (var installation in missingInstallations) {
+					string displayName = titles.GetValueOrDefault($"{installation.Namespace}|{installation.ItemID}")
+						?? Path.GetFileNameWithoutExtension(installation.LaunchExecutable)
+						?? Path.GetFileName(installation.InstallLocation.TrimEnd(Path.DirectorySeparatorChar));
+					if (IGNORE_GAME_NAMES.Contains(displayName, StringComparer.OrdinalIgnoreCase)) continue;
+
+					Logger.Log.LogTrace($"EPIC Game {displayName}");
+
+					// New launcher needs "Namespace:ItemId:ArtifactId" (URL encoded colons), the AppName only form is deprecated
+					string launchApp = string.IsNullOrEmpty(installation.Namespace) || string.IsNullOrEmpty(installation.ItemID)
+						? installation.ArtifactID
+						: $"{installation.Namespace}%3A{installation.ItemID}%3A{installation.ArtifactID}";
+
+					allGames.Add(new GameInstallation {
+						StoreType = GameStoreType.Epic, EpicID = installation.ItemID, EpicNamespace = installation.Namespace,
+						FolderPath = installation.InstallLocation, Name = displayName,
+						ShellLaunchPath = $"com.epicgames.launcher://apps/{launchApp}?action=launch&silent=true"
+					});
+				}
 			}
+
+			// Try to resolve the Logos from Cache
+			if (cacheGameInstallations != null) {
+				foreach (var game in allGames)
+					game.IconURL = cacheGameInstallations.FirstOrDefault(g => g.ID == game.ID)?.IconURL;
+			}
+
+			// If not, we must expensively read the EPIC Catalog cache
+			if (allGames.Any(g => g.IconURL == null)) {
+				Logger.Log.LogTrace("Reading catalog cache");
+
+				var catalog = new List<EpicCatalogItem>();
+
+				// Old launcher: Base64 encoded JSON list. New launcher: plain JSON object with the items as values
+				string catalogPath = Path.Combine(appDataPath, "Catalog", "catcache.bin");
+				string catalogJSONPath = Path.Combine(appDataPath, "cache", "prod", "catalog-cache.json");
+				if (File.Exists(catalogPath)) {
+					var catalogCacheFile = File.ReadAllText(catalogPath);
+					var json = Encoding.UTF8.GetString(Convert.FromBase64String(catalogCacheFile));
+					catalog = JsonSerializer.Deserialize<List<EpicCatalogItem>>(json, jsonOptions) ?? [];
+				} else if (File.Exists(catalogJSONPath)) {
+					var catalogCache = JsonSerializer.Deserialize<EpicCatalogCache>(File.ReadAllText(catalogJSONPath), jsonOptions);
+					catalog = catalogCache?.Items?.Values.Select(i => i?.Item).Where(i => i != null).ToList() ?? [];
+				}
+
+				Logger.Log.LogTrace($"Found {catalog.Count} cataloged EPIC items");
+
+				foreach (var game in allGames) {
+					var catalogItem = catalog.FirstOrDefault(c => c.Id == game.EpicID && c.Namespace == game.EpicNamespace);
+					game.IconURL = catalogItem?.KeyImages?.OrderBy(k => k.Height)?.FirstOrDefault()?.Url
+						?? "/Assets/GenericGameLogo.jpg";
+				}
+			}
+
+			Logger.Log.LogTrace($"Found {allGames.Count} installed EPIC games");
 		} catch (Exception ex) {
 			// Show must go on if an installation of one store is flawed
 			Logger.Log.LogCritical(ex, "Failed to scan EPIC");
@@ -436,6 +559,40 @@ public static class GameStoreManager {
 
 			Logger.Log.LogTrace($"Found GOG Client {gogExeName}");
 
+			// The Galaxy database knows the real executable, the registry only knows the launcher command
+			var galaxyExecutables = new Dictionary<long, string>();
+			try {
+				string galaxyDBPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+					@"GOG.com\Galaxy\storage\galaxy-2.0.db");
+
+				if (File.Exists(galaxyDBPath)) {
+					var connectionString = new SqliteConnectionStringBuilder { DataSource = galaxyDBPath, Mode = SqliteOpenMode.ReadOnly }.ToString();
+
+					using var connection = new SqliteConnection(connectionString);
+					connection.Open();
+
+					using var command = connection.CreateCommand();
+					command.CommandText = @"
+SELECT Builds.productId AS id, MAX(PlayTaskLaunchParameters.executablePath) AS executablePath
+FROM Builds
+LEFT JOIN PlayTasks ON PlayTasks.gameReleaseKey = 'gog_' || Builds.productId
+LEFT JOIN PlayTaskLaunchParameters ON PlayTasks.id = PlayTaskLaunchParameters.playTaskId
+GROUP BY Builds.productId";
+
+					using var reader = command.ExecuteReader();
+					while (reader.Read()) {
+						if (reader.IsDBNull(1)) continue;
+
+						galaxyExecutables[reader.GetInt64(0)] = reader.GetString(1);
+					}
+
+					Logger.Log.LogTrace($"Found {galaxyExecutables.Count} executables in GOG Galaxy database");
+				}
+			} catch (Exception ex) {
+				// Just an optimization, the executable guessing works without
+				Logger.Log.LogWarning(ex, "Failed to read GOG Galaxy database");
+			}
+
 			using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
 			using var keyGames = hklm.OpenSubKey(@"SOFTWARE\GOG.com\Games", false);
 
@@ -447,8 +604,9 @@ public static class GameStoreManager {
 					if (string.IsNullOrEmpty(gameName) || IGNORE_GAME_NAMES.Contains(gameName, StringComparer.OrdinalIgnoreCase)) continue;
 
 					Logger.Log.LogTrace($"GOG Game {gameName}");
+					long gogID = long.Parse(subkeyName);
 					var game = new GameInstallation {
-						GOGID = long.Parse(subkeyName),
+						GOGID = gogID,
 						StoreType = GameStoreType.GOG,
 						Name = gameName,
 #if DEBUG
@@ -458,6 +616,9 @@ public static class GameStoreManager {
 						IconURL = "/Assets/GOGLogo.jpg",
 						ShellLaunchPath = ($"{gameKey.GetValue("launchCommand") as string} {gameKey.GetValue("launchParam") as string}").Trim()
 					};
+
+					if (galaxyExecutables.TryGetValue(gogID, out string executablePath) && File.Exists(executablePath))
+						game.StoreEXEPath = executablePath;
 
 					if (Directory.Exists(game.FolderPath)) allGames.Add(game);
 				} catch (Exception ex) {
@@ -517,6 +678,21 @@ public static class GameStoreManager {
 						// DOS style folder name sometime disturb in other function
 						/* if (game.FolderPath.StartsWith(@"\\.\") || game.FolderPath.StartsWith(@"\\?\"))
 							game.FolderPath = game.FolderPath[4..]; */
+
+						// The Gaming Services know the exact executable, so no need to guess it
+						using (var executablesKey = Registry.LocalMachine.OpenSubKey(
+							$@"SOFTWARE\Microsoft\GamingServices\GameConfig\{packageId}\Executable")) {
+							string executableKeyName = executablesKey?.GetSubKeyNames().FirstOrDefault();
+							if (executableKeyName != null) {
+								using var executableKey = executablesKey.OpenSubKey(executableKeyName);
+								string executableName = executableKey?.GetValue("Name") as string;
+
+								if (!string.IsNullOrEmpty(executableName)) {
+									string executablePath = Path.Combine(rootPath, executableName);
+									if (File.Exists(executablePath)) game.StoreEXEPath = executablePath;
+								}
+							}
+						}
 
 						// Get the AppID from the PackageID (no versions)
 						var package = packageManager.FindPackageForUser(string.Empty, packageId);
@@ -691,17 +867,20 @@ public static class GameStoreManager {
 
 	#region * Helpers
 	/// <summary>Read registry value, checking both 32-bit and 64-bit views</summary>
-	static string ReadRegistryValue(string keyPath, string valueName) {
-		string result = ReadRegistryValueFromView(keyPath, valueName, RegistryView.Registry32);
+	static string ReadRegistryValue(string keyPath, string valueName, RegistryHive hive = RegistryHive.LocalMachine) {
+		string result = ReadRegistryValueFromView(keyPath, valueName, hive, RegistryView.Registry32);
 		if (result != null) return result;
 
-		return ReadRegistryValueFromView(keyPath, valueName, RegistryView.Registry64);
+		return ReadRegistryValueFromView(keyPath, valueName, hive, RegistryView.Registry64);
 	}
 
-	static string ReadRegistryValueFromView(string keyPath, string valueName, RegistryView view) {
-		using (var regRoot = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view))
+	static string ReadRegistryValueFromView(string keyPath, string valueName, RegistryHive hive, RegistryView view) {
+		using (var regRoot = RegistryKey.OpenBaseKey(hive, view))
 		using (var regKey = regRoot.OpenSubKey(keyPath, false)) {
 			if (regKey == null) return null;  // not installed
+
+			// A value that does not exist throws, and one missing value should not break the whole store scan
+			if (!regKey.GetValueNames().Contains(valueName, StringComparer.OrdinalIgnoreCase)) return null;
 
 			var valueKind = regKey.GetValueKind(valueName);
 			if (valueKind == RegistryValueKind.String || valueKind == RegistryValueKind.ExpandString)
@@ -752,6 +931,9 @@ public class GameInstallation {
 	/// <summary>The real executable (not the launchers above) without .exe</summary>
 	public string EXEName => EXEPath != null ? Path.GetFileNameWithoutExtension(EXEPath) : null;
 
+	/// <summary>Exact executable the store reports itself, if known</summary>
+	public string StoreEXEPath { get; set; }
+
 	public string ShellLaunchPath { get; set; }
 
 	public DateTime? LastPlayed { get; set; }
@@ -783,12 +965,12 @@ internal class GameInstallationCache {
 
 internal class ExecutableProp {
 	public string filePath;
-	public bool isInWinFolder, isInBinariesFolder, isShipping, isSimilarName, isPESignatureOK;
+	public bool isInWinFolder, isInWin32Folder, isInWin64Folder, isInBinariesFolder, isShipping, isSimilarName, isPESignatureOK;
 	public int directoryCount;
 }
 
 #region * Epic Manifests and Cache data
-/// <summary>JSON representation of an EPIC Store manifest file</summary>
+/// <summary>JSON representation of an EPIC Store manifest file (.item)</summary>
 class EpicManifest {
 	public string DisplayName { get; set; }
 
@@ -801,6 +983,55 @@ class EpicManifest {
 	public string CatalogItemId { get; set; }
 
 	public string AppName { get; set; }
+
+	/// <summary>Same value as the installation id in installations.jsonl of the new launcher</summary>
+	public string InstallationGuid { get; set; }
+}
+
+/// <summary>One line of the new launcher's installations.jsonl</summary>
+class EpicInstallation {
+	public string InstallationID { get; set; }
+
+	public bool Complete { get; set; }
+
+	/// <summary>Installation folder (aka InstallLocation in the manifest)</summary>
+	public string Dir { get; set; }
+
+	public string InstallLocation => Dir;
+
+	public string Namespace { get; set; }
+
+	public string ItemID { get; set; }
+
+	/// <summary>Same value as AppName in the manifest</summary>
+	public string ArtifactID { get; set; }
+
+	public string LaunchExecutable { get; set; }
+}
+
+/// <summary>New launcher's cache of the owned library items, used for display names</summary>
+class EpicLibraryCache {
+	public List<EpicLibraryItem> Items { get; set; }
+}
+
+class EpicLibraryItem {
+	public EpicApplicationID AppID { get; set; }
+
+	public string Title { get; set; }
+}
+
+class EpicApplicationID {
+	public string NamespaceID { get; set; }
+	public string ItemID { get; set; }
+}
+
+/// <summary>New launcher's catalog cache: plain JSON, keyed by the catalog item id</summary>
+class EpicCatalogCache {
+	public Dictionary<string, EpicCatalogCacheEntry> Items { get; set; }
+}
+
+class EpicCatalogCacheEntry {
+	public EpicCatalogItem Item { get; set; }
 }
 
 class EpicCatalogCategory {
